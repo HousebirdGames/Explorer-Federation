@@ -1,5 +1,5 @@
 import { updateTitleAndMeta, alertPopup } from "../../Birdhouse/src/main.js";
-import { saveGameState, shipState, solarSystems } from "../../everywhere.js";
+import { shipState, solarSystems } from "../../everywhere.js";
 
 const courseChangeEvent = new CustomEvent('courseChange');
 
@@ -15,8 +15,7 @@ export default async function CourseSelection() {
 }
 
 function setupEventHandlers() {
-    SetDestinationSystem(0);
-
+    SetDestinationSystem(shipState.destinationIndex);
     document.querySelectorAll('.course-btn').forEach(button => {
         button.addEventListener('click', (event) => {
             const index = event.target.getAttribute('data-index');
@@ -29,12 +28,16 @@ function setupEventHandlers() {
 function SetDestinationSystem(index) {
     const destinationSystem = solarSystems[index];
     shipState.course = destinationSystem.coordinates;
+    shipState.destinationIndex = index;
     document.dispatchEvent(courseChangeEvent);
     //alertPopup(`Course set to: ${destinationSystem.name} at ${JSON.stringify(destinationSystem.coordinates)}`);
 
     const planetsDiv = document.getElementById('planets');
     shipState.targetPlanet = null;
-    if (destinationSystem.discovered) {
+    if (shipState.destinationIndex == null) {
+        planetsDiv.innerHTML = '<p>No Solar System</p>';
+    }
+    else if (destinationSystem.discovered) {
         planetsDiv.innerHTML = destinationSystem.planets.map((planet, i) => `
                     <button class="planet-btn" data-index="${i}">${planet.name}</button>
                 `).join('');

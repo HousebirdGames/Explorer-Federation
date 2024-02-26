@@ -29,6 +29,7 @@ function displayPositionsAndDestinations() {
     const display = `
         <h2>Navigation Display</h2>
         <p>Current Position: X: ${Math.round(currentPos.x)}, Y: ${Math.round(currentPos.y)}</p>
+        <p>Current Planet: ${shipState.currentPlanet}</p>
         ${destination.name ? `<p>Destination System: ${destination.name}</p>` : '<p>Empty Space</p>'}
         <p>Destination Coordinates: X: ${Math.round(coursePos.x)}, Y: ${Math.round(coursePos.y)}</p>
         ${shipState.targetPlanet ? `<p>Destination Planet: ${shipState.targetPlanet.name}</p>` : (destination.discovered ? '<p>No planet set.</p>' : '<p>Destination system not discovered.</p>')}

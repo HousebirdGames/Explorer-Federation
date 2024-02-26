@@ -2,7 +2,7 @@
 import * as main from "./Birdhouse/src/main.js";
 import { displayError, clearError } from "./Birdhouse/src/modules/input-validation.js";
 
-export const shipState = {
+export let shipState = {
     health: 100,
     shields: 100,
     fuel: 100,
@@ -14,13 +14,14 @@ export const shipState = {
     lastConsumption: 0,
     isMoving: false,
     position: { x: 0, y: 0 },
+    destinationIndex: 0,
     course: { x: 0, y: 0 },
     currentPlanet: 'Earth',
     targetPlanet: null,
 };
 
 export function formatSpeed(speed) {
-    return speed >= 1 ? `Warp ${speed.toFixed(1)}` : `Impulse ${Math.round(speed * 10)}`;
+    return speed > 0 ? (speed >= 1 ? `Warp ${speed.toFixed(1)}` : `Impulse ${Math.round(speed * 10)}`) : 'Full Stop';
 }
 
 export function saveGameState() {
@@ -29,6 +30,7 @@ export function saveGameState() {
 }
 
 export function loadGameState() {
+    console.log('Loading game state');
     const savedShipState = JSON.parse(localStorage.getItem('shipState'));
     if (savedShipState) {
         Object.assign(shipState, savedShipState);
@@ -257,6 +259,8 @@ async function onPageLoaded() {
     main.addBaseContent(`
     `);
 
+    console.log('Page loaded');
+
     loadGameState();
     if (solarSystems.length <= 1) {
         generateSolarSystems(100);
@@ -471,7 +475,7 @@ window.hook('send-analytics', async function (value) {
     // Here you would send analytics data to your backend.
     // In this example, we just log the value to the console.
 
-    console.log('Analytics:', value);
+    //console.log('Analytics:', value);
 });
 
 window.hook('validate-field', async function (input, value, errorElement, serverSide) {
