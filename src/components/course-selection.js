@@ -15,25 +15,32 @@ export default async function CourseSelection() {
 }
 
 function setupEventHandlers() {
-    SetDestinationSystem(shipState.destinationIndex);
+    setDestinationSystem(shipState.destinationIndex);
     document.querySelectorAll('.course-btn').forEach(button => {
         button.addEventListener('click', (event) => {
             const index = event.target.getAttribute('data-index');
-            SetDestinationSystem(index);
-            shipState.isMoving = true;
+            setDestinationSystem(index);
         });
     });
 }
 
-function SetDestinationSystem(index) {
+export function setDestinationSystem(index) {
+    if (index == null) {
+        return;
+    }
+
     const destinationSystem = solarSystems[index];
     shipState.course = destinationSystem.coordinates;
     shipState.destinationIndex = index;
     document.dispatchEvent(courseChangeEvent);
     //alertPopup(`Course set to: ${destinationSystem.name} at ${JSON.stringify(destinationSystem.coordinates)}`);
 
-    const planetsDiv = document.getElementById('planets');
     shipState.targetPlanet = null;
+
+    const planetsDiv = document.getElementById('planets');
+    if (!planetsDiv) {
+        return;
+    }
     if (shipState.destinationIndex == null) {
         planetsDiv.innerHTML = '<p>No Solar System</p>';
     }
@@ -45,6 +52,15 @@ function SetDestinationSystem(index) {
     } else {
         planetsDiv.innerHTML = '<p>Planets: Not discovered</p>';
     }
+    shipState.isMoving = true;
+}
+
+export function setDestinationCoordinates(x, y) {
+    shipState.course = { x, y };
+    shipState.destinationIndex = null;
+    shipState.targetPlanet = null;
+    document.dispatchEvent(courseChangeEvent);
+    shipState.isMoving = true;
 }
 
 function setupPlanetEventHandlers(solarSystem) {

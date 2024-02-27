@@ -10,11 +10,12 @@ export let shipState = {
     crew: [],
     currentSpeed: 0,
     targetSpeed: 0,
+    engage: false,
     energy: 100,
     lastConsumption: 0,
     isMoving: false,
     position: { x: 0, y: 0 },
-    destinationIndex: 0,
+    destinationIndex: null,
     course: { x: 0, y: 0 },
     currentPlanet: 'Earth',
     targetPlanet: null,
@@ -85,6 +86,7 @@ const initialSolarSystem = {
 
 const emptySpace = {
     name: "Empty Space",
+    coordinates: { x: 0, y: 0 },
     discovered: true,
     planets: []
 };
@@ -123,7 +125,7 @@ function generateSolarSystems(number) {
     }
 }
 
-export function findDestinationNameByCoords(coords) {
+export function findDestinationSystemByCoords(coords) {
     for (const system of solarSystems) {
         if (system.coordinates.x === coords.x && system.coordinates.y === coords.y) {
             return system;
@@ -131,9 +133,20 @@ export function findDestinationNameByCoords(coords) {
     }
 
     console.error('Destination not found');
-    thisEmptySpace = { ...emptySpace };
-    thisEmptySpace.coordinates = { ...coords };
+    let thisEmptySpace = emptySpace;
+    thisEmptySpace.coordinates = { x: coords.x, y: coords.y };
     return thisEmptySpace;
+}
+
+export function findDestinationIndexByCoords(coords) {
+    const index = solarSystems.findIndex(system => system.coordinates.x === coords[0] && system.coordinates.y === coords[1]);
+
+    if (index === -1) {
+        console.error('Destination not found');
+        return null;
+    }
+
+    return index;
 }
 
 const updateInterval = 1000;
@@ -158,15 +171,33 @@ function UpdateShipState() {
 }
 
 const energyStateChanged = new CustomEvent('energyStateChanged');
+const updateSpeedControl = new CustomEvent('updateSpeedControl');
 
 function updateShipPositionAndEnergy() {
-    const baseEnergyConsumptionRate = 0.5; // Base energy consumed per tick, adjust as needed
-    const distancePerTick = 0.5; // Distance covered per tick, adjust based on speed
+    const baseEnergyConsumptionRate = 0.1; // Base energy consumed per tick, adjust as needed
+    const distancePerTick = 2; // Distance covered per tick, adjust based on speed
     const accelerationRate = 0.1; // Rate at which the ship accelerates, adjust as needed
 
     if (!shipState.isMoving || shipState.energy <= 0) {
         shipState.isMoving = false;
+        if (shipState.currentSpeed > 0) {
+            shipState.currentSpeed -= accelerationRate * 2;
+            if (shipState.currentSpeed < 0) {
+                shipState.currentSpeed = 0;
+            }
+            updateUIComponents();
+            document.dispatchEvent(updateSpeedControl);
+        }
+        else {
+            return;
+        }
+    }
+
+    if (shipState.currentSpeed === 0 && !shipState.engage) {
         return;
+    }
+    else {
+        shipState.engage = false;
     }
 
     if (shipState.currentSpeed < shipState.targetSpeed) {
@@ -175,7 +206,7 @@ function updateShipPositionAndEnergy() {
             shipState.currentSpeed = shipState.targetSpeed;
         }
     } else if (shipState.currentSpeed > shipState.targetSpeed) {
-        shipState.currentSpeed -= accelerationRate;
+        shipState.currentSpeed -= accelerationRate * 2;
         if (shipState.currentSpeed < shipState.targetSpeed) {
             shipState.currentSpeed = shipState.targetSpeed;
         }
@@ -189,7 +220,8 @@ function updateShipPositionAndEnergy() {
         shipState.position.x = shipState.course.x;
         shipState.position.y = shipState.course.y;
         shipState.isMoving = false;
-        main.alertPopup(`Arrived at ${findDestinationNameByCoords(shipState.course).name}`);
+        shipState.currentSpeed = 0;
+        main.alertPopup(`Arrived at ${findDestinationSystemByCoords(shipState.course).name}`);
     } else {
         const angleToDestination = Math.atan2(deltaY, deltaX);
         shipState.position.x += Math.cos(angleToDestination) * distancePerTick * shipState.currentSpeed;
@@ -197,12 +229,14 @@ function updateShipPositionAndEnergy() {
 
         const energyConsumptionRate = baseEnergyConsumptionRate * Math.pow(shipState.currentSpeed, 2);
         shipState.energy -= energyConsumptionRate;
-        if (shipState.energy < 0) {
+        if (shipState.energy < 0 && shipState.isMoving) {
             shipState.energy = 0;
             shipState.isMoving = false;
+            document.dispatchEvent(energyStateChanged);
         }
-        document.dispatchEvent(energyStateChanged);
     }
+    document.dispatchEvent(updateSpeedControl);
+
 
     updateUIComponents();
 }
@@ -310,6 +344,7 @@ window.hook('create-routes', async function () {
 
     main.createPublicRoute('/navigation', 'Navigation', 'article', 'components/navigation.js', true);
     main.createPublicRoute('/ship-state', 'Ship State', 'settings', 'components/ship-state.js', true);
+    main.createPublicRoute('/starmap', 'Star Map', 'map', 'components/starmap.js', true);
     /*  // We can also use the same component for different routes. But this time without an icon.
      main.createPublicRoute('/example-2', 'Also the Example Page', '', 'components/example.js', true);
  
