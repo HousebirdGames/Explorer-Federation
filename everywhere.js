@@ -236,15 +236,17 @@ function updateShipPositionAndEnergy() {
         return;
     }
 
-    if (shipState.currentSpeed < shipState.targetSpeed) {
-        shipState.currentSpeed += accelerationRate;
-        if (shipState.currentSpeed > shipState.targetSpeed) {
-            shipState.currentSpeed = shipState.targetSpeed;
-        }
-    } else if (shipState.currentSpeed > shipState.targetSpeed) {
-        shipState.currentSpeed -= accelerationRate * 2;
+    if (shipState.energy > 0) {
         if (shipState.currentSpeed < shipState.targetSpeed) {
-            shipState.currentSpeed = shipState.targetSpeed;
+            shipState.currentSpeed += accelerationRate;
+            if (shipState.currentSpeed > shipState.targetSpeed) {
+                shipState.currentSpeed = shipState.targetSpeed;
+            }
+        } else if (shipState.currentSpeed > shipState.targetSpeed) {
+            shipState.currentSpeed -= accelerationRate * 2;
+            if (shipState.currentSpeed < shipState.targetSpeed) {
+                shipState.currentSpeed = shipState.targetSpeed;
+            }
         }
     }
 
