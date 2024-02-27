@@ -1,3 +1,12 @@
+Version:         0.0.1.1
+Finished:        27/02/2024 17:13:27
+Arguments:       -p -c -v -m
+Process Time:    0:4 minutes
+Uploaded files:  48
+Cached files:    46
+Cache file size: 0.96 MB
+Minified size:   0.07 MB
+
 Version:         0.0.1.0
 Finished:        27/02/2024 16:55:24
 Arguments:       -p -c -v 0.0.1.0 -m
