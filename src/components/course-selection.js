@@ -53,6 +53,7 @@ export function setDestinationSystem(index) {
         planetsDiv.innerHTML = '<p>Planets: Not discovered</p>';
     }
     shipState.isMoving = true;
+    shipState.engage = false;
 }
 
 export function setDestinationCoordinates(x, y) {
@@ -61,6 +62,7 @@ export function setDestinationCoordinates(x, y) {
     shipState.targetPlanet = null;
     document.dispatchEvent(courseChangeEvent);
     shipState.isMoving = true;
+    shipState.engage = false;
 }
 
 function setupPlanetEventHandlers(solarSystem) {

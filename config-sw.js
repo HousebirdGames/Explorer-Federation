@@ -1,4 +1,4 @@
-export default {
+self.config = {
   "version": "0.0.1.0",
   "pageTitle": "Explorer Federation",
   "cookieIdentifier": "explorer_federation",

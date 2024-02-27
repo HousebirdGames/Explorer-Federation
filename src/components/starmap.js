@@ -2,10 +2,18 @@ import { updateTitleAndMeta } from "../../Birdhouse/src/main.js";
 import { shipState, solarSystems, findDestinationSystemByCoords, findDestinationIndexByCoords } from "../../everywhere.js";
 import { setDestinationSystem, setDestinationCoordinates } from "./course-selection.js";
 
-export default async function StarMap() {
+let isInteractable = false;
+export default async function StarMap(interactable = false) {
+    isInteractable = interactable;
+
     setTimeout(setupEventHandlers, 0);
 
-    return '<svg id="starMap" viewBox="0 0 1000 1000"></svg>';
+    return `<svg id="starMap" class="noSelect" viewBox="0 0 1000 1000"></svg>
+    ${isInteractable ? `<div id="zoom-controls">
+    <button id="zoom-in">+</button>
+    <button id="zoom-out">-</button>
+    </div>` : ''}
+    `;
 }
 
 function setupEventHandlers() {
@@ -19,32 +27,52 @@ function setupEventHandlers() {
         displayStarMap();
     });
 
+    if (!isInteractable) {
+        return;
+    }
+
     const starMap = document.getElementById('starMap');
     if (starMap) {
-        starMap.addEventListener('wheel', zoom);
+        starMap.addEventListener('wheel', zoomEvent);
         starMap.addEventListener('mousedown', startPan);
         starMap.addEventListener('mouseup', endPan);
         starMap.addEventListener('mouseout', endPan);
         starMap.addEventListener('mousemove', pan);
 
+        starMap.addEventListener('touchstart', startPan, { passive: false });
+        starMap.addEventListener('touchend', endPan, { passive: false });
+        starMap.addEventListener('touchcancel', endPan, { passive: false });
+        starMap.addEventListener('touchmove', pan, { passive: false });
+
+        document.getElementById('zoom-in').addEventListener('click', () => zoom(1.1));
+        document.getElementById('zoom-out').addEventListener('click', () => zoom(0.9));
+
         // Add click event listener
         starMap.addEventListener('click', (event) => {
-            const target = event.target;
-
-            // Check if the clicked element is a circle
-            if (target.tagName === 'circle') {
-                // Log the coordinates stored in the data attribute
-                let coords = target.getAttribute('data-coordinates').split(',').map(Number);
-                setDestinationSystem(findDestinationIndexByCoords(coords));
-            } else {
-                // Calculate the clicked coordinates relative to the SVG element
-                const rect = starMap.getBoundingClientRect();
-                const x = event.clientX - rect.left;
-                const y = event.clientY - rect.top;
-
-                //setDestinationCoordinates(x - 500, y - 500);
-            }
+            click(event);
         });
+
+        starMap.addEventListener('touchstart', (event) => {
+            click(event);
+        });
+    }
+}
+
+function click(event) {
+    const target = event.target;
+
+    // Check if the clicked element is a circle
+    if (target.tagName === 'circle') {
+        // Log the coordinates stored in the data attribute
+        let coords = target.getAttribute('data-coordinates').split(',').map(Number);
+        setDestinationSystem(findDestinationIndexByCoords(coords));
+    } else {
+        // Calculate the clicked coordinates relative to the SVG element
+        const rect = starMap.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+
+        //setDestinationCoordinates(x - 500, y - 500);
     }
 }
 
@@ -53,7 +81,7 @@ let panStart = { x: 0, y: 0 };
 let panOffset = { x: 0, y: 0 };
 let panning = false;
 
-function zoom(event) {
+function zoomEvent(event) {
     event.preventDefault();
 
     const scale = event.deltaY < 0 ? 1.1 : 0.9;
@@ -76,49 +104,113 @@ function zoom(event) {
 
         // Prevent zooming out beyond the original view
         if (viewBox[2] > 1000) {
-            viewBox[2] = 1000;
-            viewBox[3] = 1000;
-            zoomLevel = 1;
+            resetViewBox();
+        } else if (zoomLevel > 5) { // Set maximum zoom level
+            zoomLevel = 5;
+        } else {
+            starMap.setAttribute('viewBox', viewBox.join(' '));
         }
-
-        starMap.setAttribute('viewBox', viewBox.join(' '));
     }
 }
 
-function pan(event) {
-    event.preventDefault();
-    if (!panning) return;
+function zoom(scale) {
+    // Adjust the zoomLevel based on the scale passed to the function
+    zoomLevel *= scale;
 
     const starMap = document.getElementById('starMap');
     if (starMap) {
-        const viewBox = starMap.getAttribute('viewBox').split(' ').map(Number);
-        const rect = starMap.getBoundingClientRect();
+        let viewBox = starMap.getAttribute('viewBox').split(' ').map(Number);
 
-        // Calculate the aspect ratio of the viewBox
-        const aspectRatio = viewBox[2] / viewBox[3];
+        // Center zoom for button clicks
+        const centerX = viewBox[0] + viewBox[2] / 2;
+        const centerY = viewBox[1] + viewBox[3] / 2;
 
-        // Calculate the change in mouse position as a fraction of the SVG element's size
-        const dx = (event.clientX - panStart.x) / rect.width * aspectRatio;
-        const dy = (event.clientY - panStart.y) / rect.height;
+        if (zoomLevel >= 1) {
+            viewBox[0] = centerX - (viewBox[2] / scale) / 2;
+            viewBox[1] = centerY - (viewBox[3] / scale) / 2;
+        }
 
-        // Adjust the viewBox coordinates based on the change in mouse position and the viewBox size
-        viewBox[0] -= dx * viewBox[2];
-        viewBox[1] -= dy * viewBox[3];
+        viewBox[2] /= scale;
+        viewBox[3] /= scale;
 
-        starMap.setAttribute('viewBox', viewBox.join(' '));
+        // Prevent zooming out beyond the original view
+        if (viewBox[2] > 1000) {
+            resetViewBox(); // Reset to original view if zoomed out too much
+        } else if (zoomLevel > 5) { // Set maximum zoom level
+            zoomLevel = 5;
+        } else {
+            starMap.setAttribute('viewBox', viewBox.join(' '));
+        }
+    }
+}
 
-        panStart = { x: event.clientX, y: event.clientY };
+function resetViewBox() {
+    const starMap = document.getElementById('starMap');
+    if (starMap) {
+        starMap.setAttribute('viewBox', `${shipState.position.x} ${shipState.position.y} 1000 1000`);
+        zoomLevel = 1;
     }
 }
 
 function startPan(event) {
+    event.preventDefault();
     panning = true;
-    panStart = { x: event.clientX, y: event.clientY };
+    // Determine the starting point based on the input method
+    const start = event.touches ? { x: event.touches[0].clientX, y: event.touches[0].clientY } : { x: event.clientX, y: event.clientY };
+    panStart = start;
 }
+
+function pan(event) {
+    if (!panning) return;
+    event.preventDefault();
+
+    // Determine the current point based on the input method
+    let currentX, currentY;
+    if (event.touches) {
+        currentX = event.touches[0].clientX;
+        currentY = event.touches[0].clientY;
+    } else {
+        currentX = event.clientX;
+        currentY = event.clientY;
+    }
+
+    // Calculate the change in position
+    const dx = (currentX - panStart.x);
+    const dy = (currentY - panStart.y);
+
+    // Convert the change in screen coordinates to viewBox units
+    const starMap = document.getElementById('starMap');
+    if (starMap) {
+        let viewBox = starMap.getAttribute('viewBox').split(' ').map(Number);
+        const scaleFactorX = viewBox[2] / starMap.clientWidth;
+        const scaleFactorY = viewBox[3] / starMap.clientHeight;
+
+        // Apply the calculated change, adjusted by the current scale of the viewBox
+        viewBox[0] -= dx * scaleFactorX;
+        viewBox[1] -= dy * scaleFactorY;
+
+        starMap.setAttribute('viewBox', viewBox.join(' '));
+
+        // Update panStart for the next iteration
+        panStart = { x: currentX, y: currentY };
+    }
+}
+
 
 function endPan() {
     panning = false;
 }
+
+function applyPanDelta(dx, dy) {
+    const starMap = document.getElementById('starMap');
+    if (starMap) {
+        let viewBox = starMap.getAttribute('viewBox').split(' ').map(Number);
+        viewBox[0] -= dx;
+        viewBox[1] -= dy;
+        starMap.setAttribute('viewBox', viewBox.join(' '));
+    }
+}
+
 
 function displayStarMap() {
     let svgContent = ``;
@@ -164,5 +256,8 @@ function displayStarMap() {
     const starMap = document.getElementById('starMap');
     if (starMap) {
         starMap.innerHTML = svgContent;
+        if (!isInteractable) {
+            starMap.setAttribute('viewBox', `${shipState.position.x} ${shipState.position.y} 1000 1000`);
+        }
     }
 }

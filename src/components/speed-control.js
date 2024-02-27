@@ -1,5 +1,5 @@
 import { shipState, saveGameState, formatSpeed } from "../../everywhere.js";
-import { updateTitleAndMeta } from "../../Birdhouse/src/main.js";
+import { alertPopup, updateTitleAndMeta } from "../../Birdhouse/src/main.js";
 
 export default async function SpeedControl() {
     setTimeout(setupEventHandlers, 0);
@@ -32,6 +32,22 @@ function setupEventHandlers() {
     });
 
     engageButton.addEventListener('click', () => {
+        if (shipState.course == null) {
+            alertPopup('No course set');
+            return;
+        }
+        else if (shipState.course.x === shipState.position.x && shipState.course.y === shipState.position.y && (shipState.targetPlanet == null || shipState.targetPlanet === shipState.currentPlanet)) {
+            alertPopup('Already at destination');
+            return;
+        }
+        else if (shipState.targetSpeed === 0) {
+            alertPopup('No speed set');
+            return;
+        }
+        else if (shipState.energy <= 0) {
+            alertPopup('No power');
+            return;
+        }
         shipState.engage = true;
     });
 

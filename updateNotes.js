@@ -1,32 +1,12 @@
 export const updateNotes = [
     {
-        "version": "1.0.0",
-        "title": "The first release version",
+        "version": "0.0.1",
+        "title": "Pre-Alpha",
         "notes": [
-            "Update note 1",
-            "Update note 2",
-            "Update note 3",
-            "Update note 4",
-            "Update note 5",
-        ]
-    },
-    {
-        "version": "0.9.0",
-        "title": "The beta version",
-        "notes": [
-            "Update note 1",
-            "Update note 2",
-            "Update note 3",
-        ]
-    },
-    {
-        "version": "0.8.0",
-        "title": "The alpha version",
-        "notes": [
-            "Update note 1",
-            "Update note 2",
-            "Update note 3",
-            "Update note 4",
+            "Implemented basic navigation and map generation",
+            "Added basic ship status and speed control",
+            "Added Star Map",
+            "Added travel to planets"
         ]
     }
 ];  

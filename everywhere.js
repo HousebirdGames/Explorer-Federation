@@ -75,8 +75,8 @@ const initialSolarSystem = {
     planets: [
         { name: "Mercury", type: "Terrestrial", fauna: "None", flora: "None", population: 0, civilization: "None" },
         { name: "Venus", type: "Terrestrial", fauna: "None", flora: "None", population: 0, civilization: "None" },
-        { name: "Earth", type: "Terrestrial", fauna: "Diverse", flora: "Diverse", population: 7700000000, civilization: "Highly Advanced" },
-        { name: "Mars", type: "Terrestrial", fauna: "None", flora: "Sparse", population: 0, civilization: "None" },
+        { name: "Earth", type: "Terrestrial", fauna: "Diverse", flora: "Diverse", population: 7700000000, civilization: "Highly Advanced", Faction: "United Nations" },
+        { name: "Mars", type: "Terrestrial", fauna: "None", flora: "Sparse", population: 140000, civilization: "Highly Advanced", Faction: "United Nations" },
         { name: "Jupiter", type: "Gas Giant", fauna: "None", flora: "None", population: 0, civilization: "None" },
         { name: "Saturn", type: "Gas Giant", fauna: "None", flora: "None", population: 0, civilization: "None" },
         { name: "Uranus", type: "Ice Giant", fauna: "None", flora: "None", population: 0, civilization: "None" },
@@ -173,10 +173,31 @@ function UpdateShipState() {
 const energyStateChanged = new CustomEvent('energyStateChanged');
 const updateSpeedControl = new CustomEvent('updateSpeedControl');
 
+let travelTime = 0;
+export let etaCurrentSpeed = 0;
+export let etaTargetSpeed = 0;
+const defaultTravelTime = 20;
+let goingToPlanet = '';
+
 function updateShipPositionAndEnergy() {
     const baseEnergyConsumptionRate = 0.1; // Base energy consumed per tick, adjust as needed
     const distancePerTick = 2; // Distance covered per tick, adjust based on speed
     const accelerationRate = 0.1; // Rate at which the ship accelerates, adjust as needed
+
+    let onlyCalculateETA = false;
+    if (shipState.currentSpeed === 0 && !shipState.engage) {
+        onlyCalculateETA = true;
+    }
+    else {
+        //check if solarSystems[shipState.destinationIndex].planets contains a entry with name === shipState.targetPlanet
+        if (shipState.engage && shipState.targetPlanet != null && solarSystems[shipState.destinationIndex].planets.some(planet => planet.name === shipState.targetPlanet.name)) {
+            console.log('Planet found');
+            goingToPlanet = shipState.targetPlanet.name;
+            travelTime = defaultTravelTime;
+            shipState.isMoving = true;
+        }
+        shipState.engage = false;
+    }
 
     if (!shipState.isMoving || shipState.energy <= 0) {
         shipState.isMoving = false;
@@ -188,16 +209,31 @@ function updateShipPositionAndEnergy() {
             updateUIComponents();
             document.dispatchEvent(updateSpeedControl);
         }
-        else {
-            return;
-        }
     }
 
-    if (shipState.currentSpeed === 0 && !shipState.engage) {
-        return;
+    const deltaX = shipState.course.x - shipState.position.x;
+    const deltaY = shipState.course.y - shipState.position.y;
+    const distanceToDestination = Math.sqrt(deltaX ** 2 + deltaY ** 2);
+
+    // Calculate ETA for current speed and target speed
+    if (shipState.currentSpeed > 0) {
+        etaCurrentSpeed = distanceToDestination / shipState.currentSpeed;
     }
     else {
-        shipState.engage = false;
+        etaCurrentSpeed = 0;
+    }
+
+    if (shipState.targetSpeed > 0) {
+        etaTargetSpeed = distanceToDestination / shipState.targetSpeed;
+    }
+    else {
+        etaTargetSpeed = 0;
+    }
+
+    if (onlyCalculateETA) {
+        document.dispatchEvent(updateSpeedControl);
+        updateUIComponents();
+        return;
     }
 
     if (shipState.currentSpeed < shipState.targetSpeed) {
@@ -212,16 +248,41 @@ function updateShipPositionAndEnergy() {
         }
     }
 
-    const deltaX = shipState.course.x - shipState.position.x;
-    const deltaY = shipState.course.y - shipState.position.y;
-    const distanceToDestination = Math.sqrt(deltaX ** 2 + deltaY ** 2);
+    if (shipState.targetSpeed > 0 && shipState.course.x == shipState.position.x && shipState.course.y == shipState.position.y && shipState.targetPlanet !== null && travelTime > 0) {
+        if (shipState.targetPlanet.name != goingToPlanet) {
+            travelTime = defaultTravelTime;
+            goingToPlanet = shipState.targetPlanet.name;
+        }
 
-    if (distanceToDestination <= distancePerTick * shipState.currentSpeed) {
+        travelTime -= updateInterval / 1000 * shipState.currentSpeed;
+
+        if (travelTime < defaultTravelTime * 0.75) {
+            shipState.currentPlanet = null;
+        }
+
+        if (travelTime <= 0 || shipState.targetPlanet.name == shipState.currentPlanet) {
+            shipState.currentPlanet = shipState.targetPlanet.name;
+            shipState.targetPlanet = null;
+            shipState.isMoving = false;
+            shipState.currentSpeed = 0;
+            main.alertPopup(`Now orbiting ${shipState.currentPlanet}`);
+            etaCurrentSpeed = 0;
+            etaTargetSpeed = 0;
+        }
+        else {
+            etaCurrentSpeed = travelTime / shipState.currentSpeed;
+            etaTargetSpeed = travelTime / shipState.targetSpeed;
+        }
+    }
+    else if (distanceToDestination <= distancePerTick * shipState.currentSpeed) {
         shipState.position.x = shipState.course.x;
         shipState.position.y = shipState.course.y;
         shipState.isMoving = false;
         shipState.currentSpeed = 0;
         main.alertPopup(`Arrived at ${findDestinationSystemByCoords(shipState.course).name}`);
+
+        etaCurrentSpeed = 0;
+        etaTargetSpeed = 0;
     } else {
         const angleToDestination = Math.atan2(deltaY, deltaX);
         shipState.position.x += Math.cos(angleToDestination) * distancePerTick * shipState.currentSpeed;
@@ -235,9 +296,8 @@ function updateShipPositionAndEnergy() {
             document.dispatchEvent(energyStateChanged);
         }
     }
+
     document.dispatchEvent(updateSpeedControl);
-
-
     updateUIComponents();
 }
 
@@ -344,7 +404,7 @@ window.hook('create-routes', async function () {
 
     main.createPublicRoute('/navigation', 'Navigation', 'article', 'components/navigation.js', true);
     main.createPublicRoute('/ship-state', 'Ship State', 'settings', 'components/ship-state.js', true);
-    main.createPublicRoute('/starmap', 'Star Map', 'map', 'components/starmap.js', true);
+    main.createPublicRoute('/starmap', 'Star Map', 'map', 'components/starmap.js', true, true);
     /*  // We can also use the same component for different routes. But this time without an icon.
      main.createPublicRoute('/example-2', 'Also the Example Page', '', 'components/example.js', true);
  
