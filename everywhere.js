@@ -286,6 +286,8 @@ function updateShipPositionAndEnergy() {
         etaCurrentSpeed = 0;
         etaTargetSpeed = 0;
     } else {
+        shipState.currentPlanet = null;
+
         const angleToDestination = Math.atan2(deltaY, deltaX);
         shipState.position.x += Math.cos(angleToDestination) * distancePerTick * shipState.currentSpeed;
         shipState.position.y += Math.sin(angleToDestination) * distancePerTick * shipState.currentSpeed;

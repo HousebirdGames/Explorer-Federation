@@ -1,13 +1,13 @@
 {
-    "name": "Your App Name",
-    "short_name": "Your App Name",
-    "description": "Your App Description",
+    "name": "Explorer Federation",
+    "short_name": "Explorer Federation",
+    "description": "A space exploration game",
     "lang": "en",
     "dir": "ltr",
     "start_url": "/index.html",
     "display": "standalone",
-    "background_color": "#ffffff",
-    "theme_color": "#ffffff",
+    "background_color": "#181b24",
+    "theme_color": "#181b24",
     "icons": [
         {
             "src": "img/icons/Icon-48x48.png",
