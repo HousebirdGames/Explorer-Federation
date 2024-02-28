@@ -142,7 +142,7 @@ export function findDestinationIndexByCoords(coords) {
     const index = solarSystems.findIndex(system => system.coordinates.x === coords[0] && system.coordinates.y === coords[1]);
 
     if (index === -1) {
-        console.error('Destination not found');
+        //console.error('Destination not found');
         return null;
     }
 
@@ -407,6 +407,7 @@ window.hook('create-routes', async function () {
     main.createPublicRoute('/navigation', 'Navigation', 'article', 'components/navigation.js', true);
     main.createPublicRoute('/ship-state', 'Ship State', 'settings', 'components/ship-state.js', true);
     main.createPublicRoute('/starmap', 'Star Map', 'map', 'components/starmap.js', true, true);
+    main.createPublicRoute('/scanner', 'Scanner', 'search', 'components/scanner.js', true);
     /*  // We can also use the same component for different routes. But this time without an icon.
      main.createPublicRoute('/example-2', 'Also the Example Page', '', 'components/example.js', true);
  

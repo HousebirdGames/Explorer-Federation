@@ -59,7 +59,7 @@ function formatTime(time) {
         return '-';
     }
     else if (minutes > 0) {
-        return `${minutes}:${seconds} Minutes`;
+        return `${minutes < 10 ? `0${minutes}` : minutes}:${seconds < 10 ? `0${seconds}` : seconds} Minutes`;
     } else {
         return `${seconds} Seconds`;
     }
