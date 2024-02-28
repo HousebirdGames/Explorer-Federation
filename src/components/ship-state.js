@@ -3,7 +3,8 @@ import { action } from "../../Birdhouse/src/main.js";
 
 export default async function ShipState() {
     action(displayPositionsAndDestinations);
-    action('updateUI', displayPositionsAndDestinations);
+    action({ type: 'updateUI', handler: displayPositionsAndDestinations });
+
 
     return `
         <div id="ship-state">

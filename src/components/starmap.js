@@ -7,8 +7,8 @@ export default async function StarMap(interactable = false) {
     isInteractable = interactable;
 
     action(displayStarMap);
-    action('updateUI', displayStarMap);
-    action('courseChange', displayStarMap);
+    action({ type: 'updateUI', handler: displayStarMap });
+    action({ type: 'courseChange', handler: displayStarMap });
 
     if (isInteractable) {
         const actions = [
@@ -167,6 +167,7 @@ function endPan() {
 }
 
 function displayStarMap() {
+    console.log('displayStarMap');
     let svgContent = ``;
 
     if (shipState.destinationIndex !== null || shipState.course) {

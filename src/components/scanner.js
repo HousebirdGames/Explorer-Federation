@@ -30,7 +30,7 @@ export default async function Scanner() {
     });
 
     action(updateTexts);
-    action('updateUI', updateTexts);
+    action({ type: 'updateUI', handler: updateTexts });
 
     return `
         <h2>Speed Control</h2>
