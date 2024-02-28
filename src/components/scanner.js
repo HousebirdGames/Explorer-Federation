@@ -28,8 +28,13 @@ function setupEventHandlers() {
             return;
         }
 
-        if (!currentSystemIndex) {
+        if (currentSystemIndex == null) {
             alertPopup('No System found');
+            return;
+        }
+
+        if (solarSystems[currentSystemIndex].discovered) {
+            alertPopup('System already scanned');
             return;
         }
 
@@ -46,11 +51,11 @@ function setupEventHandlers() {
 }
 
 export function updateTexts() {
-    if (!currentSystemIndex) {
+    if (currentSystemIndex == null) {
         currentSystemIndex = findDestinationIndexByCoords([shipState.position.x, shipState.position.y]);
     }
 
-    if (!currentSystemIndex) {
+    if (currentSystemIndex == null) {
         return;
     }
 
