@@ -1,5 +1,14 @@
 export const updateNotes = [
     {
+        "version": "0.0.2",
+        "title": "Pre-Alpha",
+        "notes": [
+            "Added mission system",
+            "Added mission control",
+            "Added mission types: Discover System, Patrol",
+        ]
+    },
+    {
         "version": "0.0.1",
         "title": "Pre-Alpha",
         "notes": [

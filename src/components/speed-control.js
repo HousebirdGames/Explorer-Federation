@@ -2,21 +2,6 @@ import { alertPopup, updateTitleAndMeta, action } from "../../Birdhouse/src/main
 import { shipState, saveGameState, formatSpeed } from "../../everywhere.js";
 
 export default async function SpeedControl() {
-    setupEventHandlers();
-
-    return `
-        <div id="speed-control">
-            <h2>Speed Control</h2>
-            <p>Target Speed: <span id="targetSpeedDisplay">${formatSpeed(shipState.targetSpeed)}</span></p>
-            <p>Current Speed: <span id="currentSpeedDisplay">${shipState.energy > 0 ? formatSpeed(shipState.currentSpeed) : formatSpeed(shipState.currentSpeed) + ' (No power)'}</span></p>
-            <label><input type="range" id="speedSlider" min="0" max="5" value="${shipState.targetSpeed}" step="0.1"><label>
-            <button id="engageButton">Engage</button>
-            <button id="fullStopButton">Full Stop</button>
-        </div>
-    `;
-}
-
-function setupEventHandlers() {
     action({
         type: 'input', selector: '#speedSlider', handler: (e) => {
             const newSpeed = parseFloat(e.target.value);
@@ -55,16 +40,21 @@ function setupEventHandlers() {
     });
 
     action({
-        type: 'energyStateChanged', handler: (e) => {
+        type: 'updateUI', handler: (e) => {
             updateSpeed(shipState.targetSpeed);
         }
     });
 
-    action({
-        type: 'updateSpeedControl', handler: (e) => {
-            updateSpeed(shipState.targetSpeed);
-        }
-    });
+    return `
+        <div id="speed-control">
+            <h2>Speed Control</h2>
+            <p>Target Speed: <span id="targetSpeedDisplay">${formatSpeed(shipState.targetSpeed)}</span></p>
+            <p>Current Speed: <span id="currentSpeedDisplay">${shipState.energy > 0 ? formatSpeed(shipState.currentSpeed) : formatSpeed(shipState.currentSpeed) + ' (No power)'}</span></p>
+            <label><input type="range" id="speedSlider" min="0" max="5" value="${shipState.targetSpeed}" step="0.1"><label>
+            <button id="engageButton">Engage</button>
+            <button id="fullStopButton">Full Stop</button>
+        </div>
+    `;
 }
 
 export function updateSpeed(newSpeed) {

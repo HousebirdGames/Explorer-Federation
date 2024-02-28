@@ -1,20 +1,14 @@
 import { shipState, saveGameState, formatSpeed } from "../../everywhere.js";
+import { action } from "../../Birdhouse/src/main.js";
 
 export default async function ShipState() {
-    setTimeout(setupEventHandlers, 0);
+    action(displayPositionsAndDestinations);
+    action('updateUI', displayPositionsAndDestinations);
 
     return `
         <div id="ship-state">
         </div>
     `;
-}
-
-function setupEventHandlers() {
-    displayPositionsAndDestinations();
-
-    document.addEventListener('shipStateChanged', (event) => {
-        displayPositionsAndDestinations();
-    });
 }
 
 function displayPositionsAndDestinations() {

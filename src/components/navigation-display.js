@@ -8,11 +8,7 @@ export default async function NavigationDisplay() {
         handler: displayPositionsAndDestinations
     });
     action({
-        type: 'shipStatusUpdated',
-        handler: displayPositionsAndDestinations
-    });
-    action({
-        type: 'updateSpeedControl',
+        type: 'updateUI',
         handler: displayPositionsAndDestinations
     });
 

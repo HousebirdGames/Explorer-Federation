@@ -1,6 +1,7 @@
 // Required imports
 import * as main from "./Birdhouse/src/main.js";
 import { displayError, clearError } from "./Birdhouse/src/modules/input-validation.js";
+import { generateMission } from "./src/game/missions.js";
 
 export let shipState = {
     health: 100,
@@ -15,10 +16,12 @@ export let shipState = {
     lastConsumption: 0,
     isMoving: false,
     position: { x: 0, y: 0 },
-    destinationIndex: null,
+    destinationIndex: 0,
     course: { x: 0, y: 0 },
     currentPlanet: 'Earth',
     targetPlanet: null,
+    mission: null,
+    missionHistory: [],
 };
 
 export function formatSpeed(speed) {
@@ -101,14 +104,14 @@ function generateSolarSystems(number) {
     const civilizationTypes = ['None', 'Primitive', 'Advanced', 'Highly Advanced'];
 
     for (let i = 0; i < number; i++) {
-        const name = `System ${i + 1}`;
+        const name = generateUniqueName(5, 1);
         const coordinates = {
             x: Math.floor(Math.random() * maxDistance) * (Math.random() < 0.5 ? -1 : 1),
             y: Math.floor(Math.random() * maxDistance) * (Math.random() < 0.5 ? -1 : 1)
         };
 
         const planets = Array.from({ length: Math.floor(Math.random() * 10) }, () => ({
-            name: `Planet ${Math.floor(Math.random() * 1000)}`,
+            name: generateUniqueName(4, Math.floor(Math.random() * 3) + 1),
             type: planetTypes[Math.floor(Math.random() * planetTypes.length)],
             fauna: faunaTypes[Math.floor(Math.random() * faunaTypes.length)],
             flora: floraTypes[Math.floor(Math.random() * floraTypes.length)],
@@ -123,6 +126,36 @@ function generateSolarSystems(number) {
             planets
         });
     }
+}
+
+const syllables = [
+    'ba', 'na', 'da', 'ra', 'ka', 'sa', 'ta', 'la', 'pa', 'ma', 'ga', 'ha', 'ja', 'za', 'ca', 'va', 'fa', 'ya', 'wa', 'xa',
+    'be', 'ne', 'de', 're', 'ke', 'se', 'te', 'le', 'pe', 'me', 'ge', 'he', 'je', 'ze', 'ce', 've', 'fe', 'ye', 'we', 'xe',
+    'bi', 'ni', 'di', 'ri', 'ki', 'si', 'ti', 'li', 'pi', 'mi', 'gi', 'hi', 'ji', 'zi', 'ci', 'vi', 'fi', 'yi', 'wi', 'xi',
+    'bo', 'no', 'do', 'ro', 'ko', 'so', 'to', 'lo', 'po', 'mo', 'go', 'ho', 'jo', 'zo', 'co', 'vo', 'fo', 'yo', 'wo', 'xo',
+    'bu', 'nu', 'du', 'ru', 'ku', 'su', 'tu', 'lu', 'pu', 'mu', 'gu', 'hu', 'ju', 'zu', 'cu', 'vu', 'fu', 'yu', 'wu', 'xu'];
+const generatedNames = new Set();
+
+function generateUniqueName(maxNumSyllables, numWords, attempt = 0) {
+    let name = '';
+    for (let i = 0; i < numWords; i++) {
+        let word = '';
+        let numSyllables = Math.floor(Math.random() * maxNumSyllables) + 1;
+        for (let j = 0; j < numSyllables; j++) {
+            word += syllables[Math.floor(Math.random() * syllables.length)];
+        }
+        if (generatedNames.has(word)) {
+            if (attempt > 200) {
+                throw new Error('Failed to generate a unique name');
+            }
+            return generateUniqueName(maxNumSyllables, numWords, attempt + 1);
+        } else {
+            generatedNames.add(word);
+            word = word.charAt(0).toUpperCase() + word.slice(1);
+            name += word + ' ';
+        }
+    }
+    return name.trim();
 }
 
 export function findDestinationSystemByCoords(coords) {
@@ -151,27 +184,29 @@ export function findDestinationIndexByCoords(coords) {
 
 const updateInterval = 1000;
 
+const updateUI = new CustomEvent('updateUI');
 function GameLoop() {
     let energyTemp = 0;
+
     const intervalId = setInterval(() => {
         ShipMovement();
-        UpdateShipState();
         shipState.lastConsumption = energyTemp - shipState.energy;
         energyTemp = shipState.energy;
+
+        if (shipState.mission == null) {
+            generateMission();
+        }
+        else {
+            shipState.mission.checkCompletion();
+        }
+
+        document.dispatchEvent(updateUI);
     }, updateInterval);
 }
 
 function ShipMovement() {
     updateShipPositionAndEnergy();
 }
-
-const shipStateChanged = new CustomEvent('shipStateChanged');
-function UpdateShipState() {
-    document.dispatchEvent(shipStateChanged);
-}
-
-const energyStateChanged = new CustomEvent('energyStateChanged');
-const updateSpeedControl = new CustomEvent('updateSpeedControl');
 
 let travelTime = 0;
 export let etaCurrentSpeed = 0;
@@ -180,18 +215,16 @@ const defaultTravelTime = 20;
 let goingToPlanet = '';
 
 function updateShipPositionAndEnergy() {
-    const baseEnergyConsumptionRate = 0.1; // Base energy consumed per tick, adjust as needed
-    const distancePerTick = 2; // Distance covered per tick, adjust based on speed
-    const accelerationRate = 0.1; // Rate at which the ship accelerates, adjust as needed
+    const baseEnergyConsumptionRate = 0.02;
+    const distancePerTick = 10;
+    const accelerationRate = 0.1;
 
     let onlyCalculateETA = false;
     if (shipState.currentSpeed === 0 && !shipState.engage) {
         onlyCalculateETA = true;
     }
     else {
-        //check if solarSystems[shipState.destinationIndex].planets contains a entry with name === shipState.targetPlanet
         if (shipState.engage && shipState.targetPlanet != null && solarSystems[shipState.destinationIndex].planets.some(planet => planet.name === shipState.targetPlanet.name)) {
-            console.log('Planet found');
             goingToPlanet = shipState.targetPlanet.name;
             travelTime = defaultTravelTime;
             shipState.isMoving = true;
@@ -206,8 +239,6 @@ function updateShipPositionAndEnergy() {
             if (shipState.currentSpeed < 0) {
                 shipState.currentSpeed = 0;
             }
-            updateUIComponents();
-            document.dispatchEvent(updateSpeedControl);
         }
     }
 
@@ -215,7 +246,6 @@ function updateShipPositionAndEnergy() {
     const deltaY = shipState.course.y - shipState.position.y;
     const distanceToDestination = Math.sqrt(deltaX ** 2 + deltaY ** 2);
 
-    // Calculate ETA for current speed and target speed
     if (shipState.currentSpeed > 0) {
         etaCurrentSpeed = distanceToDestination / shipState.currentSpeed;
     }
@@ -231,8 +261,6 @@ function updateShipPositionAndEnergy() {
     }
 
     if (onlyCalculateETA) {
-        document.dispatchEvent(updateSpeedControl);
-        updateUIComponents();
         return;
     }
 
@@ -297,19 +325,9 @@ function updateShipPositionAndEnergy() {
         if (shipState.energy < 0 && shipState.isMoving) {
             shipState.energy = 0;
             shipState.isMoving = false;
-            document.dispatchEvent(energyStateChanged);
         }
     }
-
-    document.dispatchEvent(updateSpeedControl);
-    updateUIComponents();
 }
-
-function updateUIComponents() {
-    // Trigger UI updates (e.g., for position, energy levels)
-    document.dispatchEvent(new CustomEvent('shipStatusUpdated'));
-}
-
 
 // More hooks might become available or necessary in the future.
 // Remember to keep your everywhere.js file up to date with the latest version of the example everywhere.js file.
@@ -410,6 +428,7 @@ window.hook('create-routes', async function () {
     main.createPublicRoute('/ship-state', 'Ship State', 'settings', 'components/ship-state.js', true);
     main.createPublicRoute('/starmap', 'Star Map', 'map', 'components/starmap.js', true, true);
     main.createPublicRoute('/scanner', 'Scanner', 'search', 'components/scanner.js', true);
+    main.createPublicRoute('/missions', 'Missions', 'list', 'components/mission-control.js', true);
     /*  // We can also use the same component for different routes. But this time without an icon.
      main.createPublicRoute('/example-2', 'Also the Example Page', '', 'components/example.js', true);
  

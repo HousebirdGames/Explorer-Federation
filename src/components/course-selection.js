@@ -43,7 +43,7 @@ export function setDestinationSystem(index) {
         planetsDiv.innerHTML = '<p>No Solar System</p>';
     }
     else if (destinationSystem.discovered) {
-        planetsDiv.innerHTML = destinationSystem.planets.map((planet, i) => `
+        planetsDiv.innerHTML = '<p>Planets:</p>' + destinationSystem.planets.map((planet, i) => `
                     <button class="planet-btn" data-index="${i}">${planet.name}</button>
                 `).join('');
         setupPlanetEventHandlers(destinationSystem);

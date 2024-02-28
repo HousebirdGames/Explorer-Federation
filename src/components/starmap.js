@@ -1,4 +1,4 @@
-import { updateTitleAndMeta } from "../../Birdhouse/src/main.js";
+import { updateTitleAndMeta, action } from "../../Birdhouse/src/main.js";
 import { shipState, solarSystems, findDestinationSystemByCoords, findDestinationIndexByCoords } from "../../everywhere.js";
 import { setDestinationSystem, setDestinationCoordinates } from "./course-selection.js";
 
@@ -6,9 +6,33 @@ let isInteractable = false;
 export default async function StarMap(interactable = false) {
     isInteractable = interactable;
 
-    setTimeout(setupEventHandlers, 0);
+    action(displayStarMap);
+    action('updateUI', displayStarMap);
+    action('courseChange', displayStarMap);
 
-    return `<svg id="starMap" class="noSelect" viewBox="0 0 1000 1000"></svg>
+    if (isInteractable) {
+        const actions = [
+            { type: 'wheel', handler: zoomEvent, passive: false },
+            { type: 'mousedown', handler: startPan, passive: true },
+            { type: 'mouseup', handler: endPan, passive: true },
+            { type: 'mouseout', handler: endPan, passive: true },
+            { type: 'mousemove', handler: pan, passive: true },
+            { type: 'touchstart', handler: startPan, passive: true },
+            { type: 'touchend', handler: endPan, passive: true },
+            { type: 'touchcancel', handler: endPan, passive: true },
+            { type: 'touchmove', handler: pan, passive: true },
+            { type: 'click', handler: (event) => zoom(1.1), selector: '#zoom-in' },
+            { type: 'click', handler: (event) => zoom(0.9), selector: '#zoom-out' },
+            { type: 'click', handler: click },
+            { type: 'touchstart', handler: click, passive: true },
+        ];
+
+        for (const a of actions) {
+            action(a);
+        }
+    }
+
+    return `<svg id="starMap" class="noSelect" viewBox="${shipState.position.x} ${shipState.position.y} 1000 1000"></svg>
     ${isInteractable ? `<div id="zoom-controls">
     <button id="zoom-in">+</button>
     <button id="zoom-out">-</button>
@@ -16,63 +40,16 @@ export default async function StarMap(interactable = false) {
     `;
 }
 
-function setupEventHandlers() {
-    displayStarMap();
-
-    document.addEventListener('shipStatusUpdated', (event) => {
-        displayStarMap();
-    });
-
-    document.addEventListener('courseChange', (event) => {
-        displayStarMap();
-    });
-
-    if (!isInteractable) {
-        return;
-    }
-
-    const starMap = document.getElementById('starMap');
-    if (starMap) {
-        starMap.addEventListener('wheel', zoomEvent);
-        starMap.addEventListener('mousedown', startPan);
-        starMap.addEventListener('mouseup', endPan);
-        starMap.addEventListener('mouseout', endPan);
-        starMap.addEventListener('mousemove', pan);
-
-        starMap.addEventListener('touchstart', startPan, { passive: false });
-        starMap.addEventListener('touchend', endPan, { passive: false });
-        starMap.addEventListener('touchcancel', endPan, { passive: false });
-        starMap.addEventListener('touchmove', pan, { passive: false });
-
-        document.getElementById('zoom-in').addEventListener('click', () => zoom(1.1));
-        document.getElementById('zoom-out').addEventListener('click', () => zoom(0.9));
-
-        // Add click event listener
-        starMap.addEventListener('click', (event) => {
-            click(event);
-        });
-
-        starMap.addEventListener('touchstart', (event) => {
-            click(event);
-        });
-    }
-}
-
 function click(event) {
     const target = event.target;
 
-    // Check if the clicked element is a circle
     if (target.tagName === 'circle') {
-        // Log the coordinates stored in the data attribute
         let coords = target.getAttribute('data-coordinates').split(',').map(Number);
         setDestinationSystem(findDestinationIndexByCoords(coords));
     } else {
-        // Calculate the clicked coordinates relative to the SVG element
         const rect = starMap.getBoundingClientRect();
         const x = event.clientX - rect.left;
         const y = event.clientY - rect.top;
-
-        //setDestinationCoordinates(x - 500, y - 500);
     }
 }
 
@@ -102,10 +79,9 @@ function zoomEvent(event) {
         viewBox[2] /= scale;
         viewBox[3] /= scale;
 
-        // Prevent zooming out beyond the original view
         if (viewBox[2] > 1000) {
             resetViewBox();
-        } else if (zoomLevel > 5) { // Set maximum zoom level
+        } else if (zoomLevel > 5) {
             zoomLevel = 5;
         } else {
             starMap.setAttribute('viewBox', viewBox.join(' '));
@@ -114,14 +90,12 @@ function zoomEvent(event) {
 }
 
 function zoom(scale) {
-    // Adjust the zoomLevel based on the scale passed to the function
     zoomLevel *= scale;
 
     const starMap = document.getElementById('starMap');
     if (starMap) {
         let viewBox = starMap.getAttribute('viewBox').split(' ').map(Number);
 
-        // Center zoom for button clicks
         const centerX = viewBox[0] + viewBox[2] / 2;
         const centerY = viewBox[1] + viewBox[3] / 2;
 
@@ -133,10 +107,9 @@ function zoom(scale) {
         viewBox[2] /= scale;
         viewBox[3] /= scale;
 
-        // Prevent zooming out beyond the original view
         if (viewBox[2] > 1000) {
-            resetViewBox(); // Reset to original view if zoomed out too much
-        } else if (zoomLevel > 5) { // Set maximum zoom level
+            resetViewBox();
+        } else if (zoomLevel > 5) {
             zoomLevel = 5;
         } else {
             starMap.setAttribute('viewBox', viewBox.join(' '));
@@ -153,18 +126,14 @@ function resetViewBox() {
 }
 
 function startPan(event) {
-    event.preventDefault();
     panning = true;
-    // Determine the starting point based on the input method
     const start = event.touches ? { x: event.touches[0].clientX, y: event.touches[0].clientY } : { x: event.clientX, y: event.clientY };
     panStart = start;
 }
 
 function pan(event) {
     if (!panning) return;
-    event.preventDefault();
 
-    // Determine the current point based on the input method
     let currentX, currentY;
     if (event.touches) {
         currentX = event.touches[0].clientX;
@@ -174,24 +143,20 @@ function pan(event) {
         currentY = event.clientY;
     }
 
-    // Calculate the change in position
     const dx = (currentX - panStart.x);
     const dy = (currentY - panStart.y);
 
-    // Convert the change in screen coordinates to viewBox units
     const starMap = document.getElementById('starMap');
     if (starMap) {
         let viewBox = starMap.getAttribute('viewBox').split(' ').map(Number);
         const scaleFactorX = viewBox[2] / starMap.clientWidth;
         const scaleFactorY = viewBox[3] / starMap.clientHeight;
 
-        // Apply the calculated change, adjusted by the current scale of the viewBox
         viewBox[0] -= dx * scaleFactorX;
         viewBox[1] -= dy * scaleFactorY;
 
         starMap.setAttribute('viewBox', viewBox.join(' '));
 
-        // Update panStart for the next iteration
         panStart = { x: currentX, y: currentY };
     }
 }
@@ -201,19 +166,19 @@ function endPan() {
     panning = false;
 }
 
-function applyPanDelta(dx, dy) {
-    const starMap = document.getElementById('starMap');
-    if (starMap) {
-        let viewBox = starMap.getAttribute('viewBox').split(' ').map(Number);
-        viewBox[0] -= dx;
-        viewBox[1] -= dy;
-        starMap.setAttribute('viewBox', viewBox.join(' '));
-    }
-}
-
-
 function displayStarMap() {
     let svgContent = ``;
+
+    if (shipState.destinationIndex !== null || shipState.course) {
+        const targetX = shipState.destinationIndex !== null ? solarSystems[shipState.destinationIndex].coordinates.x : shipState.course.x;
+        const targetY = shipState.destinationIndex !== null ? solarSystems[shipState.destinationIndex].coordinates.y : shipState.course.y;
+
+        svgContent += `
+            <line x1="${shipState.position.x + 500}" y1="${shipState.position.y + 500}" x2="${targetX + 500}" y2="${targetY + 500}" stroke="red" stroke-dasharray="5,5">
+                <title>Course</title>
+            </line>
+        `;
+    }
 
     svgContent += `
         <circle cx="${shipState.position.x + 500}" cy="${shipState.position.y + 500}" r="10" fill="blue">
@@ -232,19 +197,6 @@ function displayStarMap() {
         `;
     }
 
-    // If the target is a solar system or empty space, draw a dotted line from the ship to the target
-    if (shipState.destinationIndex !== null || shipState.course) {
-        const targetX = shipState.destinationIndex !== null ? solarSystems[shipState.destinationIndex].coordinates.x : shipState.course.x;
-        const targetY = shipState.destinationIndex !== null ? solarSystems[shipState.destinationIndex].coordinates.y : shipState.course.y;
-
-        svgContent += `
-            <line x1="${shipState.position.x + 500}" y1="${shipState.position.y + 500}" x2="${targetX + 500}" y2="${targetY + 500}" stroke="red" stroke-dasharray="5,5">
-                <title>Course</title>
-            </line>
-        `;
-    }
-
-    // If the target is empty space, mark it with a red box
     if (shipState.destinationIndex === null) {
         svgContent += `
             <rect x="${shipState.course.x + 500 - 5}" y="${shipState.course.y + 500 - 5}" width="10" height="10" fill="red">
