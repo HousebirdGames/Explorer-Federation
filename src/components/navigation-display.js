@@ -1,28 +1,26 @@
-import { updateTitleAndMeta } from "../../Birdhouse/src/main.js";
+import { updateTitleAndMeta, action } from "../../Birdhouse/src/main.js";
 import { shipState, solarSystems, findDestinationSystemByCoords, etaCurrentSpeed, etaTargetSpeed } from "../../everywhere.js";
 
 export default async function NavigationDisplay() {
-    setTimeout(setupEventHandlers, 0);
+
+    action({
+        type: 'courseChange',
+        handler: displayPositionsAndDestinations
+    });
+    action({
+        type: 'shipStatusUpdated',
+        handler: displayPositionsAndDestinations
+    });
+    action({
+        type: 'updateSpeedControl',
+        handler: displayPositionsAndDestinations
+    });
+
+    action(displayPositionsAndDestinations);
 
     return `
         <div id="nav-display"></div>
     `;
-}
-
-function setupEventHandlers() {
-    displayPositionsAndDestinations();
-
-    document.addEventListener('courseChange', (event) => {
-        displayPositionsAndDestinations();
-    });
-
-    document.addEventListener('shipStatusUpdated', (event) => {
-        displayPositionsAndDestinations();
-    });
-
-    document.addEventListener('updateSpeedControl', (event) => {
-        displayPositionsAndDestinations();
-    });
 }
 
 function displayPositionsAndDestinations() {

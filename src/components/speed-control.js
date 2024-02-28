@@ -1,8 +1,8 @@
+import { alertPopup, updateTitleAndMeta, action } from "../../Birdhouse/src/main.js";
 import { shipState, saveGameState, formatSpeed } from "../../everywhere.js";
-import { alertPopup, updateTitleAndMeta } from "../../Birdhouse/src/main.js";
 
 export default async function SpeedControl() {
-    setTimeout(setupEventHandlers, 0);
+    setupEventHandlers();
 
     return `
         <div id="speed-control">
@@ -16,56 +16,60 @@ export default async function SpeedControl() {
     `;
 }
 
-let targetSpeedDisplay = null;
-let currentSpeedDisplay = null;
-
 function setupEventHandlers() {
-    const speedSlider = document.getElementById('speedSlider');
-    const engageButton = document.getElementById('engageButton');
-    const fullStopButton = document.getElementById('fullStopButton');
-    targetSpeedDisplay = document.getElementById('targetSpeedDisplay');
-    currentSpeedDisplay = document.getElementById('currentSpeedDisplay');
-
-    speedSlider.addEventListener('input', (event) => {
-        const newSpeed = parseFloat(event.target.value);
-        updateSpeed(newSpeed)
+    action({
+        type: 'input', selector: '#speedSlider', handler: (e) => {
+            const newSpeed = parseFloat(e.target.value);
+            updateSpeed(newSpeed);
+        }
     });
 
-    engageButton.addEventListener('click', () => {
-        if (shipState.course == null) {
-            alertPopup('No course set');
-            return;
+    action({
+        type: 'click', selector: '#engageButton', handler: (e) => {
+            if (shipState.course == null) {
+                alertPopup('No course set');
+                return;
+            }
+            else if (shipState.course.x === shipState.position.x && shipState.course.y === shipState.position.y && (shipState.targetPlanet == null || shipState.targetPlanet === shipState.currentPlanet)) {
+                alertPopup('Already at destination');
+                return;
+            }
+            else if (shipState.targetSpeed === 0) {
+                alertPopup('No speed set');
+                return;
+            }
+            else if (shipState.energy <= 0) {
+                alertPopup('No power');
+                return;
+            }
+            shipState.engage = true;
         }
-        else if (shipState.course.x === shipState.position.x && shipState.course.y === shipState.position.y && (shipState.targetPlanet == null || shipState.targetPlanet === shipState.currentPlanet)) {
-            alertPopup('Already at destination');
-            return;
-        }
-        else if (shipState.targetSpeed === 0) {
-            alertPopup('No speed set');
-            return;
-        }
-        else if (shipState.energy <= 0) {
-            alertPopup('No power');
-            return;
-        }
-        shipState.engage = true;
     });
 
-    fullStopButton.addEventListener('click', () => {
-        updateSpeed(0);
-        speedSlider.value = 0;
+    action({
+        type: 'click', selector: '#fullStopButton', handler: () => {
+            updateSpeed(0);
+            const speedSlider = document.getElementById('speedSlider');
+            speedSlider.value = 0;
+        }
     });
 
-    document.addEventListener('energyStateChanged', (event) => {
-        updateSpeed(shipState.targetSpeed);
+    action({
+        type: 'energyStateChanged', handler: (e) => {
+            updateSpeed(shipState.targetSpeed);
+        }
     });
 
-    document.addEventListener('updateSpeedControl', (event) => {
-        updateSpeed(shipState.targetSpeed);
+    action({
+        type: 'updateSpeedControl', handler: (e) => {
+            updateSpeed(shipState.targetSpeed);
+        }
     });
 }
 
 export function updateSpeed(newSpeed) {
+    const targetSpeedDisplay = document.getElementById('targetSpeedDisplay');
+    const currentSpeedDisplay = document.getElementById('currentSpeedDisplay');
     shipState.targetSpeed = newSpeed;
     targetSpeedDisplay.textContent = formatSpeed(newSpeed);
     currentSpeedDisplay.textContent = shipState.energy > 0 ? formatSpeed(shipState.currentSpeed) : formatSpeed(shipState.currentSpeed) + ' (No power)';

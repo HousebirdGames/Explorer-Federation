@@ -1,27 +1,25 @@
-import { updateTitleAndMeta, alertPopup } from "../../Birdhouse/src/main.js";
+import { updateTitleAndMeta, alertPopup, action } from "../../Birdhouse/src/main.js";
 import { shipState, solarSystems } from "../../everywhere.js";
 
 const courseChangeEvent = new CustomEvent('courseChange');
 
 export default async function CourseSelection() {
-    setTimeout(setupEventHandlers, 0);
+    action(() => setDestinationSystem(shipState.destinationIndex));
+    action({
+        type: 'click',
+        handler: (event) => {
+            const index = event.target.getAttribute('data-index');
+            setDestinationSystem(index);
+        },
+        selector: '.course-btn'
+    });
 
     return `
-        <h2>Select Your Course</h2>
+        <h2 id="test">Select Your Course</h2>
         <div class="hugeSelection" id="planets"><p>Planets: Not discovered</p></div>
         <p>Choose destination solar system:</p>
         <div class="hugeSelection">${solarSystems.map((system, index) => `<button class="course-btn" data-index="${index}">${system.name}</button>`).join('')}</div>
     `;
-}
-
-function setupEventHandlers() {
-    setDestinationSystem(shipState.destinationIndex);
-    document.querySelectorAll('.course-btn').forEach(button => {
-        button.addEventListener('click', (event) => {
-            const index = event.target.getAttribute('data-index');
-            setDestinationSystem(index);
-        });
-    });
 }
 
 export function setDestinationSystem(index) {
