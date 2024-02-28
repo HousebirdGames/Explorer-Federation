@@ -110,7 +110,7 @@ function generateSolarSystems(number) {
             y: Math.floor(Math.random() * maxDistance) * (Math.random() < 0.5 ? -1 : 1)
         };
 
-        const planets = Array.from({ length: Math.floor(Math.random() * 10) }, () => ({
+        let planets = Array.from({ length: Math.floor(Math.random() * 10) }, () => ({
             name: generateUniqueName(4, Math.floor(Math.random() * 3) + 1),
             type: planetTypes[Math.floor(Math.random() * planetTypes.length)],
             fauna: faunaTypes[Math.floor(Math.random() * faunaTypes.length)],
@@ -119,6 +119,8 @@ function generateSolarSystems(number) {
             civilization: civilizationTypes[Math.floor(Math.random() * civilizationTypes.length)]
         }));
 
+        planets = planets.sort((a, b) => a.name.localeCompare(b.name));
+
         solarSystems.push({
             name,
             coordinates,
@@ -126,6 +128,12 @@ function generateSolarSystems(number) {
             planets
         });
     }
+
+    solarSystems.sort((a, b) => {
+        if (a.name === 'Sol') return -1;
+        if (b.name === 'Sol') return 1;
+        return a.name.localeCompare(b.name);
+    });
 }
 
 const syllables = [
@@ -175,7 +183,6 @@ export function findDestinationIndexByCoords(coords) {
     const index = solarSystems.findIndex(system => system.coordinates.x === coords[0] && system.coordinates.y === coords[1]);
 
     if (index === -1) {
-        //console.error('Destination not found');
         return null;
     }
 
@@ -307,9 +314,16 @@ function updateShipPositionAndEnergy() {
     else if (distanceToDestination <= distancePerTick * shipState.currentSpeed) {
         shipState.position.x = shipState.course.x;
         shipState.position.y = shipState.course.y;
-        shipState.isMoving = false;
-        shipState.currentSpeed = 0;
         main.alertPopup(`Arrived at ${findDestinationSystemByCoords(shipState.course).name}`);
+
+        if (shipState.targetPlanet != null && solarSystems[shipState.destinationIndex].planets.some(planet => planet.name === shipState.targetPlanet.name)) {
+            goingToPlanet = shipState.targetPlanet.name;
+            travelTime = defaultTravelTime;
+        }
+        else {
+            shipState.isMoving = false;
+            shipState.currentSpeed = 0;
+        }
 
         etaCurrentSpeed = 0;
         etaTargetSpeed = 0;

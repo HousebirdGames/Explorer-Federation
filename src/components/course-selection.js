@@ -43,9 +43,9 @@ export function setDestinationSystem(index) {
         planetsDiv.innerHTML = '<p>No Solar System</p>';
     }
     else if (destinationSystem.discovered) {
-        planetsDiv.innerHTML = '<p>Planets:</p>' + destinationSystem.planets.map((planet, i) => `
-                    <button class="planet-btn" data-index="${i}">${planet.name}</button>
-                `).join('');
+        planetsDiv.innerHTML = '<p>Planets:</p>' + (destinationSystem.planets.length > 0 ? (destinationSystem.planets.map((planet, i) => `
+        <button class="planet-btn" data-index="${i}">${planet.name}</button>
+    `).join('')) : '<p>-</p>');
         setupPlanetEventHandlers(destinationSystem);
     } else {
         planetsDiv.innerHTML = '<p>Planets: Not discovered</p>';
