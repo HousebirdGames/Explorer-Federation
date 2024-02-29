@@ -15,10 +15,15 @@ export default async function ShipState() {
 function displayPositionsAndDestinations() {
     const crewSize = shipState.crew.length;
 
+    const energyFlow = shipState.lastConsumption.toFixed(2);
+
     const display = `
     <h2>Ship Status</h2>
+    <p>Fuel: ${shipState.fuel.toFixed(2)}</p>
+    <p>Fuel Capacity: ${shipState.fuelCapacity.toFixed(2)}</p>
     <p>Energy: ${shipState.energy.toFixed(2)}</p>
-    <p>Energy Required: ~${shipState.lastConsumption.toFixed(2)}</p>
+    <p>Energy Capacity: ${shipState.energyCapacity.toFixed(2)}</p>
+    <p>Energy Flow: ${energyFlow == 0 ? 'No flow' : (energyFlow > 0 ? `Negative ~${energyFlow}` : `Positive ~${energyFlow * -1}`)}</p>
     <p>Hull Integrity: ${shipState.health}</p>
     <p>Shields: ${shipState.shields}</p>
     <p>Crew Size: ${crewSize}</p>

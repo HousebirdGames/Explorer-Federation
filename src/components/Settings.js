@@ -23,5 +23,5 @@ export default async function Settings() {
 }
 
 function openResetPopup() {
-    alertPopup('Reset Game', '<p>Are you sure you want to reset the game? Your progress will be lost.</p><button id="confirmResetGameButton">Confirm</button><button class="closePopup">Abort</button>', false);
+    alertPopup('Reset Game', '<p>Are you sure you want to reset the game? Your progress will be lost.</p><br><button id="confirmResetGameButton">Confirm</button><button class="closePopup">Abort</button>', false);
 }

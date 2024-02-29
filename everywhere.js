@@ -2,17 +2,26 @@
 import * as main from "./Birdhouse/src/main.js";
 import { displayError, clearError } from "./Birdhouse/src/modules/input-validation.js";
 import { generateMission, checkCompletion } from "./src/game/missions.js";
+import { modules } from "./src/game/modules.js";
 
 export let shipState = {
+
+};
+
+const defaultShipState = {
     health: 100,
     shields: 100,
-    fuel: 100,
-    upgrades: [],
+    fuel: 0,
+    fuelCapacity: 0,
+    modules: [],
     crew: [],
     currentSpeed: 0,
     targetSpeed: 0,
     engage: false,
-    energy: 100,
+    energy: 0,
+    energyCapacity: 0,
+    fuelConsumption: 0,
+    efficiency: 0,
     lastConsumption: 0,
     isMoving: false,
     position: { x: 0, y: 0 },
@@ -29,14 +38,16 @@ export function formatSpeed(speed) {
 }
 
 export function saveGameState() {
+    return;
     localStorage.setItem('shipState', JSON.stringify(shipState));
     localStorage.setItem('solarSystems', JSON.stringify(solarSystems));
 }
 
 export function resetGame() {
+    main.alertPopup('Reseting game...');
     localStorage.removeItem('shipState');
     localStorage.removeItem('solarSystems');
-    window.location.href = main.urlPrefix + '/';
+    window.location.href = main.urlPrefix + '/?message=Game+reset+successful';
 }
 
 export function loadGameState() {
@@ -49,6 +60,34 @@ export function loadGameState() {
     const savedSolarSystemsState = JSON.parse(localStorage.getItem('solarSystems'));
     if (savedSolarSystemsState) {
         Object.assign(solarSystems, savedSolarSystemsState);
+    }
+
+    if (Object.keys(shipState).length === 0) {
+        initializeNewGame();
+    }
+}
+
+function initializeNewGame() {
+    console.log('Starting new game');
+    shipState = defaultShipState; // Assuming this resets or defines the shipState object
+    shipState.modules.push(
+        modules.fuelTankS1(),
+        modules.batteryS1(),
+        modules.batteryS1(),
+        modules.energyGeneratorS1(),
+    );
+
+    shipState.modules.forEach(module => {
+        console.log(`Module ${module.name} starts enabled: ${module.startEnabled}`);
+        if (module.startEnabled) {
+            module.enable();
+        }
+    });
+
+    shipState.fuel = shipState.fuelCapacity;
+
+    if (solarSystems.length <= 1) {
+        generateSolarSystems(100); // Assuming this function exists elsewhere in your code
     }
 }
 
@@ -202,6 +241,9 @@ function GameLoop() {
     let energyTemp = 0;
 
     const intervalId = setInterval(() => {
+
+        updateModules();
+
         ShipMovement();
         shipState.lastConsumption = energyTemp - shipState.energy;
         energyTemp = shipState.energy;
@@ -217,6 +259,22 @@ function GameLoop() {
 
         document.dispatchEvent(updateUI);
     }, updateInterval);
+}
+
+function updateModules() {
+    shipState.modules.forEach((module, index) => {
+        if (!module.currentHealth && module.currentHealth !== 0) {
+            console.error('Invalid module detected:', module);
+            return;
+        }
+        if (module.currentHealth <= 0 && module.enabled) {
+            module.disable();
+            alertPopup(`${module.name} has been disabled due to critical damage.`);
+        }
+        else if (module.enabled) {
+            module.tickEffect();
+        }
+    });
 }
 
 function ShipMovement() {
@@ -364,7 +422,9 @@ window.hook('before-adding-base-content', async function (menuHTML) {
 });
 
 window.hook('on-handle-route-change', async function () {
-    // This hook will get triggered as soon as a route change is started.
+    loadGameState();
+
+    saveGameState();
 });
 
 window.hook('on-component-loaded', async function () {
@@ -398,13 +458,6 @@ async function onPageLoaded() {
     `);
 
     console.log('Page loaded');
-
-    loadGameState();
-    if (solarSystems.length <= 1) {
-        generateSolarSystems(100);
-    }
-
-    setupEventListeners();
 
     GameLoop();
 }
