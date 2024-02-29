@@ -1,7 +1,7 @@
 // Required imports
 import * as main from "./Birdhouse/src/main.js";
 import { displayError, clearError } from "./Birdhouse/src/modules/input-validation.js";
-import { generateMission } from "./src/game/missions.js";
+import { generateMission, checkCompletion } from "./src/game/missions.js";
 
 export let shipState = {
     health: 100,
@@ -31,6 +31,12 @@ export function formatSpeed(speed) {
 export function saveGameState() {
     localStorage.setItem('shipState', JSON.stringify(shipState));
     localStorage.setItem('solarSystems', JSON.stringify(solarSystems));
+}
+
+export function resetGame() {
+    localStorage.removeItem('shipState');
+    localStorage.removeItem('solarSystems');
+    window.location.href = main.urlPrefix + '/';
 }
 
 export function loadGameState() {
@@ -204,8 +210,10 @@ function GameLoop() {
             generateMission();
         }
         else {
-            shipState.mission.checkCompletion();
+            checkCompletion(shipState.mission);
         }
+
+        saveGameState();
 
         document.dispatchEvent(updateUI);
     }, updateInterval);
@@ -254,14 +262,14 @@ function updateShipPositionAndEnergy() {
     const distanceToDestination = Math.sqrt(deltaX ** 2 + deltaY ** 2);
 
     if (shipState.currentSpeed > 0) {
-        etaCurrentSpeed = distanceToDestination / shipState.currentSpeed;
+        etaCurrentSpeed = (distanceToDestination / distancePerTick) / shipState.currentSpeed;
     }
     else {
         etaCurrentSpeed = 0;
     }
 
     if (shipState.targetSpeed > 0) {
-        etaTargetSpeed = distanceToDestination / shipState.targetSpeed;
+        etaTargetSpeed = (distanceToDestination / distancePerTick) / shipState.targetSpeed;
     }
     else {
         etaTargetSpeed = 0;
@@ -443,6 +451,7 @@ window.hook('create-routes', async function () {
     main.createPublicRoute('/starmap', 'Star Map', 'map', 'components/starmap.js', true, true);
     main.createPublicRoute('/scanner', 'Scanner', 'search', 'components/scanner.js', true);
     main.createPublicRoute('/missions', 'Missions', 'list', 'components/mission-control.js', true);
+    main.createPublicRoute('/settings', 'Settings', '', 'components/settings.js', true);
     /*  // We can also use the same component for different routes. But this time without an icon.
      main.createPublicRoute('/example-2', 'Also the Example Page', '', 'components/example.js', true);
  

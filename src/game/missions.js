@@ -7,34 +7,34 @@ class Mission {
         this.target = target;
         this.state = 'Active';
     }
-
-    checkCompletion() {
-        let state = 'Active';
-        switch (this.type) {
-            case 'Discover System':
-                if (solarSystems.find(system => system.name === this.target).discovered) {
-                    state = 'Completed';
-                }
-                break;
-            case 'Patrol':
-                const system = solarSystems.find(system => system.name === this.target);
-                if (shipState.position.x === system.coordinates.x && shipState.position.y === system.coordinates.y) {
-                    state = 'Completed';
-                }
-                break;
-            default:
-                throw new Error(`Unsupported mission type: ${this.type}`);
-        }
-        this.state = state;
-        if (state != 'Active') {
-            shipState.missionHistory.push(this);
-            shipState.mission = null;
-            alertPopup(`Mission ${state}: ${this.type}`);
-        }
-    }
 }
 
 const missionTypes = ['Discover System', 'Patrol'];
+
+export function checkCompletion(mission) {
+    let state = 'Active';
+    switch (mission.type) {
+        case 'Discover System':
+            if (solarSystems.find(system => system.name === mission.target).discovered) {
+                state = 'Completed';
+            }
+            break;
+        case 'Patrol':
+            const system = solarSystems.find(system => system.name === mission.target);
+            if (shipState.position.x === system.coordinates.x && shipState.position.y === system.coordinates.y) {
+                state = 'Completed';
+            }
+            break;
+        default:
+            throw new Error(`Unsupported mission type: ${mission.type}`);
+    }
+    mission.state = state;
+    if (state != 'Active') {
+        shipState.missionHistory.unshift(mission);
+        shipState.mission = null;
+        alertPopup(`Mission ${state}: ${mission.type}`);
+    }
+}
 
 export function generateMission() {
     let missionType = missionTypes[Math.floor(Math.random() * missionTypes.length)];

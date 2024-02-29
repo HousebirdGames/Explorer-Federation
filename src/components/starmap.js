@@ -167,7 +167,6 @@ function endPan() {
 }
 
 function displayStarMap() {
-    console.log('displayStarMap');
     let svgContent = ``;
 
     if (shipState.destinationIndex !== null || shipState.course) {
