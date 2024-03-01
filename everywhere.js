@@ -32,6 +32,7 @@ const defaultShipState = {
     targetPlanet: null,
     mission: null,
     missionHistory: [],
+    generatedNames: [],
 };
 
 export let factions = [
@@ -63,7 +64,6 @@ export function resetGame() {
 }
 
 export function loadGameState() {
-    console.log('Loading game state');
     const savedShipState = JSON.parse(localStorage.getItem('shipState'));
     if (savedShipState) {
         Object.assign(shipState, savedShipState);
@@ -188,15 +188,14 @@ function generateSolarSystems(number) {
     const civilizationTypes = ['None', 'Primitive', 'Advanced', 'Highly Advanced'];
 
     for (let i = 0; i < number; i++) {
-        console.log('Solar system discovered:', i + 1, '/', number)
-        const name = generateUniqueName(5, 1);
+        const name = generateUniqueName(4, 1);
         const coordinates = {
             x: Math.floor(Math.random() * maxDistance) * (Math.random() < 0.5 ? -1 : 1),
             y: Math.floor(Math.random() * maxDistance) * (Math.random() < 0.5 ? -1 : 1)
         };
 
-        let planets = Array.from({ length: Math.floor(Math.random() * 10) }, () => ({
-            name: generateUniqueName(4, Math.floor(Math.random() * 3) + 1),
+        let planets = Array.from({ length: Math.max(1, Math.floor(Math.random() * 10)) }, () => ({
+            name: generateUniqueName(4, Math.floor(Math.random() * 2) + 1),
             type: planetTypes[Math.floor(Math.random() * planetTypes.length)],
             fauna: faunaTypes[Math.floor(Math.random() * faunaTypes.length)],
             flora: floraTypes[Math.floor(Math.random() * floraTypes.length)],
@@ -235,8 +234,15 @@ const syllables = [
     'be', 'ne', 'de', 're', 'ke', 'se', 'te', 'le', 'pe', 'me', 'ge', 'he', 'je', 'ze', 'ce', 've', 'fe', 'ye', 'we', 'xe',
     'bi', 'ni', 'di', 'ri', 'ki', 'si', 'ti', 'li', 'pi', 'mi', 'gi', 'hi', 'ji', 'zi', 'ci', 'vi', 'fi', 'yi', 'wi', 'xi',
     'bo', 'no', 'do', 'ro', 'ko', 'so', 'to', 'lo', 'po', 'mo', 'go', 'ho', 'jo', 'zo', 'co', 'vo', 'fo', 'yo', 'wo', 'xo',
-    'bu', 'nu', 'du', 'ru', 'ku', 'su', 'tu', 'lu', 'pu', 'mu', 'gu', 'hu', 'ju', 'zu', 'cu', 'vu', 'fu', 'yu', 'wu', 'xu'];
-const generatedNames = new Set();
+    'bu', 'nu', 'du', 'ru', 'ku', 'su', 'tu', 'lu', 'pu', 'mu', 'gu', 'hu', 'ju', 'zu', 'cu', 'vu', 'fu', 'yu', 'wu', 'xu',
+    'ab', 'ac', 'ad', 'af', 'ag', 'ah', 'aj', 'ak', 'al', 'am', 'an', 'ap', 'aq', 'ar', 'as', 'at', 'av', 'aw', 'ax', 'ay', 'az',
+    'eb', 'ec', 'ed', 'ef', 'eg', 'eh', 'ej', 'ek', 'el', 'em', 'en', 'ep', 'eq', 'er', 'es', 'et', 'ev', 'ew', 'ex', 'ey', 'ez',
+    'ib', 'ic', 'id', 'if', 'ig', 'ih', 'ij', 'ik', 'il', 'im', 'in', 'ip', 'iq', 'ir', 'is', 'it', 'iv', 'iw', 'ix', 'iy', 'iz',
+    'ob', 'oc', 'od', 'of', 'og', 'oh', 'oj', 'ok', 'ol', 'om', 'on', 'op', 'oq', 'or', 'os', 'ot', 'ov', 'ow', 'ox', 'oy', 'oz',
+    'ub', 'uc', 'ud', 'uf', 'ug', 'uh', 'uj', 'uk', 'ul', 'um', 'un', 'up', 'uq', 'ur', 'us', 'ut', 'uv', 'uw', 'ux', 'uy', 'uz',
+    'bat', 'net', 'dim', 'rot', 'kix', 'sax', 'tob', 'lev', 'pum', 'mox', 'gab', 'hut', 'jiz', 'zep', 'cuv', 'vex', 'fop', 'yik', 'wun', 'xol',
+    'bar', 'ned', 'dil', 'ron', 'kib', 'sal', 'ton', 'led', 'pok', 'mig', 'gal', 'hob', 'jun', 'zod', 'cag', 'vol', 'fud', 'yup', 'waz', 'xif',
+];
 
 function generateUniqueName(maxNumSyllables, numWords, attempt = 0) {
     let name = '';
@@ -246,13 +252,13 @@ function generateUniqueName(maxNumSyllables, numWords, attempt = 0) {
         for (let j = 0; j < numSyllables; j++) {
             word += syllables[Math.floor(Math.random() * syllables.length)];
         }
-        if (generatedNames.has(word)) {
+        if (shipState.generatedNames.includes(word)) {
             if (attempt > 200) {
                 throw new Error('Failed to generate a unique name');
             }
             return generateUniqueName(maxNumSyllables, numWords, attempt + 1);
         } else {
-            generatedNames.add(word);
+            shipState.generatedNames.push(word);
             word = word.charAt(0).toUpperCase() + word.slice(1);
             name += word + ' ';
         }

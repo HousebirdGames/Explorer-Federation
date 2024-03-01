@@ -1,85 +1,6 @@
 import { alertPopup } from "../../Birdhouse/src/main.js";
 import { shipState, solarSystems } from "../../everywhere.js";
 
-// To Do: Decouple module system from shipState to be usable by other ships
-// To Do: Make fully compatible with game state saving and loading
-
-/* class ShipModule {
-    constructor(type, name, maxHealth, weight, startEnabled = false, properties = {}) {
-        this.type = type;
-        this.name = name;
-        this.maxHealth = maxHealth;
-        this.currentHealth = maxHealth;
-        this.weight = weight;
-        this.enabled = false;
-        this.startEnabled = startEnabled;
-        this.properties = properties;
-        this.activeEffects = [];
-
-        Object.assign(this, properties);
-
-        this.functions = {};
-        this.friendlyFunctionNames = {};
-
-        if (moduleTypes[type] && moduleTypes[type].functions) {
-            for (const functionName in moduleTypes[type].functions) {
-                const funcObj = moduleTypes[type].functions[functionName];
-                this.functions[functionName] = funcObj.action.bind(this);
-                this.friendlyFunctionNames[functionName] = funcObj.friendlyName;
-            }
-        } else {
-            console.error(`Module type ${type} does not exist.`);
-        }
-
-        if (moduleTypes[type]) {
-            this.onEnable = moduleTypes[type].onEnable ? moduleTypes[type].onEnable.bind(this) : this.onEnable;
-            this.onDisable = moduleTypes[type].onDisable ? moduleTypes[type].onDisable.bind(this) : this.onDisable;
-            this.tickEffect = moduleTypes[type].tickEffect ? moduleTypes[type].tickEffect.bind(this) : this.tickEffect;
-        }
-    }
-
-    enable() {
-        if (!this.enabled) {
-            this.enabled = true;
-            this.onEnable();
-        }
-    }
-
-    disable() {
-        if (this.enabled) {
-            this.enabled = false;
-            this.onDisable();
-        }
-    }
-
-    onEnable() {
-        // Placeholder for enabling logic, to be overridden by specific module types
-    }
-
-    onDisable() {
-        // Placeholder for disabling logic, to be overridden by specific module types
-    }
-
-    tickEffect() {
-        // Placeholder for tick effect logic, to be overridden by specific module types
-    }
-
-    performFunction(functionName, ...args) {
-        if (this.functions[functionName]) {
-            this.functions[functionName](...args);
-        } else {
-            console.error(`Function ${functionName} does not exist on module ${this.name}.`);
-        }
-    }
-
-    getAvailableFunctions() {
-        return Object.entries(this.friendlyFunctionNames).map(([functionCode, friendlyName]) => ({
-            code: functionCode,
-            name: friendlyName
-        }));
-    }
-} */
-
 const moduleTypes = {
     fuelTank: {
         startEnabled: true,
@@ -126,7 +47,7 @@ const moduleTypes = {
             }
         },
         tickEffect: (moduleInstance, ship) => {
-            // Example: Check for battery efficiency reduction over time
+            // Example: Check for battery efficiency reduction over time, damage if short-circuited
         },
         functions: {
             charge: (moduleInstance, ship, amount) => {

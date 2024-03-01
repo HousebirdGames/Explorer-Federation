@@ -19,6 +19,6 @@ export default async function MissionControl() {
 }
 
 function updateMissions() {
-    document.getElementById('missionCurrent').innerHTML = shipState.mission === null ? 'No mission' : `${shipState.mission.type} > ${shipState.mission.target}`;
+    document.getElementById('missionCurrent').innerHTML = shipState.mission === null ? 'No mission' : `${shipState.mission.type} (${shipState.mission.target}) > ${shipState.mission.description}`;
     document.getElementById('missionHistory').innerHTML = shipState.missionHistory.length <= 0 ? 'No mission history' : shipState.missionHistory.map(mission => `<li>${mission.type}: ${mission.target} (${mission.state})</li>`).join('');
 }

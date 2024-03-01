@@ -8,6 +8,8 @@ export const updateNotes = [
             "Added game reset button",
             "Added basic faction system",
             "Added additional scanning information",
+            "Added mission type: Patrol Planet",
+            "Added mission descriptions"
         ]
     },
     {
@@ -16,7 +18,7 @@ export const updateNotes = [
         "notes": [
             "Added mission system",
             "Added mission control",
-            "Added mission types: Discover System, Patrol",
+            "Added mission types: Discover System, Patrol System",
         ]
     },
     {
