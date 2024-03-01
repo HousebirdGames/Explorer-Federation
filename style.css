@@ -262,3 +262,7 @@ button:active {
     border: var(--border);
     box-shadow: inset 0 0 1rem var(--muchLighter);
 }
+
+.course-btn.discovered {
+    border: 1px solid var(--fontColor);
+}

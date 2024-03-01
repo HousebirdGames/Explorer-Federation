@@ -2,7 +2,7 @@
 import * as main from "./Birdhouse/src/main.js";
 import { displayError, clearError } from "./Birdhouse/src/modules/input-validation.js";
 import { generateMission, checkCompletion } from "./src/game/missions.js";
-import { modules } from "./src/game/modules.js";
+import * as modules from "./src/game/modules.js";
 
 export let shipState = {
 
@@ -20,6 +20,7 @@ const defaultShipState = {
     engage: false,
     energy: 0,
     energyCapacity: 0,
+    energyTemp: 0,
     fuelConsumption: 0,
     efficiency: 0,
     lastConsumption: 0,
@@ -33,19 +34,30 @@ const defaultShipState = {
     missionHistory: [],
 };
 
+export let factions = [
+    {
+        name: 'Federation',
+        color: 'blue',
+        alliedWith: [],
+        warWith: [],
+    }
+];
+
 export function formatSpeed(speed) {
     return speed > 0 ? (speed >= 1 ? `Warp ${speed.toFixed(1)}` : `Impulse ${Math.round(speed * 10)}`) : 'Full Stop';
 }
 
 export function saveGameState() {
-    return;
+    //return;
     localStorage.setItem('shipState', JSON.stringify(shipState));
+    localStorage.setItem('factions', JSON.stringify(factions));
     localStorage.setItem('solarSystems', JSON.stringify(solarSystems));
 }
 
 export function resetGame() {
     main.alertPopup('Reseting game...');
     localStorage.removeItem('shipState');
+    localStorage.removeItem('factions');
     localStorage.removeItem('solarSystems');
     window.location.href = main.urlPrefix + '/?message=Game+reset+successful';
 }
@@ -55,6 +67,12 @@ export function loadGameState() {
     const savedShipState = JSON.parse(localStorage.getItem('shipState'));
     if (savedShipState) {
         Object.assign(shipState, savedShipState);
+        modules.reattachFunctionsAndBehaviors();
+    }
+
+    const savedFactionsState = JSON.parse(localStorage.getItem('factions'));
+    if (savedFactionsState) {
+        Object.assign(factions, savedFactionsState);
     }
 
     const savedSolarSystemsState = JSON.parse(localStorage.getItem('solarSystems'));
@@ -62,32 +80,35 @@ export function loadGameState() {
         Object.assign(solarSystems, savedSolarSystemsState);
     }
 
-    if (Object.keys(shipState).length === 0) {
+    if (Object.keys(shipState).length === 0 || Object.keys(factions).length <= 1 || Object.keys(solarSystems).length <= 1) {
+        console.log('No saved game state found');
+        localStorage.removeItem('shipState');
+        localStorage.removeItem('factions');
+        localStorage.removeItem('solarSystems');
         initializeNewGame();
     }
 }
 
 function initializeNewGame() {
-    console.log('Starting new game');
-    shipState = defaultShipState; // Assuming this resets or defines the shipState object
-    shipState.modules.push(
-        modules.fuelTankS1(),
-        modules.batteryS1(),
-        modules.batteryS1(),
-        modules.energyGeneratorS1(),
-    );
 
-    shipState.modules.forEach(module => {
-        console.log(`Module ${module.name} starts enabled: ${module.startEnabled}`);
-        if (module.startEnabled) {
-            module.enable();
-        }
-    });
+    console.log('Starting new game');
+    shipState = defaultShipState;
+
+    modules.addModuleToShip('fuelTankS1');
+    modules.addModuleToShip('batteryS1');
+    modules.addModuleToShip('batteryS1');
+    modules.addModuleToShip('energyGeneratorS1');
 
     shipState.fuel = shipState.fuelCapacity;
 
+    if (factions.length <= 1) {
+        console.log('Generating factions');
+        generateFactions(3);
+        console.log('Factions:', factions);
+    }
+
     if (solarSystems.length <= 1) {
-        generateSolarSystems(100); // Assuming this function exists elsewhere in your code
+        generateSolarSystems(100);
     }
 }
 
@@ -120,11 +141,12 @@ const initialSolarSystem = {
     name: "Sol",
     coordinates: { x: 0, y: 0 },
     discovered: true,
+    faction: "Federation",
     planets: [
         { name: "Mercury", type: "Terrestrial", fauna: "None", flora: "None", population: 0, civilization: "None" },
         { name: "Venus", type: "Terrestrial", fauna: "None", flora: "None", population: 0, civilization: "None" },
-        { name: "Earth", type: "Terrestrial", fauna: "Diverse", flora: "Diverse", population: 7700000000, civilization: "Highly Advanced", Faction: "United Nations" },
-        { name: "Mars", type: "Terrestrial", fauna: "None", flora: "Sparse", population: 140000, civilization: "Highly Advanced", Faction: "United Nations" },
+        { name: "Earth", type: "Terrestrial", fauna: "Diverse", flora: "Diverse", population: 20400000000, civilization: "Highly Advanced" },
+        { name: "Mars", type: "Terrestrial", fauna: "None", flora: "Sparse", population: 140000, civilization: "Highly Advanced" },
         { name: "Jupiter", type: "Gas Giant", fauna: "None", flora: "None", population: 0, civilization: "None" },
         { name: "Saturn", type: "Gas Giant", fauna: "None", flora: "None", population: 0, civilization: "None" },
         { name: "Uranus", type: "Ice Giant", fauna: "None", flora: "None", population: 0, civilization: "None" },
@@ -139,6 +161,23 @@ const emptySpace = {
     planets: []
 };
 
+function generateFactions(number) {
+    for (let i = 0; i < number; i++) {
+        const name = generateUniqueName(5, 1);
+        //To Do: Add 'Empire'...
+        const color = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
+        const alliedWith = [];
+        const warWith = [];
+
+        factions.push({
+            name,
+            color,
+            alliedWith,
+            warWith
+        });
+    }
+}
+
 export let solarSystems = [initialSolarSystem];
 
 function generateSolarSystems(number) {
@@ -149,6 +188,7 @@ function generateSolarSystems(number) {
     const civilizationTypes = ['None', 'Primitive', 'Advanced', 'Highly Advanced'];
 
     for (let i = 0; i < number; i++) {
+        console.log('Solar system discovered:', i + 1, '/', number)
         const name = generateUniqueName(5, 1);
         const coordinates = {
             x: Math.floor(Math.random() * maxDistance) * (Math.random() < 0.5 ? -1 : 1),
@@ -165,12 +205,21 @@ function generateSolarSystems(number) {
         }));
 
         planets = planets.sort((a, b) => a.name.localeCompare(b.name));
+        let discovered = false;
+        let faction = null;
+        if (Math.random() < 0.25) {
+            faction = factions[Math.floor(Math.random() * factions.length)].name;
+            if (faction === 'Federation') {
+                discovered = true;
+            }
+        }
 
         solarSystems.push({
             name,
             coordinates,
-            discovered: false,
-            planets
+            discovered,
+            planets,
+            faction
         });
     }
 
@@ -238,15 +287,14 @@ const updateInterval = 1000;
 
 const updateUI = new CustomEvent('updateUI');
 function GameLoop() {
-    let energyTemp = 0;
 
     const intervalId = setInterval(() => {
 
         updateModules();
 
         ShipMovement();
-        shipState.lastConsumption = energyTemp - shipState.energy;
-        energyTemp = shipState.energy;
+        shipState.lastConsumption = shipState.energyTemp - shipState.energy;
+        shipState.energyTemp = shipState.energy;
 
         if (shipState.mission == null) {
             generateMission();
@@ -262,7 +310,7 @@ function GameLoop() {
 }
 
 function updateModules() {
-    shipState.modules.forEach((module, index) => {
+    shipState.modules?.forEach((module, index) => {
         if (!module.currentHealth && module.currentHealth !== 0) {
             console.error('Invalid module detected:', module);
             return;

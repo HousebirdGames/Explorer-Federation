@@ -6,6 +6,8 @@ export const updateNotes = [
             "Added module system",
             "Enabled persistent game state",
             "Added game reset button",
+            "Added basic faction system",
+            "Added additional scanning information",
         ]
     },
     {

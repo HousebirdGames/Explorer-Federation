@@ -18,7 +18,7 @@ export default async function CourseSelection() {
         <h2 id="test">Select Your Course</h2>
         <div class="hugeSelection" id="planets"><p>Planets: Not discovered</p></div>
         <p>Choose destination solar system:</p>
-        <div class="hugeSelection">${solarSystems.map((system, index) => `<button class="course-btn" data-index="${index}">${system.name}</button>`).join('')}</div>
+        <div class="hugeSelection">${solarSystems.map((system, index) => `<button class="course-btn ${system.discovered ? 'discovered' : ''}" data-index="${index}">${system.name}</button>`).join('')}</div>
     `;
 }
 
