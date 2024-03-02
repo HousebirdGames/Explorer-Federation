@@ -33,7 +33,7 @@ export default async function StarMap(interactable = false) {
         }
     }
 
-    return `<div class="panel"><h2>${isInteractable ? 'Interactive Star Map' : 'Star Map'}</h2><svg id="starMap" class="noSelect" viewBox="${shipState.position.x} ${shipState.position.y} 1000 1000"></svg>
+    return `<div class="panel"><h2>${isInteractable ? 'Interactive Star Map' : 'Star Map'}</h2><svg id="starMap" class="noSelect ${isInteractable ? 'interactable' : ''}" viewBox="${shipState.position.x} ${shipState.position.y} 1000 1000"></svg>
     ${isInteractable ? `<div class="panelRow" id="zoom-controls">
     <div class="panel">
     <div class="panelRow" id="zoom-controls">

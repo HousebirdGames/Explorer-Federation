@@ -23,6 +23,7 @@ function displayPositionsAndDestinations() {
     <div class="panel">
         <h3>General</h3>
             <p>Current Speed: ${formatSpeed(shipState.currentSpeed)}</p>
+            <p>Maximum Speed: ${shipState.impulseEnabled ? formatSpeed(shipState.maxSpeed) : 'Impulse Drive required'}</p>
             <p>Hull Integrity: ${shipState.health}</p>
             <p>Shields: ${shipState.shields}</p>
             <p>Crew Size: ${crewSize}</p>

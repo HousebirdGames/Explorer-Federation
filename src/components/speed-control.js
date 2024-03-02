@@ -51,7 +51,7 @@ export default async function SpeedControl() {
                     <h3>Helms Control</h3>
                     <p>Target Speed: <span id="targetSpeedDisplay">${formatSpeed(shipState.targetSpeed)}</span></p>
                     <p>Current Speed: <span id="currentSpeedDisplay">${shipState.energy > 0 ? formatSpeed(shipState.currentSpeed) : formatSpeed(shipState.currentSpeed) + ' (No power)'}</span></p>
-                    <label><input type="range" id="speedSlider" min="0" max="5" value="${shipState.targetSpeed}" step="0.1"></label>
+                    <label><input type="range" id="speedSlider" min="0" max="${shipState.maxSpeed}" value="${shipState.targetSpeed}" step="0.1"></label>
                     <div class="buttonPanel">
                         <button id="speedControlButton" class="colored">${shipState.targetSpeed > 0 ? "Full Stop" : "Engage"}</button>
                     </div>
@@ -64,8 +64,12 @@ export default async function SpeedControl() {
 export function updateSpeed(newSpeed) {
     const targetSpeedDisplay = document.getElementById('targetSpeedDisplay');
     const currentSpeedDisplay = document.getElementById('currentSpeedDisplay');
+    const speedSlider = document.getElementById('speedSlider');
+
+    speedSlider.max = shipState.impulseEnabled ? (shipState.maxSpeed > 0.9 ? shipState.maxSpeed : 0.9) : 0;
+
     shipState.targetSpeed = newSpeed;
-    targetSpeedDisplay.textContent = formatSpeed(newSpeed);
+    targetSpeedDisplay.textContent = shipState.impulseEnabled ? formatSpeed(shipState.targetSpeed) : 'No Impulse Drive available';
     currentSpeedDisplay.textContent = shipState.energy > 0 ? formatSpeed(shipState.currentSpeed) : formatSpeed(shipState.currentSpeed) + ' (No power)';
 
     const speedControlButton = document.getElementById('speedControlButton');

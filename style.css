@@ -399,7 +399,6 @@ button.informationButton:hover {
 }
 
 #starMap {
-    touch-action: none;
     background-color: black;
     border-radius: 50%;
     border: solid 0.2rem var(--accentSecondary);
@@ -410,6 +409,10 @@ button.informationButton:hover {
     max-width: 70svh;
     height: auto;
     align-self: center;
+}
+
+#starMap.interactable {
+    touch-action: none;
 }
 
 .course-btn.discovered {

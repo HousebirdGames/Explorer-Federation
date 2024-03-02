@@ -9,6 +9,8 @@ export const updateNotes = [
             "Added basic reputation system",
             "Entering Federation a Federation system now refuels the ship",
             "Combined \"Engaged\" and \"Full Stop\" buttons into one",
+            "Added Modules: Impulse Drive, Warp Drive",
+            "Added mechanics to support the new modules",
         ]
     },
     {

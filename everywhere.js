@@ -21,6 +21,8 @@ const defaultShipState = {
     crew: [],
     currentSpeed: 0,
     targetSpeed: 0,
+    maxSpeed: 0,
+    impulseEnabled: 0,
     engage: false,
     energy: 0,
     energyCapacity: 0,
@@ -29,6 +31,7 @@ const defaultShipState = {
     efficiency: 0,
     lastConsumption: 0,
     isMoving: false,
+    accelerating: false,
     position: { x: 0, y: 0 },
     destinationIndex: 0,
     course: { x: 0, y: 0 },
@@ -49,7 +52,7 @@ export let factions = [
 ];
 
 export function formatSpeed(speed) {
-    return speed > 0 ? (speed >= 1 ? `Warp ${speed.toFixed(1)}` : `Impulse ${Math.round(speed * 10)}`) : 'Full Stop';
+    return speed > 0 ? (speed >= 1 ? `Warp ${speed.toFixed(1)}` : `Impulse ${Math.round(speed * 10)}`) : '-';
 }
 
 export function formatCamelCase(text) {
@@ -115,6 +118,8 @@ function initializeNewGame() {
     modules.addModuleToShip('batteryS1');
     modules.addModuleToShip('batteryS1');
     modules.addModuleToShip('energyGeneratorS1');
+    modules.addModuleToShip('impulseDriveS1');
+    modules.addModuleToShip('warpDriveS1');
 
     shipState.fuel = shipState.fuelCapacity;
 
@@ -338,6 +343,7 @@ function validateShipState() {
 }
 
 function updateModules() {
+    shipState.maxSpeed = 0;
     shipState.modules?.forEach((module, index) => {
         if (!module.currentHealth && module.currentHealth !== 0) {
             console.error('Invalid module detected:', module);
@@ -364,9 +370,29 @@ const defaultTravelTime = 20;
 let goingToPlanet = '';
 
 function updateShipPositionAndEnergy() {
-    const baseEnergyConsumptionRate = 0.02;
-    const distancePerTick = 10;
+    const distancePerTick = 1;
     const accelerationRate = 0.1;
+    shipState.accelerating = false;
+
+    let enableImpulse;
+    shipState.modules.forEach(module => {
+        if (module.type == 'impulseDrive' && module.enabled) {
+            enableImpulse = true;
+        }
+    });
+    shipState.impulseEnabled = enableImpulse;
+
+    let maxSpeed = shipState.impulseEnabled ? 0.9 : 0;
+    if (shipState.impulseEnabled && shipState.maxSpeed > 0.9) {
+        maxSpeed = shipState.maxSpeed;
+    }
+    else {
+        shipState.maxSpeed = maxSpeed;
+    }
+
+    if (shipState.targetSpeed > maxSpeed) {
+        shipState.targetSpeed = maxSpeed;
+    }
 
     let onlyCalculateETA = false;
     if (shipState.currentSpeed === 0 && !shipState.engage) {
@@ -374,9 +400,17 @@ function updateShipPositionAndEnergy() {
     }
     else {
         if (shipState.engage && shipState.targetPlanet != null && solarSystems[shipState.destinationIndex].planets.some(planet => planet.name === shipState.targetPlanet.name)) {
-            goingToPlanet = shipState.targetPlanet.name;
-            travelTime = defaultTravelTime;
-            shipState.isMoving = true;
+            const atTargetSystem = shipState.course.x === shipState.position.x && shipState.course.y === shipState.position.y;
+            if ((shipState.targetPlanet.name == shipState.currentPlanet && atTargetSystem) || atTargetSystem && shipState.targetPlanet == null) {
+                main.alertPopup('Already at destination');
+                shipState.engage = false;
+            }
+            else {
+                console.log('Setting course to', shipState.targetPlanet.name);
+                goingToPlanet = shipState.targetPlanet.name;
+                travelTime = defaultTravelTime;
+                shipState.isMoving = true;
+            }
         }
         shipState.engage = false;
     }
@@ -385,7 +419,7 @@ function updateShipPositionAndEnergy() {
         shipState.isMoving = false;
         if (shipState.currentSpeed > 0) {
             shipState.currentSpeed -= accelerationRate * 2;
-            if (shipState.currentSpeed < 0) {
+            if (shipState.currentSpeed <= 0) {
                 shipState.currentSpeed = 0;
             }
         }
@@ -413,17 +447,16 @@ function updateShipPositionAndEnergy() {
         return;
     }
 
-    if (shipState.energy > 0) {
+    if (shipState.currentSpeed < shipState.targetSpeed) {
+        shipState.currentSpeed += accelerationRate;
+        shipState.accelerating = true;
+        if (shipState.currentSpeed > shipState.targetSpeed) {
+            shipState.currentSpeed = shipState.targetSpeed;
+        }
+    } else if (shipState.currentSpeed > shipState.targetSpeed) {
+        shipState.currentSpeed -= accelerationRate * 2;
         if (shipState.currentSpeed < shipState.targetSpeed) {
-            shipState.currentSpeed += accelerationRate;
-            if (shipState.currentSpeed > shipState.targetSpeed) {
-                shipState.currentSpeed = shipState.targetSpeed;
-            }
-        } else if (shipState.currentSpeed > shipState.targetSpeed) {
-            shipState.currentSpeed -= accelerationRate * 2;
-            if (shipState.currentSpeed < shipState.targetSpeed) {
-                shipState.currentSpeed = shipState.targetSpeed;
-            }
+            shipState.currentSpeed = shipState.targetSpeed;
         }
     }
 
@@ -466,11 +499,16 @@ function updateShipPositionAndEnergy() {
             main.alertPopup(`Arrived at ${system.name}`);
         }
 
-        if (shipState.targetPlanet != null && solarSystems[shipState.destinationIndex].planets.some(planet => planet.name === shipState.targetPlanet.name)) {
+        const atTargetSystem = shipState.course.x === shipState.position.x && shipState.course.y === shipState.position.y;
+        const shouldTravelToPlanet = !(shipState.targetPlanet && (shipState.targetPlanet.name == shipState.currentPlanet && atTargetSystem) || atTargetSystem && shipState.targetPlanet == null);
+        if (shouldTravelToPlanet && shipState.targetPlanet != null && solarSystems[shipState.destinationIndex].planets.some(planet => planet.name === shipState.targetPlanet.name)) {
             goingToPlanet = shipState.targetPlanet.name;
             travelTime = defaultTravelTime;
         }
         else {
+            if (shipState.targetPlanet) {
+                main.alertPopup('Already orbiting ' + shipState.targetPlanet.name);
+            }
             shipState.isMoving = false;
             shipState.currentSpeed = 0;
         }
@@ -484,8 +522,6 @@ function updateShipPositionAndEnergy() {
         shipState.position.x += Math.cos(angleToDestination) * distancePerTick * shipState.currentSpeed;
         shipState.position.y += Math.sin(angleToDestination) * distancePerTick * shipState.currentSpeed;
 
-        const energyConsumptionRate = baseEnergyConsumptionRate * Math.pow(shipState.currentSpeed, 2);
-        shipState.energy -= energyConsumptionRate;
         if (shipState.energy < 0 && shipState.isMoving) {
             shipState.energy = 0;
             shipState.isMoving = false;

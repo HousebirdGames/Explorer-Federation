@@ -7,13 +7,13 @@ const moduleTypes = {
         onEnable: (moduleInstance, ship) => {
             if (!moduleInstance.enabled) {
                 moduleInstance.enabled = true;
-                ship.fuelCapacity += moduleInstance.properties.capacity;
+                ship.fuelCapacity += moduleInstance.properties.fuelCapacity;
             }
         },
         onDisable: (moduleInstance, ship) => {
             if (moduleInstance.enabled) {
                 moduleInstance.enabled = false;
-                ship.fuelCapacity -= moduleInstance.properties.capacity;
+                ship.fuelCapacity -= moduleInstance.properties.fuelCapacity;
             }
 
             if (ship.fuel > ship.fuelCapacity) {
@@ -45,6 +45,9 @@ const moduleTypes = {
                     }
                 }
             }
+        },
+        properties: {
+            fuelCapacity: 100
         }
     },
     battery: {
@@ -52,13 +55,13 @@ const moduleTypes = {
         onEnable: (moduleInstance, ship) => {
             if (!moduleInstance.enabled) {
                 moduleInstance.enabled = true;
-                ship.energyCapacity += moduleInstance.properties.capacity;
+                ship.energyCapacity += moduleInstance.properties.energyCapacity;
             }
         },
         onDisable: (moduleInstance, ship) => {
             if (moduleInstance.enabled) {
                 moduleInstance.enabled = false;
-                ship.energyCapacity -= moduleInstance.properties.capacity;
+                ship.energyCapacity -= moduleInstance.properties.energyCapacity;
 
                 if (ship.energy > ship.energyCapacity) {
                     alertPopup(`Energy capacity reduced. Discharged battery and lost ${ship.energy - ship.energyCapacity} energy.`);
@@ -90,6 +93,9 @@ const moduleTypes = {
                     }
                 }
             }
+        },
+        properties: {
+            energyCapacity: 100
         }
     },
     energyGenerator: {
@@ -110,7 +116,7 @@ const moduleTypes = {
                 return false;
             }
 
-            let consumptionRate = moduleInstance.properties.consumptionRate;
+            let consumptionRate = moduleInstance.properties.fuelConsumptionRate;
 
             if (moduleInstance.properties.overclocked) {
                 consumptionRate *= 2;
@@ -143,16 +149,117 @@ const moduleTypes = {
                     return moduleInstance.properties.overclocked;
                 }
             }
+        },
+        properties: {
+            efficiency: 1,
+            fuelConsumptionRate: 1,
+            overclocked: false
         }
-    }
+    },
+    impulseDrive: {
+        startEnabled: false,
+        onEnable: (moduleInstance, ship) => {
+            if (!moduleInstance.enabled) {
+                moduleInstance.enabled = true;
+            }
+        },
+        onDisable: (moduleInstance, ship) => {
+            if (moduleInstance.enabled) {
+                moduleInstance.enabled = false;
+            }
+        },
+        tickEffect: (moduleInstance, ship) => {
+            if (moduleInstance.enabled && ship.isMoving && ship.currentSpeed > 0 && ship.currentSpeed <= 0.9) {
+                const energyConsumptionRate = moduleInstance.properties.energyConsumptionRate * Math.pow(ship.currentSpeed, 2);
+                ship.energy -= energyConsumptionRate;
+            }
+        },
+        functions: {
+
+        }
+    },
+    warpDrive: {
+        startEnabled: false,
+        onEnable: (moduleInstance, ship) => {
+            if (!moduleInstance.enabled) {
+                moduleInstance.enabled = true;
+                if (moduleInstance.properties.warpSpeed >= ship.maxSpeed) {
+                    ship.maxSpeed = moduleInstance.properties.warpSpeed;
+                }
+            }
+        },
+        onDisable: (moduleInstance, ship) => {
+            if (moduleInstance.enabled) {
+                moduleInstance.enabled = false;
+                moduleInstance.properties.overclocked = false;
+                ship.maxSpeed = 0;
+            }
+        },
+        tickEffect: (moduleInstance, ship) => {
+            if (!moduleInstance.enabled) {
+                return;
+            }
+
+            let consumptionRate = moduleInstance.properties.energyConsumptionRate;
+            let newMaxSpeed = moduleInstance.properties.warpSpeed;
+
+            if (moduleInstance.properties.overclocked) {
+                consumptionRate *= 2;
+                newMaxSpeed = moduleInstance.properties.warpSpeed * 1.2;
+            }
+
+            if (newMaxSpeed > ship.maxSpeed) {
+                ship.maxSpeed = newMaxSpeed;
+            }
+
+            if (shipState.accelerating && shipState.currentSpeed > 0.9 && ship.energy >= consumptionRate) {
+
+                if (moduleInstance.properties.overclocked) {
+                    moduleInstance.currentHealth -= 1;
+
+                    if (ship.currentSpeed < ship.maxSpeed) {
+                        ship.currentSpeed += moduleInstance.properties.overclockedAcceleration;
+                        if (ship.currentSpeed > ship.maxSpeed) {
+                            ship.currentSpeed = ship.maxSpeed;
+                        }
+                    }
+
+                    if (moduleInstance.currentHealth <= 0) {
+                        alertPopup(`Warp drive ${moduleInstance.name} has been disabled due to damage.`);
+                        this.onDisable(moduleInstance, ship);
+                    }
+                }
+
+                ship.energy -= consumptionRate;
+            }
+        },
+        functions: {
+            overclock: {
+                friendlyName: 'Toggle Overclock',
+                action: (moduleInstance, ship) => {
+                    moduleInstance.properties.overclocked = !moduleInstance.properties.overclocked;
+                    const status = moduleInstance.properties.overclocked ? 'overclocked' : 'in normal operation';
+                    alertPopup(`Warp drive is now ${status}.`);
+                }
+            }
+        },
+        properties: {
+            warpSpeed: 3,
+            energyConsumptionRate: 1,
+            overclockedAcceleration: 0.2,
+            overclocked: false
+        }
+    },
 };
 
 
 // Specific module models with default properties
 const moduleModels = {
-    fuelTankS1: { type: 'fuelTank', name: 'S1 Fuel Tank', maxHealth: 20, weight: 4, properties: { capacity: 400 } },
-    batteryS1: { type: 'battery', name: 'S1 Battery', maxHealth: 10, weight: 1, properties: { capacity: 50 } },
-    energyGeneratorS1: { type: 'energyGenerator', name: 'S1 Reactor', maxHealth: 40, weight: 5, properties: { efficiency: 0.5, consumptionRate: 5, overclocked: false } }
+    fuelTankS1: { type: 'fuelTank', name: 'S1 Fuel Tank', maxHealth: 20, weight: 4, properties: { fuelCapacity: 400 } },
+    batteryS1: { type: 'battery', name: 'S1 Battery', maxHealth: 10, weight: 1, properties: { energyCapacity: 50 } },
+    energyGeneratorS1: { type: 'energyGenerator', name: 'S1 Reactor', maxHealth: 40, weight: 5, properties: { efficiency: 0.5, fuelConsumptionRate: 5, overclocked: false } },
+    impulseDriveS1: { type: 'impulseDrive', name: 'S1 Impulse Drive', maxHealth: 50, weight: 3, properties: { energyConsumptionRate: 0.1 } },
+    warpDriveS1: { type: 'warpDrive', name: 'S1 Warp Drive', maxHealth: 100, weight: 5, properties: { warpSpeed: 5, overclockedAcceleration: 0.2, energyConsumptionRate: 0.5, overclocked: false } },
 };
 
 export function addModuleToShip(modelId, ship = shipState) {
@@ -166,7 +273,6 @@ export function addModuleToShip(modelId, ship = shipState) {
     const moduleInstance = { ...model, currentHealth: model.maxHealth, enabled: false };
     ship.modules.push(moduleInstance);
 
-    // Setup module instance with type-specific behaviors and functions
     const type = moduleTypes[moduleInstance.type];
     if (!type) {
         console.error(`Module type ${moduleInstance.type} not found.`);
@@ -177,14 +283,12 @@ export function addModuleToShip(modelId, ship = shipState) {
 
     attachSharedBehavioursAndFunctions(moduleInstance, type, ship);
 
-    // Automatically enable the module if startEnabled is true
     if (type.startEnabled) {
         console.log(`Module ${moduleInstance.name} is enabled.`);
         moduleInstance.onEnable();
     }
 }
 
-// Reattach functions and behaviors after loading ship state
 export function reattachFunctionsAndBehaviors(ship = shipState) {
     ship.modules.forEach(moduleInstance => {
         const type = moduleTypes[moduleInstance.type];
@@ -214,14 +318,12 @@ function attachSharedBehavioursAndFunctions(moduleInstance, type, ship) {
 }
 
 export function getAllFunctionsForModule(moduleName) {
-    // Find the module in shipState by name
     const moduleInstance = shipState.modules.find(module => module.name === moduleName);
     if (!moduleInstance) {
         console.error(`Module ${moduleName} not found.`);
         return;
     }
 
-    // Map each function to include its friendly name
     const functionsWithFriendlyNames = Object.entries(moduleInstance.functions).map(([key, value]) => {
         return {
             functionName: key,
