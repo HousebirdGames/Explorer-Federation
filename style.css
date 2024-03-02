@@ -331,7 +331,7 @@ button.informationButton:hover {
     max-height: 90%;
     padding: var(--padding);
     text-align: center;
-    border: solid 0.4rem var(--background);
+    border: solid 0.4rem var(--accentSecondary);
     border-left-width: 2.4rem;
     border-radius: 0.4rem 2rem 0.4rem 2rem;
     box-shadow: var(--boxShadow);
@@ -447,16 +447,15 @@ button.informationButton:hover {
 }
 
 .panel .panel {
-    margin-right: 0.4rem;
     padding-left: 0;
     flex-direction: column;
     border: none;
     border-top: solid 0.2rem var(--accentSecondaryTransparent);
     border-right: solid 0.2rem var(--accentSecondaryTransparent);
-    border-radius: 0.2rem 4rem 0.2rem 0;
+    border-radius: 0.2rem 2rem 0.2rem 0;
     flex-direction: column;
     justify-content: flex-start;
-    padding-right: 4rem;
+    padding-right: 1rem;
     width: unset;
     flex-grow: 1;
 }
@@ -464,6 +463,8 @@ button.informationButton:hover {
 .panel .buttonPanel {
     padding: 0;
     border: none;
+    flex-grow: 1;
+    align-items: flex-end;
 }
 
 .panel h3,
