@@ -1,5 +1,13 @@
 export const updateNotes = [
     {
+        "version": "0.0.4",
+        "title": "Pre-Alpha",
+        "notes": [
+            "Added module management",
+            "Added engineering overview (including the new module management)",
+        ]
+    },
+    {
         "version": "0.0.3",
         "title": "Pre-Alpha",
         "notes": [

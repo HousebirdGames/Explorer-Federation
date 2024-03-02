@@ -48,6 +48,12 @@ export function formatSpeed(speed) {
     return speed > 0 ? (speed >= 1 ? `Warp ${speed.toFixed(1)}` : `Impulse ${Math.round(speed * 10)}`) : 'Full Stop';
 }
 
+export function formatCamelCase(text) {
+    const result = text.replace(/([A-Z])/g, " $1");
+    const finalResult = result.charAt(0).toUpperCase() + result.slice(1);
+    return finalResult.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+}
+
 export function saveGameState() {
     //return;
     localStorage.setItem('shipState', JSON.stringify(shipState));
@@ -554,7 +560,8 @@ window.hook('create-routes', async function () {
     main.createPublicRoute('/index.html', 'Navigation', 'article', 'components/navigation.js', false);
 
     main.createPublicRoute('/navigation', 'Navigation', 'article', 'components/navigation.js', true);
-    main.createPublicRoute('/ship-state', 'Ship State', 'settings', 'components/ship-state.js', true);
+    main.createPublicRoute('/engineering', 'Engineering', 'settings', 'components/engineering.js', true);
+    main.createPublicRoute('/ship-state', 'Ship State', 'settings', 'components/ship-state.js', false);
     main.createPublicRoute('/starmap', 'Star Map', 'map', 'components/starmap.js', true, true);
     main.createPublicRoute('/scanner', 'Scanner', 'search', 'components/scanner.js', true);
     main.createPublicRoute('/missions', 'Missions', 'list', 'components/mission-control.js', true);

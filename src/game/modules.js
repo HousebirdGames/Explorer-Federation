@@ -15,19 +15,34 @@ const moduleTypes = {
                 moduleInstance.enabled = false;
                 ship.fuelCapacity -= moduleInstance.properties.capacity;
             }
+
+            if (ship.fuel > ship.fuelCapacity) {
+                alertPopup(`Fuel tank ${moduleInstance.name} has been emptied and ${ship.fuel - ship.fuelCapacity} fuel has been lost.`);
+                ship.fuel = ship.fuelCapacity;
+            }
         },
         tickEffect: (moduleInstance, ship) => {
             // Example: Decrease fuel if there's a leak
         },
         functions: {
-            ejectFuel: (moduleInstance, ship, amount) => {
-                if (ship.fuel >= amount) {
-                    ship.fuel -= amount;
-                    alertPopup(`Fuel ejected: ${amount}`);
-                    return true;
-                } else {
-                    alertPopup(`Not enough fuel to eject ${amount}.`);
-                    return false;
+            ejectFuel: {
+                friendlyName: 'Eject Fuel',
+                action: (moduleInstance, ship, amount) => {
+                    if (amount === undefined) amount = prompt('How much fuel do you want to eject?', 0);
+
+                    if (amount === null || amount <= 0) {
+                        alertPopup('Ejection cancelled.');
+                        return false;
+                    }
+
+                    if (ship.fuel >= amount) {
+                        ship.fuel -= amount;
+                        alertPopup(`Fuel ejected: ${amount}`);
+                        return true;
+                    } else {
+                        alertPopup(`Not enough fuel to eject ${amount}.`);
+                        return false;
+                    }
                 }
             }
         }
@@ -44,34 +59,51 @@ const moduleTypes = {
             if (moduleInstance.enabled) {
                 moduleInstance.enabled = false;
                 ship.energyCapacity -= moduleInstance.properties.capacity;
+
+                if (ship.energy > ship.energyCapacity) {
+                    alertPopup(`Energy capacity reduced. Discharged battery and lost ${ship.energy - ship.energyCapacity} energy.`);
+                    ship.energy = ship.energyCapacity;
+                }
             }
         },
         tickEffect: (moduleInstance, ship) => {
             // Example: Check for battery efficiency reduction over time, damage if short-circuited
         },
         functions: {
-            charge: (moduleInstance, ship, amount) => {
-                if (ship.energy < ship.energyCapacity) {
-                    ship.energy = Math.min(ship.energy + amount, ship.energyCapacity);
-                    alertPopup(`Energy charged: ${amount}`);
-                    return true;
-                } else {
-                    alertPopup(`Energy already at maximum capacity.`);
-                    return false;
+            discharge: {
+                friendlyName: 'Discharge',
+                action: (moduleInstance, ship, amount) => {
+                    if (amount === undefined) amount = prompt('How much energy do you want to discharge?', 0);
+
+                    if (amount === null || amount <= 0) {
+                        alertPopup('Discharge cancelled.');
+                        return false;
+                    }
+
+                    if (ship.energy >= amount) {
+                        ship.energy -= amount;
+                        alertPopup(`Energy discharged: ${amount}`);
+                        return true;
+                    } else {
+                        alertPopup(`Not enough energy to discharge ${amount}.`);
+                        return false;
+                    }
                 }
             }
         }
     },
     energyGenerator: {
-        startEnabled: true,
+        startEnabled: false,
         onEnable: (moduleInstance, ship) => {
             if (!moduleInstance.enabled) {
                 moduleInstance.enabled = true;
+                moduleInstance.properties.overclocked = false;
             }
         },
         onDisable: (moduleInstance, ship) => {
             if (moduleInstance.enabled) {
                 moduleInstance.enabled = false;
+                moduleInstance.properties.overclocked = false;
             }
         },
         tickEffect: (moduleInstance, ship) => {
@@ -80,7 +112,8 @@ const moduleTypes = {
             }
 
             let consumptionRate = moduleInstance.properties.consumptionRate;
-            if (moduleInstance.overclocked) {
+
+            if (moduleInstance.properties.overclocked) {
                 consumptionRate *= 2;
                 moduleInstance.currentHealth -= 1;
                 if (moduleInstance.currentHealth <= 0) {
@@ -91,9 +124,9 @@ const moduleTypes = {
                 }
             }
 
-            if (moduleInstance.properties.consumptionRate < ship.fuel && moduleInstance.properties.consumptionRate * moduleInstance.properties.efficiency <= ship.energyCapacity - ship.energy) {
-                ship.fuel -= moduleInstance.properties.consumptionRate;
-                ship.energy += moduleInstance.properties.consumptionRate * moduleInstance.properties.efficiency;
+            if (consumptionRate < ship.fuel && consumptionRate * moduleInstance.properties.efficiency <= ship.energyCapacity - ship.energy) {
+                ship.fuel -= consumptionRate;
+                ship.energy += consumptionRate * moduleInstance.properties.efficiency;
 
                 if (ship.energy > ship.energyCapacity) {
                     ship.energy = ship.energyCapacity;
@@ -102,11 +135,14 @@ const moduleTypes = {
             return true;
         },
         functions: {
-            overclock: (moduleInstance, ship) => {
-                moduleInstance.properties.overclocked = !moduleInstance.properties.overclocked;
-                const status = moduleInstance.properties.overclocked ? 'overclocked' : 'normal operation';
-                alertPopup(`Energy generator is now in ${status}.`);
-                return moduleInstance.properties.overclocked;
+            overclock: {
+                friendlyName: 'Toggle Overclock',
+                action: (moduleInstance, ship) => {
+                    moduleInstance.properties.overclocked = !moduleInstance.properties.overclocked;
+                    const status = moduleInstance.properties.overclocked ? 'overclocked' : 'normal operation';
+                    alertPopup(`Energy generator is now in ${status}.`);
+                    return moduleInstance.properties.overclocked;
+                }
             }
         }
     }
@@ -168,8 +204,31 @@ function attachSharedBehavioursAndFunctions(moduleInstance, type, ship) {
         onDisable: () => type.onDisable(moduleInstance, ship),
         tickEffect: () => type.tickEffect(moduleInstance, ship),
         functions: Object.keys(type.functions).reduce((acc, functionName) => {
-            acc[functionName] = (...args) => type.functions[functionName](moduleInstance, ship, ...args);
+            const friendlyName = type.functions[functionName].friendlyName || functionName;
+            acc[functionName] = {
+                action: (...args) => type.functions[functionName].action(moduleInstance, ship, ...args),
+                friendlyName: friendlyName
+            };
             return acc;
         }, {})
     });
+}
+
+export function getAllFunctionsForModule(moduleName) {
+    // Find the module in shipState by name
+    const moduleInstance = shipState.modules.find(module => module.name === moduleName);
+    if (!moduleInstance) {
+        console.error(`Module ${moduleName} not found.`);
+        return;
+    }
+
+    // Map each function to include its friendly name
+    const functionsWithFriendlyNames = Object.entries(moduleInstance.functions).map(([key, value]) => {
+        return {
+            functionName: key,
+            friendlyName: value.friendlyName
+        };
+    });
+
+    return functionsWithFriendlyNames;
 }
