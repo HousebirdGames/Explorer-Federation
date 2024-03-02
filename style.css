@@ -1,7 +1,7 @@
 /* To begin, you can change, add or remove any of the variables */
 
 :root {
-    --fontColor: white;
+    --fontColor: #e0b979;
     --fontHighlight: #e7c4a3;
     --accent: rgb(255, 213, 79);
     --accentSecondary: #665541;
@@ -14,7 +14,7 @@
     --highlight: #e0b979;
     --highlightHover: #ffb168;
     --highlightActive: #ff8615;
-    --background: #252525;
+    --background: #1a1a1a;
     --warning: rgb(218, 113, 113);
     --none: rgb(255, 255, 255, 0);
 
@@ -32,6 +32,16 @@
     --transitionFast: 0.1s ease-in-out;
     --transitionNormal: 0.4s ease-in-out;
     --transitionSlow: 1.4s ease-in-out;
+}
+
+@media screen and (max-width: 600px) {
+    :root {
+        --fontSizeSmall: 0.6rem;
+        --fontSize: 0.7rem;
+        --fontSizeMedium: 0.8rem;
+        --fontSizeLarge: 1rem;
+        --fontSizeExtraLarge: 1.2rem;
+    }
 }
 
 ::selection {
@@ -53,6 +63,11 @@ header {
     position: sticky;
     top: 0;
     z-index: 100;
+    justify-content: flex-start;
+}
+
+footer {
+    justify-content: space-between;
 }
 
 header,
@@ -60,12 +75,14 @@ footer {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+    align-items: center;
     box-sizing: border-box;
     width: 100%;
     gap: var(--padding);
     padding: var(--padding);
-    background: var(--accent);
+    background: var(--accentSecondary);
     box-shadow: var(--boxShadow);
+    color: var(--fontColor);
 }
 
 #content {
@@ -96,10 +113,23 @@ footer {
     display: flex;
     flex-direction: row;
     gap: var(--padding);
+    flex-wrap: wrap;
 }
 
 li {
     list-style: none;
+    text-align: left;
+    border-left: 0.2rem solid var(--accentSecondary);
+    border-radius: 0.2rem 0 0 0.2rem;
+    padding-left: 0.4rem;
+}
+
+ul {
+    display: flex;
+    flex-direction: column;
+    gap: var(--padding);
+    padding: 0;
+    justify-content: flex-start;
 }
 
 h1,
@@ -205,12 +235,17 @@ input[type="range"]::-moz-range-thumb {
     cursor: pointer;
 }
 
-div.buttonRow {
+.buttonRow {
     display: flex;
     flex-direction: row;
     gap: var(--padding);
     justify-content: center;
     width: 100%;
+}
+
+span.buttonRow {
+    width: unset;
+    ;
 }
 
 div.buttonPanel {
@@ -234,10 +269,12 @@ button:disabled {
     cursor: default;
 }
 
+a,
 button,
 .menuButton {
-    background: var(--accentSecondary);
-    color: var(--fontColor);
+    font-size: var(--fontSize);
+    background: var(--accent);
+    color: var(--accentSecondary);
     padding: 0.4rem 1rem 0.4rem 0.64rem;
     border-radius: var(--borderRadiusButtons);
     border: none;
@@ -404,7 +441,7 @@ button.informationButton:hover {
 }
 
 .panel .panel {
-    margin-right: 1rem;
+    margin-right: 0.4rem;
     flex-direction: column;
     border: none;
     border-top: solid 0.2rem var(--accentSecondaryTransparent);

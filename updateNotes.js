@@ -5,6 +5,7 @@ export const updateNotes = [
         "notes": [
             "Styled whole game with a new look and feel",
             "Added some useful buttons and additonal information",
+            "Improved responsiveness",
         ]
     },
     {
