@@ -4,6 +4,10 @@ import { displayError, clearError } from "./Birdhouse/src/modules/input-validati
 import { generateMission, checkCompletion } from "./src/game/missions.js";
 import * as modules from "./src/game/modules.js";
 
+export let playerState = {
+    reputation: 0,
+};
+
 export let shipState = {
 
 };
@@ -55,7 +59,7 @@ export function formatCamelCase(text) {
 }
 
 export function saveGameState() {
-    //return;
+    localStorage.setItem('playerState', JSON.stringify(playerState));
     localStorage.setItem('shipState', JSON.stringify(shipState));
     localStorage.setItem('factions', JSON.stringify(factions));
     localStorage.setItem('solarSystems', JSON.stringify(solarSystems));
@@ -63,6 +67,7 @@ export function saveGameState() {
 
 export function resetGame() {
     main.alertPopup('Reseting game...');
+    localStorage.removeItem('playerState');
     localStorage.removeItem('shipState');
     localStorage.removeItem('factions');
     localStorage.removeItem('solarSystems');
@@ -70,6 +75,11 @@ export function resetGame() {
 }
 
 export function loadGameState() {
+    const savedPlayerState = JSON.parse(localStorage.getItem('playerState'));
+    if (savedPlayerState) {
+        Object.assign(playerState, savedPlayerState);
+    }
+
     const savedShipState = JSON.parse(localStorage.getItem('shipState'));
     if (savedShipState) {
         Object.assign(shipState, savedShipState);
@@ -88,6 +98,7 @@ export function loadGameState() {
 
     if (Object.keys(shipState).length === 0 || Object.keys(factions).length <= 1 || Object.keys(solarSystems).length <= 1) {
         console.log('No saved game state found');
+        localStorage.removeItem('playerState');
         localStorage.removeItem('shipState');
         localStorage.removeItem('factions');
         localStorage.removeItem('solarSystems');
@@ -334,7 +345,7 @@ function updateModules() {
         }
         if (module.currentHealth <= 0 && module.enabled) {
             module.onDisable();
-            alertPopup(`${module.name} has been disabled due to critical damage.`);
+            main.alertPopup(`${module.name} has been disabled due to critical damage.`);
         }
         else if (module.enabled) {
             module.tickEffect();
@@ -445,7 +456,15 @@ function updateShipPositionAndEnergy() {
     else if (distanceToDestination <= distancePerTick * shipState.currentSpeed) {
         shipState.position.x = shipState.course.x;
         shipState.position.y = shipState.course.y;
-        main.alertPopup(`Arrived at ${findDestinationSystemByCoords(shipState.course).name}`);
+        const system = findDestinationSystemByCoords(shipState.course);
+
+        if (system.faction && system.faction == 'Federation') {
+            main.alertPopup(`Arrived at ${system.name}`, `You are now in Federation space and have been refuled`);
+            shipState.fuel = shipState.fuelCapacity;
+        }
+        else {
+            main.alertPopup(`Arrived at ${system.name}`);
+        }
 
         if (shipState.targetPlanet != null && solarSystems[shipState.destinationIndex].planets.some(planet => planet.name === shipState.targetPlanet.name)) {
             goingToPlanet = shipState.targetPlanet.name;
@@ -654,7 +673,7 @@ window.hook('create-routes', async function () {
     main.createPublicRoute('/starmap', 'Star Map', 'map', 'components/starmap.js', true, true);
     main.createPublicRoute('/scanner', 'Scanner', 'search', 'components/scanner.js', true);
     main.createPublicRoute('/missions', 'Missions', 'list', 'components/mission-control.js', true);
-    main.createPublicRoute('/settings', 'Settings', '', 'components/settings.js', true);
+    main.createPublicRoute('/settings', 'Settings', 'settings', 'components/settings.js', true);
     /*  // We can also use the same component for different routes. But this time without an icon.
      main.createPublicRoute('/example-2', 'Also the Example Page', '', 'components/example.js', true);
  

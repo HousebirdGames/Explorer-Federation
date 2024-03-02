@@ -90,6 +90,7 @@ footer {
     flex-direction: column;
     gap: var(--padding);
     padding: var(--padding);
+    margin-bottom: 4rem;
     min-height: 100vh;
     width: 100%;
     box-sizing: border-box;
@@ -284,12 +285,16 @@ button,
     transition: var(--transitionFast);
 }
 
-button:hover {
+button:hover,
+.menuButton:hover {
     background: var(--highlightHover);
+    color: var(--accentSecondary);
 }
 
-button:active {
+button:active,
+.menuButton:active {
     background: var(--highlightActive);
+    color: var(--accentSecondary);
 }
 
 button.informationButton {
@@ -443,6 +448,7 @@ button.informationButton:hover {
 
 .panel .panel {
     margin-right: 0.4rem;
+    padding-left: 0;
     flex-direction: column;
     border: none;
     border-top: solid 0.2rem var(--accentSecondaryTransparent);

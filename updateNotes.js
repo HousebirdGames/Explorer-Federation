@@ -6,6 +6,9 @@ export const updateNotes = [
             "Styled whole game with a new look and feel",
             "Added some useful buttons and additonal information",
             "Improved responsiveness",
+            "Added basic reputation system",
+            "Entering Federation a Federation system now refuels the ship",
+            "Combined \"Engaged\" and \"Full Stop\" buttons into one",
         ]
     },
     {

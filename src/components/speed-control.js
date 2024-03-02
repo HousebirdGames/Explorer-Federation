@@ -10,32 +10,30 @@ export default async function SpeedControl() {
     });
 
     action({
-        type: 'click', selector: '#engageButton', handler: (e) => {
-            if (shipState.course == null) {
-                alertPopup('No course set');
-                return;
+        type: 'click', selector: '#speedControlButton', handler: (e) => {
+            const button = e.target;
+            if (button.textContent === "Engage") {
+                if (shipState.course == null) {
+                    alertPopup('No course set');
+                    return;
+                } else if (shipState.course.x === shipState.position.x && shipState.course.y === shipState.position.y && (shipState.targetPlanet == null || shipState.targetPlanet === shipState.currentPlanet)) {
+                    alertPopup('Already at destination');
+                    return;
+                } else if (shipState.targetSpeed === 0) {
+                    alertPopup('No speed set');
+                    return;
+                } else if (shipState.energy <= 0) {
+                    alertPopup('No power');
+                    return;
+                }
+                shipState.engage = true;
+                button.textContent = "Full Stop";
+            } else {
+                updateSpeed(0);
+                const speedSlider = document.getElementById('speedSlider');
+                speedSlider.value = 0;
+                button.textContent = "Engage";
             }
-            else if (shipState.course.x === shipState.position.x && shipState.course.y === shipState.position.y && (shipState.targetPlanet == null || shipState.targetPlanet === shipState.currentPlanet)) {
-                alertPopup('Already at destination');
-                return;
-            }
-            else if (shipState.targetSpeed === 0) {
-                alertPopup('No speed set');
-                return;
-            }
-            else if (shipState.energy <= 0) {
-                alertPopup('No power');
-                return;
-            }
-            shipState.engage = true;
-        }
-    });
-
-    action({
-        type: 'click', selector: '#fullStopButton', handler: () => {
-            updateSpeed(0);
-            const speedSlider = document.getElementById('speedSlider');
-            speedSlider.value = 0;
         }
     });
 
@@ -55,8 +53,7 @@ export default async function SpeedControl() {
                     <p>Current Speed: <span id="currentSpeedDisplay">${shipState.energy > 0 ? formatSpeed(shipState.currentSpeed) : formatSpeed(shipState.currentSpeed) + ' (No power)'}</span></p>
                     <label><input type="range" id="speedSlider" min="0" max="5" value="${shipState.targetSpeed}" step="0.1"></label>
                     <div class="buttonPanel">
-                        <button id="engageButton" class="colored">Engage</button>
-                        <button id="fullStopButton" class="colored">Full Stop</button>
+                        <button id="speedControlButton" class="colored">${shipState.targetSpeed > 0 ? "Full Stop" : "Engage"}</button>
                     </div>
                 </div>
             </div>
@@ -70,6 +67,9 @@ export function updateSpeed(newSpeed) {
     shipState.targetSpeed = newSpeed;
     targetSpeedDisplay.textContent = formatSpeed(newSpeed);
     currentSpeedDisplay.textContent = shipState.energy > 0 ? formatSpeed(shipState.currentSpeed) : formatSpeed(shipState.currentSpeed) + ' (No power)';
+
+    const speedControlButton = document.getElementById('speedControlButton');
+    speedControlButton.textContent = (shipState.targetSpeed > 0 && shipState.currentSpeed > 0) ? "Full Stop" : "Engage";
 
     const speedChangeEvent = new CustomEvent('updateSpeed');
     document.dispatchEvent(speedChangeEvent);

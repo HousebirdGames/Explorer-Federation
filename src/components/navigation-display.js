@@ -31,7 +31,7 @@ function displayPositionsAndDestinations() {
                 <div class="panel">
                     <h3>Ship Position</h3>
                     <p>Current Position: X: ${Math.round(currentPos.x)}, Y: ${Math.round(currentPos.y)}</p>
-                    <p>Current Planet: ${shipState.currentPlanet ? shipState.currentPlanet : 'Not orbiting a planet'}</p>
+                    <p>${shipState.currentPlanet ? 'Currently orbiting ' + shipState.currentPlanet : 'Not orbiting a planet'}</p>
                 </div>
                 <div class="panel">
                     <h3>Travel</h3>

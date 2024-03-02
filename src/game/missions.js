@@ -1,14 +1,15 @@
 import { alertPopup } from "../../Birdhouse/src/main.js";
-import { shipState, solarSystems } from "../../everywhere.js";
+import { playerState, shipState, solarSystems } from "../../everywhere.js";
 
 class Mission {
-    constructor(type, target, description = null) {
+    constructor(type, target, reputation = 10, description = null) {
         this.type = type;
+        this.reputation = reputation
         this.target = target;
         this.description = description ? description : `${type} > ${target}`;
         this.state = 'Active';
 
-        alertPopup(`New mission`, `${this.description}`);
+        //alertPopup(`New mission`, `${this.description}`);
     }
 }
 
@@ -39,9 +40,12 @@ export function checkCompletion(mission) {
     }
     mission.state = state;
     if (state != 'Active') {
+        if (state === 'Completed') {
+            playerState.reputation += mission.reputation;
+        }
         shipState.missionHistory.unshift(mission);
         shipState.mission = null;
-        alertPopup(`Mission ${state}: ${mission.type}`);
+        alertPopup(`Mission ${state}`, `<p>${mission.type}: ${mission.target}</p>${state === 'Completed' ? `<br><p>Repuation gained: ${mission.reputation}</p>` : ''}`);
     }
 }
 
@@ -75,7 +79,7 @@ function generateDiscoverSystemMission() {
     const undiscoveredSystem = solarSystems.find(system => !system.discovered && system.position !== shipState.position);
 
     if (undiscoveredSystem) {
-        return new Mission('Discover System', undiscoveredSystem.name, `Travel to the ${undiscoveredSystem.name} system and scan it.`);
+        return new Mission('Discover System', undiscoveredSystem.name, 20, `Travel to the ${undiscoveredSystem.name} system and scan it.`);
     } else {
         return null;
     }
@@ -91,7 +95,7 @@ function generatePatrolSystemMission() {
 
     const systemIndex = Math.floor(Math.random() * otherSystems.length);
     const system = otherSystems[systemIndex];
-    return new Mission('Patrol System', system.name, `Travel to the ${system.name} system.`);
+    return new Mission('Patrol System', system.name, 10, `Travel to the ${system.name} system.`);
 }
 
 function generatePatrolPlanetMission() {
@@ -113,5 +117,5 @@ function generatePatrolPlanetMission() {
     const planetIndex = Math.floor(Math.random() * system.planets.length);
     const planet = system.planets[planetIndex];
 
-    return new Mission('Patrol Planet', planet.name, `Travel to ${planet.name} in the ${system.name} system.`);
+    return new Mission('Patrol Planet', planet.name, 15, `Travel to ${planet.name} in the ${system.name} system.`);
 }

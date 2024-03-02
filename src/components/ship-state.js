@@ -5,7 +5,6 @@ export default async function ShipState() {
     action(displayPositionsAndDestinations);
     action({ type: 'updateUI', handler: displayPositionsAndDestinations });
 
-
     return `
         <div class="panel">
         <h2>Ship Status</h2>

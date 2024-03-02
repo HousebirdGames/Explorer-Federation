@@ -1,5 +1,5 @@
 import { updateTitleAndMeta, action } from "../../Birdhouse/src/main.js";
-import { shipState, solarSystems } from "../../everywhere.js";
+import { playerState, shipState, solarSystems } from "../../everywhere.js";
 
 export default async function MissionControl() {
     action(updateMissions);
@@ -11,6 +11,7 @@ export default async function MissionControl() {
     return `
     <div class="panel" id="mission-control">
             <h2>Mission Control</h2>
+            <p>Reputation: <span id="reputation"></span></p>
             <div class="panelRow">
                 <div class="panel">
                     <h3>Active Mission</h3>
@@ -28,4 +29,5 @@ export default async function MissionControl() {
 function updateMissions() {
     document.getElementById('missionCurrent').innerHTML = shipState.mission === null ? 'No mission' : `${shipState.mission.type} (${shipState.mission.target}) > ${shipState.mission.description}`;
     document.getElementById('missionHistory').innerHTML = shipState.missionHistory.length <= 0 ? 'No mission history' : shipState.missionHistory.map(mission => `<li>${mission.type}: ${mission.target} (${mission.state})</li>`).join('');
+    document.getElementById('reputation').innerHTML = playerState.reputation;
 }

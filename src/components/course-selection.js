@@ -35,7 +35,7 @@ export default async function CourseSelection() {
                 <div class="panel">
                     <h3>Destination Planet</h3>
                     <div class="buttonPanel" id="planets">
-                    <button disabled>Not discovered</button>
+                    <p>System not discovered</p>
                     </div>
                 </div>
                 <div class="panel">
@@ -90,7 +90,7 @@ export function setDestinationSystem(index) {
     `).join('')) : '-';
         setupPlanetEventHandlers(destinationSystem);
     } else {
-        planetsDiv.innerHTML = '<button disabled>Not discovered</button>';
+        planetsDiv.innerHTML = '<p>System not discovered</p>';
     }
     shipState.isMoving = true;
     shipState.engage = false;

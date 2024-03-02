@@ -97,7 +97,6 @@ const moduleTypes = {
         onEnable: (moduleInstance, ship) => {
             if (!moduleInstance.enabled) {
                 moduleInstance.enabled = true;
-                moduleInstance.properties.overclocked = false;
             }
         },
         onDisable: (moduleInstance, ship) => {
