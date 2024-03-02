@@ -1,10 +1,19 @@
 export const updateNotes = [
     {
+        "version": "0.0.5",
+        "title": "Pre-Alpha",
+        "notes": [
+            "Styled whole game with a new look and feel",
+            "Added some useful buttons and additonal information",
+        ]
+    },
+    {
         "version": "0.0.4",
         "title": "Pre-Alpha",
         "notes": [
             "Added module management",
             "Added engineering overview (including the new module management)",
+            "Updated style of some elements to explore what the game could look like in the future",
         ]
     },
     {

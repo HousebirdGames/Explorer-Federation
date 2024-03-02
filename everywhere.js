@@ -301,6 +301,7 @@ const updateUI = new CustomEvent('updateUI');
 function GameLoop() {
 
     const intervalId = setInterval(() => {
+        validateShipState();
 
         updateModules();
 
@@ -321,6 +322,10 @@ function GameLoop() {
     }, updateInterval);
 }
 
+function validateShipState() {
+
+}
+
 function updateModules() {
     shipState.modules?.forEach((module, index) => {
         if (!module.currentHealth && module.currentHealth !== 0) {
@@ -328,7 +333,7 @@ function updateModules() {
             return;
         }
         if (module.currentHealth <= 0 && module.enabled) {
-            module.disable();
+            module.onDisable();
             alertPopup(`${module.name} has been disabled due to critical damage.`);
         }
         else if (module.enabled) {
@@ -489,6 +494,7 @@ window.hook('on-handle-route-change', async function () {
 
 window.hook('on-component-loaded', async function () {
     // This hook will get triggered, when a component is successfully loaded.
+    setTimeout(updateButtonsColor, 0);
 });
 
 window.hook('on-content-loaded', async function () {
@@ -507,6 +513,89 @@ window.hook('get-popup-menu-html', async function (menuHTML) {
 	</div>
     `;
 });
+
+window.hook('before-actions-setup', async function () {
+    main.action(updateHeadingsColor);
+
+    main.action({
+        type: 'updateUI',
+        handler: () => {
+            updateButtonsColor();
+            updateHeadingsColor();
+        }
+    });
+    main.action({
+        type: 'click',
+        handler: (event) => {
+            updateButtonColor(event.target);
+        },
+        selector: 'button.colored'
+    });
+});
+
+function updateHeadingsColor() {
+    const headings = document.querySelectorAll('.panel h3, .panel h4, .panel h5, .panel h6');
+    headings.forEach(heading => {
+        const text = heading.textContent || heading.innerText;
+        const bgColor = stringToColor(text);
+        heading.style.backgroundColor = bgColor;
+        heading.style.color = (parseInt(bgColor.replace('#', ''), 16) > 0xffffff / 2) ? 'black' : 'white';
+    });
+}
+
+function updateButtonsColor() {
+    const buttons = document.querySelectorAll('button.colored');
+    buttons.forEach(button => {
+        updateButtonColor(button);
+    });
+}
+
+function updateButtonColor(button) {
+    const text = button.textContent || button.innerText;
+    const color = stringToColor(text);
+    button.style.backgroundColor = color;
+    button.style.color = (parseInt(color.replace('#', ''), 16) > 0xffffff / 2) ? 'black' : 'white';
+}
+
+
+const colorPalette = [
+    '#E57373', '#F06292', '#BA68C8', '#9575CD', '#7986CB',
+    '#64B5F6', '#4FC3F7', '#4DD0E1', '#4DB6AC', '#81C784',
+    '#AED581', '#DCE775', '#FFF176', '#FFD54F', '#FFB74D',
+    '#FF8A65', '#A1887F', '#E0E0E0', '#90A4AE'
+];
+
+function stringToColorIndex(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+        hash = hash & hash; // Convert to 32bit integer
+    }
+    hash = Math.abs(hash);
+    return hash % colorPalette.length;
+}
+
+function stringToColor(str) {
+    // Use stringToColorIndex to get a consistent index based on the string
+    const index = stringToColorIndex(str);
+    // Return the color from the palette based on the index
+    return colorPalette[index];
+}
+
+function stringToRandomColor(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+
+    let color = '#';
+    for (let i = 0; i < 3; i++) {
+        const value = (hash >> (i * 8)) & 0xFF;
+        const lightened = Math.min(255, value + 84).toString(16);
+        color += lightened.padStart(2, '0');
+    }
+    return color;
+}
 
 window.hook('page-loaded', async function () {
     await onPageLoaded();

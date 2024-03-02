@@ -9,12 +9,19 @@ export default async function MissionControl() {
     });
 
     return `
-        <div id="mission-control">
+    <div class="panel" id="mission-control">
             <h2>Mission Control</h2>
-            <p>Current Mission: <span id="missionCurrent"></span></p>
-            <p>Mission History:</p>
-            <ul id="missionHistory"></ul>
+            <div class="panelRow">
+                <div class="panel">
+                    <h3>Active Mission</h3>
+                    <p>Current Mission: <span id="missionCurrent"></span></p>
+                </div>
+                <div class="panel">
+                    <h3>Mission Log</h3>
+                    <ul id="missionHistory"></ul>
+                </div>
         </div>
+    </div>
     `;
 }
 

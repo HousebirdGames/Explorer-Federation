@@ -46,13 +46,20 @@ export default async function SpeedControl() {
     });
 
     return `
-        <div id="speed-control">
+        <div class="panel" id="speed-control">
             <h2>Speed Control</h2>
-            <p>Target Speed: <span id="targetSpeedDisplay">${formatSpeed(shipState.targetSpeed)}</span></p>
-            <p>Current Speed: <span id="currentSpeedDisplay">${shipState.energy > 0 ? formatSpeed(shipState.currentSpeed) : formatSpeed(shipState.currentSpeed) + ' (No power)'}</span></p>
-            <label><input type="range" id="speedSlider" min="0" max="5" value="${shipState.targetSpeed}" step="0.1"><label>
-            <button id="engageButton">Engage</button>
-            <button id="fullStopButton">Full Stop</button>
+            <div class="panelRow">
+                <div class="panel">
+                    <h3>Helms Control</h3>
+                    <p>Target Speed: <span id="targetSpeedDisplay">${formatSpeed(shipState.targetSpeed)}</span></p>
+                    <p>Current Speed: <span id="currentSpeedDisplay">${shipState.energy > 0 ? formatSpeed(shipState.currentSpeed) : formatSpeed(shipState.currentSpeed) + ' (No power)'}</span></p>
+                    <label><input type="range" id="speedSlider" min="0" max="5" value="${shipState.targetSpeed}" step="0.1"></label>
+                    <div class="buttonPanel">
+                        <button id="engageButton" class="colored">Engage</button>
+                        <button id="fullStopButton" class="colored">Full Stop</button>
+                    </div>
+                </div>
+            </div>
         </div>
     `;
 }

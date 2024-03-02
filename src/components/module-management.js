@@ -10,10 +10,10 @@ export default async function ModuleManagement() {
     });
 
     return `
-    <div id="module-management">
+    <div id="module-management" class="panel">
         <h2>Module Management</h2>
         <p><strong>Warning:</strong> Disabling some modules may cause loss of ressources like fuel or energy.</p>
-        <div id="modules-container"></div>
+        <div class="panelRow" id="modules-container"></div>
     </div>
     `;
 }
@@ -24,7 +24,7 @@ function initializeModules() {
 
     shipState.modules.forEach((module, index) => {
         const moduleElement = document.createElement('div');
-        moduleElement.classList.add('module-box');
+        moduleElement.classList.add('panel');
         let propertiesHTML = Object.entries(module.properties).map(([propName, propValue]) => {
             return `<p id="${propName}-${index}"> ${formatProperty(propName, propValue)}</p>`;
         }).join('');
@@ -38,10 +38,12 @@ function initializeModules() {
         `;
 
         const actionsContainer = document.createElement('div');
+        actionsContainer.classList.add('buttonPanel');
 
         // Enable/Disable button
         const enableDisableButton = document.createElement('button');
         enableDisableButton.id = `enable-disable-${index}`;
+        enableDisableButton.classList.add('colored');
         enableDisableButton.textContent = module.enabled ? 'Disable' : 'Enable';
         enableDisableButton.addEventListener('click', () => {
             if (module.enabled) {
@@ -56,6 +58,7 @@ function initializeModules() {
         Object.entries(module.functions).forEach(([funcName, { action, friendlyName }]) => {
             const actionButton = document.createElement('button');
             actionButton.textContent = friendlyName;
+            actionButton.classList.add('colored');
             actionButton.addEventListener('click', () => {
                 action();
                 updateModuleUI();

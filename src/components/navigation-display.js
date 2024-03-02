@@ -25,14 +25,24 @@ function displayPositionsAndDestinations() {
     const destination = findDestinationSystemByCoords(coursePos);
 
     const display = `
-        <h2>Navigation Display</h2>
-        <p>Current Position: X: ${Math.round(currentPos.x)}, Y: ${Math.round(currentPos.y)}</p>
-        <p>Current Planet: ${shipState.currentPlanet ? shipState.currentPlanet : 'Not orbiting a planet'}</p>
-        ${destination.name ? `<p>Destination System: ${destination.name}</p>` : '<p>Empty Space</p>'}
-        <p>Destination Coordinates: X: ${Math.round(coursePos.x)}, Y: ${Math.round(coursePos.y)}</p>
-        <p>Destination Planet: ${shipState.targetPlanet ? `${shipState.targetPlanet.name}` : (destination.discovered ? 'No planet set.' : 'Destination system not discovered.')}</p>
-        <p>ETA at current speed: ${formatTime(etaCurrentSpeed)}</p>
-        <p>ETA at target speed: ${formatTime(etaTargetSpeed)}</p>
+        <div class="panel">
+        <h2>Navigation Information</h2>
+            <div class="panelRow">
+                <div class="panel">
+                    <h3>Ship Position</h3>
+                    <p>Current Position: X: ${Math.round(currentPos.x)}, Y: ${Math.round(currentPos.y)}</p>
+                    <p>Current Planet: ${shipState.currentPlanet ? shipState.currentPlanet : 'Not orbiting a planet'}</p>
+                </div>
+                <div class="panel">
+                    <h3>Travel</h3>
+                    ${destination.name ? `<p>Destination System: ${destination.name}</p>` : '<p>Empty Space</p>'}
+                    <p>Destination Coordinates: X: ${Math.round(coursePos.x)}, Y: ${Math.round(coursePos.y)}</p>
+                    <p>Destination Planet: ${shipState.targetPlanet ? `${shipState.targetPlanet.name}` : (destination.discovered ? 'No planet set.' : 'Destination system not discovered.')}</p>
+                    <p>ETA at current speed: ${formatTime(etaCurrentSpeed)}</p>
+                    <p>ETA at target speed: ${formatTime(etaTargetSpeed)}</p>
+                </div>
+            </div>
+        </div>
     `;
 
     const navDisplay = document.getElementById('nav-display');

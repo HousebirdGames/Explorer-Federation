@@ -2,23 +2,26 @@
 
 :root {
     --fontColor: white;
-    --fontHighlight: #bce1ff;
-    --accent: #39425c;
+    --fontHighlight: #e7c4a3;
+    --accent: rgb(255, 213, 79);
+    --accentSecondary: #665541;
+    --accentSecondaryTransparent: #6655417c;
     --lighter: rgba(255, 255, 255, 0.2);
     --muchLighter: rgba(255, 255, 255, 0.6);
+    --panelBackground: black;
     --darker: rgba(0, 0, 0, 0.4);
     --muchDarker: rgba(0, 0, 0, 0.6);
-    --highlight: #0d4fa7;
-    --highlightHover: #83c7ff;
-    --highlightActive: #3f9fee;
-    --background: #181b24;
+    --highlight: #e0b979;
+    --highlightHover: #ffb168;
+    --highlightActive: #ff8615;
+    --background: #252525;
     --warning: rgb(218, 113, 113);
     --none: rgb(255, 255, 255, 0);
 
     --padding: 1rem;
     --border: 0.1rem solid var(--fontHighlight);
     --borderRadius: 0.4rem;
-    --borderRadiusButtons: 0rem;
+    --borderRadiusButtons: 0rem 1.4rem 0 0.4rem;
     --fontFamily: system-ui;
     --boxShadow: 0rem 0 2rem var(--muchDarker);
     --fontSizeSmall: 0.8rem;
@@ -102,6 +105,7 @@ li {
 h1,
 h2 {
     font-size: var(--fontSizeExtraLarge);
+    color: var(--accent);
 }
 
 h3,
@@ -147,10 +151,94 @@ textarea::placeholder {
     color: var(--muchDarker);
 }
 
-button {
-    background: var(--highlight);
+label {
+    width: 100%;
+}
+
+input[type="range"] {
+    -webkit-appearance: none;
+    /* Override default CSS styles */
+    appearance: none;
+    width: 100%;
+    height: 2rem;
+    /* Specified height */
+    background: var(--accentSecondary);
+    /* Grey background */
+    outline: none;
+    /* Remove outline */
+    opacity: 0.7;
+    /* Set transparency (for mouse-over effects on hover) */
+    -webkit-transition: .2s;
+    /* 0.2 seconds transition on hover */
+    transition: opacity .2s;
+    border-radius: 5rem;
+    padding: 1.4rem 0.8rem;
+    max-width: 40rem;
+}
+
+
+input[type="range"]:hover {
+    opacity: 0.9;
+    cursor: pointer;
+}
+
+input[type="range"]:active {
+    opacity: 1;
+}
+
+/* Thumb */
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: var(--highlightActive);
+    cursor: pointer;
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: var(--highlightActive);
+    cursor: pointer;
+}
+
+div.buttonRow {
+    display: flex;
+    flex-direction: row;
+    gap: var(--padding);
+    justify-content: center;
+    width: 100%;
+}
+
+div.buttonPanel {
+    display: flex;
+    flex-direction: row;
+    gap: var(--padding);
+    padding: 0.8rem 2rem 0.8rem 1.28rem;
+    border: solid 0.2rem var(--accentSecondary);
+    border-radius: var(--borderRadiusButtons);
+    width: fit-content;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--panelBackground);
+    box-sizing: border-box;
+}
+
+button:disabled {
+    pointer-events: none;
+    opacity: 0.64;
+    cursor: default;
+}
+
+button,
+.menuButton {
+    background: var(--accentSecondary);
     color: var(--fontColor);
-    padding: 0.4rem;
+    padding: 0.4rem 1rem 0.4rem 0.64rem;
     border-radius: var(--borderRadiusButtons);
     border: none;
     width: fit-content;
@@ -164,6 +252,16 @@ button:hover {
 
 button:active {
     background: var(--highlightActive);
+}
+
+button.informationButton {
+    background: var(--accentSecondaryTransparent);
+    color: var(--highlight);
+    border: solid 0.1rem var(--accentSecondary);
+}
+
+button.informationButton:hover {
+    color: var(--highlightActive);
 }
 
 .error-message {
@@ -184,14 +282,17 @@ button:active {
     flex-direction: column;
     gap: var(--padding);
     align-items: center;
-    background: var(--accent);
+    background: var(--panelBackground);
     width: 24rem;
     max-width: 90%;
     max-height: 90%;
     padding: var(--padding);
     text-align: center;
-    border-radius: var(--borderRadius);
+    border: solid 0.4rem var(--background);
+    border-left-width: 2.4rem;
+    border-radius: 0.4rem 2rem 0.4rem 2rem;
     box-shadow: var(--boxShadow);
+    color: var(--highlight);
 }
 
 .fade-in-fast {
@@ -256,13 +357,86 @@ button:active {
 
 #starMap {
     touch-action: none;
-    max-height: 80svh;
     background-color: black;
-    border-radius: var(--borderRadius);
-    border: var(--border);
-    box-shadow: inset 0 0 1rem var(--muchLighter);
+    border-radius: 50%;
+    border: solid 0.2rem var(--accentSecondary);
+    background: var(--accentSecondaryTransparent);
+    box-shadow: inset 0 0 10rem var(--panelBackground);
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 70svh;
+    height: auto;
+    align-self: center;
 }
 
 .course-btn.discovered {
-    border: 1px solid var(--fontColor);
+    border: 1px solid var(--highlightHover);
+}
+
+.panel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--padding);
+    padding: 0.8rem 1.28rem 0.8rem 1.28rem;
+    border: solid 0.2rem var(--accentSecondary);
+    border-radius: 2rem;
+    width: fit-content;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    background-color: var(--panelBackground);
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.panelRow {
+    display: flex;
+    flex-direction: row;
+    gap: var(--padding);
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.panel h1,
+.panel h2 {
+    color: var(--accentSecondary);
+}
+
+.panel .panel {
+    margin-right: 1rem;
+    flex-direction: column;
+    border: none;
+    border-top: solid 0.2rem var(--accentSecondaryTransparent);
+    border-right: solid 0.2rem var(--accentSecondaryTransparent);
+    border-radius: 0.2rem 4rem 0.2rem 0;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding-right: 4rem;
+    width: unset;
+    flex-grow: 1;
+}
+
+.panel .buttonPanel {
+    padding: 0;
+    border: none;
+}
+
+.panel h3,
+.panel h4,
+.panel h5,
+.panel h6 {
+    padding: 0.4rem 2.4rem 0.4rem 1rem;
+    border-radius: 0.2rem 1rem 1rem 0.2rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.panel p,
+.panel ul {
+    color: #f0b878;
+    border-left: solid 0.2rem var(--accentSecondaryTransparent);
+    border-bottom: solid 0.2rem var(--accentSecondaryTransparent);
+    border-radius: 0.2rem;
+    padding: 0 0 0.4rem 0.4rem;
 }

@@ -33,11 +33,18 @@ export default async function Scanner() {
     action({ type: 'updateUI', handler: updateTexts });
 
     return `
-        <h2>Scanner</h2>
-        <p>System: <span id="systemNameText"></span></p>
-        <p>System discovered: <span id="systemDiscoveredText"></span></p>
-        <p>System Info: <span id="systemInfoText"></span></p>
-        <button id="scanSystemButton">Scan System</button>
+        <div class="panel">
+            <h2>Scanner</h2>
+            <div class="panelRow">
+                <div class="panel">
+                <h3>Current Solar System</h3>
+                <p>System: <span id="systemNameText"></span></p>
+                <p>System discovered: <span id="systemDiscoveredText"></span></p>
+                <p>System Info: <span id="systemInfoText"></span></p>
+                <button id="scanSystemButton" class="colored">Scan System</button>
+                </div>
+            </div>
+        </div>
     `;
 }
 

@@ -12,17 +12,18 @@ export default async function StarMap(interactable = false) {
 
     if (isInteractable) {
         const actions = [
-            { type: 'wheel', handler: zoomEvent, passive: false },
-            { type: 'mousedown', handler: startPan, passive: true },
+            { type: 'wheel', handler: zoomEvent, selector: '#starMap', passive: false },
+            { type: 'mousedown', handler: startPan, selector: '#starMap', passive: true },
             { type: 'mouseup', handler: endPan, passive: true },
             { type: 'mouseout', handler: endPan, passive: true },
             { type: 'mousemove', handler: pan, passive: true },
-            { type: 'touchstart', handler: startPan, passive: true },
+            { type: 'touchstart', handler: startPan, selector: '#starMap', passive: true },
             { type: 'touchend', handler: endPan, passive: true },
             { type: 'touchcancel', handler: endPan, passive: true },
             { type: 'touchmove', handler: pan, passive: true },
-            { type: 'click', handler: (event) => zoom(1.1), selector: '#zoom-in' },
-            { type: 'click', handler: (event) => zoom(0.9), selector: '#zoom-out' },
+            { type: 'click', handler: (event) => zoom(1.1), selector: '#zoomIn' },
+            { type: 'click', handler: (event) => zoom(0.9), selector: '#zoomOut' },
+            { type: 'click', handler: (event) => resetViewBox(), selector: '#centerSelf' },
             { type: 'click', handler: click },
             { type: 'touchstart', handler: click, passive: true },
         ];
@@ -32,11 +33,20 @@ export default async function StarMap(interactable = false) {
         }
     }
 
-    return `<svg id="starMap" class="noSelect" viewBox="${shipState.position.x} ${shipState.position.y} 1000 1000"></svg>
-    ${isInteractable ? `<div id="zoom-controls">
-    <button id="zoom-in">+</button>
-    <button id="zoom-out">-</button>
-    </div>` : ''}
+    return `<div class="panel"><h2>${isInteractable ? 'Interactive Star Map' : 'Star Map'}</h2><svg id="starMap" class="noSelect" viewBox="${shipState.position.x} ${shipState.position.y} 1000 1000"></svg>
+    ${isInteractable ? `<div class="panelRow" id="zoom-controls">
+    <div class="panel">
+    <div class="panelRow" id="zoom-controls">
+    <h3>Starmap Controls</h3>
+    <button class="colored" id="centerSelf">Center self</button>
+    <button class="colored" id="zoomIn">Zoom in</button>
+    <button class="colored" id="zoomOut">Zoom out</button>
+    </div></div>
+    <div class="panel">
+    <h3>Information</h3>
+    <p>Move the map around to find a destination</p>
+    <p>Click on a solar system to select it as destination</p>
+    </div></div></div>` : '</div>'}
     `;
 }
 
@@ -167,6 +177,10 @@ function endPan() {
 }
 
 function displayStarMap() {
+    if (panning) {
+        return;
+    }
+
     let svgContent = ``;
 
     if (shipState.destinationIndex !== null || shipState.course) {
