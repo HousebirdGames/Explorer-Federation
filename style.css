@@ -60,7 +60,7 @@ body {
 }
 
 header {
-    position: sticky;
+    position: static;
     top: 0;
     z-index: 100;
     justify-content: flex-start;
@@ -235,7 +235,8 @@ input[type="range"]::-moz-range-thumb {
     cursor: pointer;
 }
 
-.buttonRow {
+.buttonRow,
+.linkRow {
     display: flex;
     flex-direction: row;
     gap: var(--padding);
