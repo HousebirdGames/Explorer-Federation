@@ -1,6 +1,7 @@
 import { updateTitleAndMeta, action } from "../../Birdhouse/src/main.js";
-import { shipState, solarSystems, findDestinationSystemByCoords, findDestinationIndexByCoords } from "../../everywhere.js";
+import { shipState, solarSystems } from "../../everywhere.js";
 import { setDestinationSystem, setDestinationCoordinates } from "./course-selection.js";
+import { formatSpeed, findDestinationIndexByCoords } from "../game/utils.js";
 
 let isInteractable = false;
 export default async function StarMap(interactable = false) {

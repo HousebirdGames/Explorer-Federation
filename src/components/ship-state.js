@@ -1,5 +1,6 @@
-import { shipState, saveGameState, formatSpeed } from "../../everywhere.js";
+import { shipState } from "../../everywhere.js";
 import { action } from "../../Birdhouse/src/main.js";
+import { formatSpeed } from "../game/utils.js";
 
 export default async function ShipState() {
     action(displayPositionsAndDestinations);

@@ -1,5 +1,6 @@
-import { alertPopup, updateTitleAndMeta, action } from "../../Birdhouse/src/main.js";
-import { shipState, saveGameState, formatSpeed } from "../../everywhere.js";
+import { alertPopup, action } from "../../Birdhouse/src/main.js";
+import { shipState } from "../../everywhere.js";
+import { formatSpeed } from "../game/utils.js";
 
 export default async function SpeedControl() {
     action({

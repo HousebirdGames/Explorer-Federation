@@ -1,5 +1,7 @@
 import { updateTitleAndMeta, action } from "../../Birdhouse/src/main.js";
-import { shipState, solarSystems, findDestinationSystemByCoords, etaCurrentSpeed, etaTargetSpeed } from "../../everywhere.js";
+import { shipState, solarSystems } from "../../everywhere.js";
+import { etaCurrentSpeed, etaTargetSpeed } from "../game/game-loop.js";
+import { findDestinationSystemByCoords } from "../game/utils.js";
 
 export default async function NavigationDisplay() {
 

@@ -1,5 +1,6 @@
-import { shipState, solarSystems, formatSpeed, findDestinationIndexByCoords } from "../../everywhere.js";
+import { shipState, solarSystems } from "../../everywhere.js";
 import { alertPopup, updateTitleAndMeta, action } from "../../Birdhouse/src/main.js";
+import { formatSpeed, findDestinationIndexByCoords } from "../game/utils.js";
 
 export default async function Scanner() {
     action({

@@ -1,5 +1,5 @@
 import { updateTitleAndMeta, action, alertPopup } from "../../Birdhouse/src/main.js";
-import { resetGame } from "../../everywhere.js";
+import { resetGame } from "../game/state.js";
 
 export default async function Settings() {
     action({
@@ -17,10 +17,12 @@ export default async function Settings() {
     return `
         <div class="panel">
         <h1>Settings</h1>
-        <div class="panel">
-            <h3>General</h3>
-            <p>Here you can reset your game, deleting all progress.</p>
-            <button id="resetGameButton">Reset Game</button>
+        <div class="panelRow">
+            <div class="panel">
+                <h3>General</h3>
+                <p>Here you can reset your game, deleting all progress.</p>
+                <button id="resetGameButton">Reset Game</button>
+                </div>
             </div>
         </div>
     `;
