@@ -1,6 +1,6 @@
 import { updateTitleAndMeta, action } from "../../Birdhouse/src/main.js";
 import { shipState, solarSystems } from "../../everywhere.js";
-import { setDestinationSystem, setDestinationCoordinates } from "./course-selection.js";
+import { setDestinationSystem } from "./course-selection.js";
 import { formatSpeed, findDestinationIndexByCoords } from "../game/utils.js";
 
 let isInteractable = false;

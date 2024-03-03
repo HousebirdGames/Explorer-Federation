@@ -95,17 +95,6 @@ export function setDestinationSystem(index) {
     } else {
         planetsDiv.innerHTML = '<p>System not discovered</p>';
     }
-    shipState.isMoving = true;
-    shipState.engage = false;
-}
-
-export function setDestinationCoordinates(x, y) {
-    shipState.course = { x, y };
-    shipState.destinationIndex = null;
-    shipState.targetPlanet = null;
-    document.dispatchEvent(courseChangeEvent);
-    shipState.isMoving = true;
-    shipState.engage = false;
 }
 
 function setupPlanetEventHandlers(solarSystem) {

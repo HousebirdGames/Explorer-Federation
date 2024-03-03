@@ -47,6 +47,7 @@ function updateModules() {
         }
 
         if (module.currentHealth <= 0 && module.enabled) {
+            module.information = 'Module has been disabled due to critical damage.';
             module.onDisable();
             alertPopup(`${module.name} has been disabled due to critical damage.`);
         }
@@ -66,6 +67,10 @@ function updateModules() {
             module.tickEffect();
         }
     });
+
+    if (!shipState.impulseEnabled) {
+        shipState.maxSpeed = 0;
+    }
 }
 
 function ShipMovement() {
@@ -75,22 +80,26 @@ function ShipMovement() {
 let travelTime = 0;
 let targetPlanet = '';
 const defaultPlanetTravelTime = 10000;
+const distancePerTick = 2;
 
 function updateShipPositionAndEnergy() {
-    const distancePerTick = 2;
     const defaultDecerleration = 0.2;
 
-    if (shipState.engage && shipState.currentSpeed < shipState.targetSpeed) {
+    if (shipState.targetSpeed > shipState.maxSpeed) {
+        shipState.targetSpeed = shipState.maxSpeed;
+    }
+
+    if (shipState.engage && shipState.currentSpeed <= shipState.targetSpeed && shipState.acceleration > 0) {
         shipState.currentSpeed += shipState.acceleration;
         if (shipState.currentSpeed > shipState.targetSpeed) {
             shipState.currentSpeed = shipState.targetSpeed;
         }
     }
-    else if (!shipState.engage || shipState.currentSpeed > shipState.targetSpeed || shipState.energy <= 0) {
+    else if (!shipState.engage || shipState.currentSpeed > shipState.targetSpeed || shipState.energy <= 0 || shipState.acceleration <= 0) {
         shipState.currentSpeed -= defaultDecerleration;
-        if (shipState.currentSpeed < 0) {
-            shipState.currentSpeed = 0;
-        }
+    }
+    if (shipState.currentSpeed < 0) {
+        shipState.currentSpeed = 0;
     }
 
     const system = findDestinationSystemByCoords(shipState.course);
@@ -129,17 +138,22 @@ function updateShipPositionAndEnergy() {
             shipState.currentSpeed = 0;
         }
 
-        if (shipState.targetPlanet.name == shipState.currentPlanet) {
-            shipState.targetPlanet = null;
-            alertPopup(`Already at ${shipState.currentPlanet}`);
-        }
-        else if (system.faction && system.faction == 'Federation') {
-            alertPopup(`Arrived at ${system.name}`, `You are now in Federation space and have been refuled`);
+        let alertMessage = '';
+        if (system.faction && system.faction == 'Federation') {
+            alertMessage = `Arrived at the ${system.name} system`, `You are now in Federation space and have been refuled`;
             shipState.fuel = shipState.fuelCapacity;
         }
         else {
-            alertPopup(`Arrived at ${system.name}`);
+            alertMessage = `Arrived at the ${system.name} system`;
         }
+
+        if (travelToPlanet) {
+            alertMessage += ` and are now taveling to ${shipState.targetPlanet.name}`;
+            targetPlanet = shipState.targetPlanet.name;
+            travelTime = defaultPlanetTravelTime;
+        }
+
+        alertPopup(alertMessage);
     } else if (shipState.engage || shipState.currentSpeed > 0) {
         shipState.currentPlanet = null;
 
@@ -161,8 +175,8 @@ function calculateETA() {
     const deltaY = shipState.course.y - shipState.position.y;
     const distanceToSystem = Math.sqrt(deltaX ** 2 + deltaY ** 2);
 
-    etaCurrentSpeed = shipState.currentSpeed > 0 ? distanceToSystem / shipState.currentSpeed : Infinity;
-    etaTargetSpeed = shipState.targetSpeed > 0 ? distanceToSystem / shipState.targetSpeed : Infinity;
+    etaCurrentSpeed = shipState.currentSpeed > 0 ? distanceToSystem / (distancePerTick * shipState.currentSpeed) : Infinity;
+    etaTargetSpeed = shipState.targetSpeed > 0 ? distanceToSystem / (distancePerTick * shipState.targetSpeed) : Infinity;
 
     if (travelToPlanet) {
         const defaultTravelTimeInSeconds = (travelTime > 0 ? travelTime : defaultPlanetTravelTime) / 1000;

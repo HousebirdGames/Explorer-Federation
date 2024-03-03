@@ -35,6 +35,7 @@ function initializeModules() {
             <p id="health-${index}">Health: ${module.currentHealth}/${module.maxHealth}</p>
             <p id="status-${index}">Status: ${module.enabled ? 'Enabled' : 'Disabled'}</p>
             ${propertiesHTML}
+            <p id="information-${index}">${module.information}</p>
         `;
 
         const actionsContainer = document.createElement('div');
@@ -81,6 +82,11 @@ function updateModuleUI() {
         const statusElement = document.getElementById(`status-${index}`);
         if (statusElement) {
             statusElement.innerHTML = `Status: ${module.enabled ? 'Enabled' : 'Disabled'}`;
+        }
+
+        const informationElement = document.getElementById(`information-${index}`);
+        if (informationElement) {
+            informationElement.innerHTML = module.information;
         }
 
         const enableDisableButton = document.getElementById(`enable-disable-${index}`);
