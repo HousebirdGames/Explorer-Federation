@@ -61,6 +61,7 @@ function resetCourse() {
     shipState.course = { x: 0, y: 0 };
     shipState.destinationIndex = 0;
     shipState.targetPlanet = null;
+    setDestinationSystem(0);
     document.dispatchEvent(courseChangeEvent);
 }
 
@@ -75,7 +76,9 @@ export function setDestinationSystem(index) {
     document.dispatchEvent(courseChangeEvent);
     //alertPopup(`Course set to: ${destinationSystem.name} at ${JSON.stringify(destinationSystem.coordinates)}`);
 
-    shipState.targetPlanet = null;
+    if (shipState.targetPlanet && !destinationSystem.planets.some(planet => planet.name === shipState.targetPlanet.name)) {
+        shipState.targetPlanet = null;
+    }
 
     const planetsDiv = document.getElementById('planets');
     if (!planetsDiv) {

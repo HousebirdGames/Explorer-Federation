@@ -4,8 +4,8 @@
     --fontColor: #e0b979;
     --fontHighlight: #e7c4a3;
     --accent: rgb(255, 213, 79);
-    --accentSecondary: #665541;
-    --accentSecondaryTransparent: #6655417c;
+    --accentSecondary: #6b4111;
+    --accentSecondaryTransparent: #6b4111be;
     --lighter: rgba(255, 255, 255, 0.2);
     --muchLighter: rgba(255, 255, 255, 0.6);
     --panelBackground: black;
@@ -56,6 +56,7 @@ body {
     background: var(--background);
     font-size: var(--fontSize);
     color: var(--fontColor);
+    background: var(--panelBackground);
     min-height: 100lvh;
 }
 
@@ -287,8 +288,11 @@ button,
 
 button:hover,
 .menuButton:hover {
-    background: var(--highlightHover);
-    color: var(--accentSecondary);
+    background: var(--fontColor);
+    color: var(--panelBackground);
+    padding-right: 1.2rem;
+    margin-right: -0.2rem;
+    box-shadow: 0.2rem 0rem 0 var(--accent);
 }
 
 button:active,
@@ -305,6 +309,10 @@ button.informationButton {
 
 button.informationButton:hover {
     color: var(--highlightActive);
+}
+
+.colored {
+    color: var(--panelBackground);
 }
 
 .error-message {
@@ -325,12 +333,12 @@ button.informationButton:hover {
     flex-direction: column;
     gap: var(--padding);
     align-items: center;
-    background: var(--panelBackground);
     width: 24rem;
     max-width: 90%;
     max-height: 90%;
     padding: var(--padding);
     text-align: center;
+    background-color: var(--panelBackground);
     border: solid 0.4rem var(--accentSecondary);
     border-left-width: 2.4rem;
     border-radius: 0.4rem 2rem 0.4rem 2rem;
@@ -423,9 +431,9 @@ button.informationButton:hover {
     display: flex;
     flex-direction: column;
     gap: var(--padding);
-    padding: 0.8rem 1.28rem 0.8rem 1.28rem;
-    border: solid 0.2rem var(--accentSecondary);
-    border-radius: 2rem;
+    padding: var(--padding);
+    border-radius: 0.2rem;
+    border-top: solid 0.2rem var(--accentSecondaryTransparent);
     width: fit-content;
     flex-wrap: wrap;
     justify-content: space-between;
@@ -450,6 +458,7 @@ button.informationButton:hover {
 }
 
 .panel .panel {
+    padding: 0.8rem 1.28rem 0.8rem 1.28rem;
     padding-left: 0;
     flex-direction: column;
     border: none;
@@ -478,6 +487,7 @@ button.informationButton:hover {
     border-radius: 0.2rem 1rem 1rem 0.2rem;
     width: 100%;
     box-sizing: border-box;
+    color: var(--panelBackground);
 }
 
 .panel p,

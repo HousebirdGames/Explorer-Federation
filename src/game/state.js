@@ -1,5 +1,6 @@
 import { alertPopup, urlPrefix } from "../../Birdhouse/src/main.js";
 import { playerState, shipState, solarSystems, factions } from "../../everywhere.js";
+import { generateFactions, generateSolarSystems } from "./generation.js";
 import * as modules from "./modules.js";
 
 const defaultShipState = {
@@ -12,7 +13,6 @@ const defaultShipState = {
     currentSpeed: 0,
     targetSpeed: 0,
     maxSpeed: 0,
-    impulseEnabled: 0,
     engage: false,
     energy: 0,
     energyCapacity: 0,
@@ -20,8 +20,7 @@ const defaultShipState = {
     fuelConsumption: 0,
     efficiency: 0,
     lastConsumption: 0,
-    isMoving: false,
-    accelerating: false,
+    acceleration: 0,
     position: { x: 0, y: 0 },
     destinationIndex: 0,
     course: { x: 0, y: 0 },
@@ -30,6 +29,7 @@ const defaultShipState = {
     mission: null,
     missionHistory: [],
     generatedNames: [],
+    impulseEnabled: false,
 };
 
 export const initialSolarSystem = {
@@ -102,9 +102,9 @@ export function loadGameState() {
 }
 
 function initializeNewGame() {
-
     console.log('Starting new game');
-    shipState = defaultShipState;
+    Object.keys(shipState).forEach(key => delete shipState[key]);
+    Object.assign(shipState, defaultShipState);
 
     modules.addModuleToShip('fuelTankS1');
     modules.addModuleToShip('batteryS1');
@@ -116,9 +116,7 @@ function initializeNewGame() {
     shipState.fuel = shipState.fuelCapacity;
 
     if (factions.length <= 1) {
-        console.log('Generating factions');
         generateFactions(3);
-        console.log('Factions:', factions);
     }
 
     if (solarSystems.length <= 1) {

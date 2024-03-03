@@ -11,6 +11,12 @@ export default async function SpeedControl() {
     });
 
     action({
+        type: 'click', selector: '.setSpeedButton', handler: (e) => {
+            setTargetSpeed(e)
+        }
+    });
+
+    action({
         type: 'click', selector: '#speedControlButton', handler: (e) => {
             const button = e.target;
             if (button.textContent === "Engage") {
@@ -30,10 +36,9 @@ export default async function SpeedControl() {
                 shipState.engage = true;
                 button.textContent = "Full Stop";
             } else {
-                updateSpeed(0);
-                const speedSlider = document.getElementById('speedSlider');
-                speedSlider.value = 0;
+                shipState.engage = false;
                 button.textContent = "Engage";
+                updateSpeed(0);
             }
         }
     });
@@ -55,6 +60,9 @@ export default async function SpeedControl() {
                     <label><input type="range" id="speedSlider" min="0" max="${shipState.maxSpeed}" value="${shipState.targetSpeed}" step="0.1"></label>
                     <div class="buttonPanel">
                         <button id="speedControlButton" class="colored">${shipState.targetSpeed > 0 ? "Full Stop" : "Engage"}</button>
+                        <button class="setSpeedButton colored" data-speed="0.1">Minimum Impulse</button>
+                        <button class="setSpeedButton colored" data-speed="0.9">Maximum Impulse</button>
+                        <button class="setSpeedButton colored" data-speed="${shipState.maxSpeed}">Maximum Warp</button>
                     </div>
                 </div>
             </div>
@@ -62,14 +70,20 @@ export default async function SpeedControl() {
     `;
 }
 
-export function updateSpeed(newSpeed) {
+export function updateSpeed(newSpeed, newSliderValue = null) {
     const targetSpeedDisplay = document.getElementById('targetSpeedDisplay');
     const currentSpeedDisplay = document.getElementById('currentSpeedDisplay');
     const speedSlider = document.getElementById('speedSlider');
 
     speedSlider.max = shipState.impulseEnabled ? (shipState.maxSpeed > 0.9 ? shipState.maxSpeed : 0.9) : 0;
 
-    shipState.targetSpeed = newSpeed;
+    if (newSliderValue != null) {
+        speedSlider.value = newSliderValue;
+    }
+
+    setTimeout(() => { speedSlider.value = speedSlider.value > speedSlider.max ? speedSlider.max : speedSlider.value }, 0);
+
+    shipState.targetSpeed = newSpeed > speedSlider.max ? speedSlider.max : newSpeed;
     targetSpeedDisplay.textContent = shipState.impulseEnabled ? formatSpeed(shipState.targetSpeed) : 'No Impulse Drive available';
     currentSpeedDisplay.textContent = shipState.energy > 0 ? formatSpeed(shipState.currentSpeed) : formatSpeed(shipState.currentSpeed) + ' (No power)';
 
@@ -78,4 +92,20 @@ export function updateSpeed(newSpeed) {
 
     const speedChangeEvent = new CustomEvent('updateSpeed');
     document.dispatchEvent(speedChangeEvent);
+}
+
+function setTargetSpeed(event) {
+    const newSpeed = parseFloat(event.target.getAttribute('data-speed'));
+
+    if (!shipState.impulseEnabled) {
+        alertPopup('Impulse disabled');
+        return;
+    }
+    else if (newSpeed > shipState.maxSpeed) {
+        alertPopup('This speed is currently not available');
+        return;
+    }
+
+
+    updateSpeed(newSpeed, newSpeed);
 }

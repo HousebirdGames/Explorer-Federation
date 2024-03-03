@@ -12,9 +12,7 @@ export let shipState = {
 
 };
 
-export let factions = [
-    initialFactions
-];
+export let factions = initialFactions;
 
 
 export let solarSystems = [initialSolarSystem];
@@ -84,7 +82,7 @@ function updateHeadingsColor() {
         const text = heading.textContent || heading.innerText;
         const bgColor = stringToColor(text);
         heading.style.backgroundColor = bgColor;
-        heading.style.color = (parseInt(bgColor.replace('#', ''), 16) > 0xffffff / 2) ? 'black' : 'white';
+        //heading.style.color = (parseInt(bgColor.replace('#', ''), 16) > 0xffffff / 2) ? 'black' : 'white';
     });
 }
 
@@ -99,7 +97,7 @@ function updateButtonColor(button) {
     const text = button.textContent || button.innerText;
     const color = stringToColor(text);
     button.style.backgroundColor = color;
-    button.style.color = (parseInt(color.replace('#', ''), 16) > 0xffffff / 2) ? 'black' : 'white';
+    //button.style.color = (parseInt(color.replace('#', ''), 16) > 0xffffff / 2) ? 'black' : 'white';
 }
 
 

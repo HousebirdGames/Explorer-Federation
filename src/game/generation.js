@@ -1,3 +1,5 @@
+import { playerState, shipState, solarSystems, factions } from "../../everywhere.js";
+
 const emptySpace = {
     name: "Empty Space",
     coordinates: { x: 0, y: 0 },

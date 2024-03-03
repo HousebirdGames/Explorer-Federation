@@ -1,5 +1,14 @@
 export const updateNotes = [
     {
+        "version": "0.0.6",
+        "title": "Pre-Alpha",
+        "notes": [
+            "Reworked movement system",
+            "Reworken warp and impulse drive mechanics",
+            "Improved style and responsiveness",
+        ]
+    },
+    {
         "version": "0.0.5",
         "title": "Pre-Alpha",
         "notes": [

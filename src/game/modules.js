@@ -169,13 +169,20 @@ const moduleTypes = {
             }
         },
         tickEffect: (moduleInstance, ship) => {
-            if (moduleInstance.enabled && ship.isMoving && ship.currentSpeed > 0 && ship.currentSpeed <= 0.9) {
+            if (moduleInstance.enabled && ship.currentSpeed <= 0.9 && ship.engage) {
                 const energyConsumptionRate = moduleInstance.properties.energyConsumptionRate * Math.pow(ship.currentSpeed, 2);
-                ship.energy -= energyConsumptionRate;
+                if (ship.energy >= energyConsumptionRate) {
+                    ship.acceleration += moduleInstance.properties.accelerationRate;
+                    ship.energy -= energyConsumptionRate;
+                }
             }
         },
         functions: {
 
+        },
+        properties: {
+            energyConsumptionRate: 0.1,
+            accelerationRate: 0.1
         }
     },
     warpDrive: {
@@ -200,37 +207,28 @@ const moduleTypes = {
                 return;
             }
 
-            let consumptionRate = moduleInstance.properties.energyConsumptionRate;
-            let newMaxSpeed = moduleInstance.properties.warpSpeed;
-
-            if (moduleInstance.properties.overclocked) {
-                consumptionRate *= 2;
-                newMaxSpeed = moduleInstance.properties.warpSpeed * 1.2;
-            }
-
-            if (newMaxSpeed > ship.maxSpeed) {
-                ship.maxSpeed = newMaxSpeed;
-            }
-
-            if (shipState.accelerating && shipState.currentSpeed > 0.9 && ship.energy >= consumptionRate) {
+            if (ship.currentSpeed > 0.9 && ship.currentSpeed < moduleInstance.properties.warpSpeed && ship.engage) {
+                let energyConsumptionRate = moduleInstance.properties.energyConsumptionRate * Math.pow(ship.currentSpeed, 2);
+                let acceleration = moduleInstance.properties.accelerationRate;
 
                 if (moduleInstance.properties.overclocked) {
-                    moduleInstance.currentHealth -= 1;
+                    energyConsumptionRate *= 2;
+                    acceleration *= 2;
+                }
 
-                    if (ship.currentSpeed < ship.maxSpeed) {
-                        ship.currentSpeed += moduleInstance.properties.overclockedAcceleration;
-                        if (ship.currentSpeed > ship.maxSpeed) {
-                            ship.currentSpeed = ship.maxSpeed;
+                if (ship.energy >= energyConsumptionRate) {
+                    if (moduleInstance.properties.overclocked) {
+                        moduleInstance.currentHealth -= 1;
+
+                        if (moduleInstance.currentHealth <= 0) {
+                            alertPopup(`Warp drive ${moduleInstance.name} has been disabled due to damage.`);
+                            this.onDisable(moduleInstance, ship);
                         }
                     }
 
-                    if (moduleInstance.currentHealth <= 0) {
-                        alertPopup(`Warp drive ${moduleInstance.name} has been disabled due to damage.`);
-                        this.onDisable(moduleInstance, ship);
-                    }
+                    ship.acceleration += acceleration;
+                    ship.energy -= energyConsumptionRate;
                 }
-
-                ship.energy -= consumptionRate;
             }
         },
         functions: {
@@ -246,7 +244,7 @@ const moduleTypes = {
         properties: {
             warpSpeed: 3,
             energyConsumptionRate: 1,
-            overclockedAcceleration: 0.2,
+            accelerationRate: 0.1,
             overclocked: false
         }
     },
@@ -258,12 +256,11 @@ const moduleModels = {
     fuelTankS1: { type: 'fuelTank', name: 'S1 Fuel Tank', maxHealth: 20, weight: 4, properties: { fuelCapacity: 400 } },
     batteryS1: { type: 'battery', name: 'S1 Battery', maxHealth: 10, weight: 1, properties: { energyCapacity: 50 } },
     energyGeneratorS1: { type: 'energyGenerator', name: 'S1 Reactor', maxHealth: 40, weight: 5, properties: { efficiency: 0.5, fuelConsumptionRate: 5, overclocked: false } },
-    impulseDriveS1: { type: 'impulseDrive', name: 'S1 Impulse Drive', maxHealth: 50, weight: 3, properties: { energyConsumptionRate: 0.1 } },
-    warpDriveS1: { type: 'warpDrive', name: 'S1 Warp Drive', maxHealth: 100, weight: 5, properties: { warpSpeed: 5, overclockedAcceleration: 0.2, energyConsumptionRate: 0.5, overclocked: false } },
+    impulseDriveS1: { type: 'impulseDrive', name: 'S1 Impulse Drive', maxHealth: 50, weight: 3, properties: { energyConsumptionRate: 0.1, accelerationRate: 0.1 } },
+    warpDriveS1: { type: 'warpDrive', name: 'S1 Warp Drive', maxHealth: 100, weight: 5, properties: { warpSpeed: 5, accelerationRate: 0.1, energyConsumptionRate: 0.5, overclocked: false } },
 };
 
 export function addModuleToShip(modelId, ship = shipState) {
-    console.log(`Adding module ${modelId} to ship.`);
     const model = moduleModels[modelId];
     if (!model) {
         console.error(`Model ${modelId} not found.`);
@@ -279,12 +276,9 @@ export function addModuleToShip(modelId, ship = shipState) {
         return;
     }
 
-    console.log('Start enabled:', type.startEnabled)
-
     attachSharedBehavioursAndFunctions(moduleInstance, type, ship);
 
     if (type.startEnabled) {
-        console.log(`Module ${moduleInstance.name} is enabled.`);
         moduleInstance.onEnable();
     }
 }
