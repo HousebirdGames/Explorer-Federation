@@ -59,7 +59,7 @@ export let averageEnergyConsumption = 0;
 function updateEnergyFlow() {
     energyConsumptions.push(shipState.lastConsumption);
 
-    if (energyConsumptions.length > 60) {
+    if (energyConsumptions.length > 100) {
         energyConsumptions.shift();
     }
 
