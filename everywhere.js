@@ -403,6 +403,6 @@ window.hook('get-loading-content', async function () {
     //This will be in the content section until the current component is loaded. You can place skeleton loaders or a loading symbol here or just return an empty string.
 
     return `
-    <p>The page is loading...</p>
+    
     `;
 });
