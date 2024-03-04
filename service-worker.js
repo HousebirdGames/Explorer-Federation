@@ -1,4 +1,4 @@
-self.CACHE_VERSION = "0.0.6.8";
+self.CACHE_VERSION = "0.0.7.3";
 importScripts('./config-sw.js' + `?v=${self.CACHE_VERSION}`);
 self.importScripts('Birdhouse/filesToCache.js' + `?v=${self.CACHE_VERSION}`);
 

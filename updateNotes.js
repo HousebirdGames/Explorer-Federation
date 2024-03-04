@@ -1,5 +1,16 @@
 export const updateNotes = [
     {
+        "version": "0.0.7",
+        "title": "Pre-Alpha",
+        "notes": [
+            "Game now runs at 60 FPS by default",
+            "Added options to change the framerate on the settings page",
+            "Improved calculations for the game loop and modules",
+            "Redesigned mission overview",
+            "Added additional buttons to the speed control",
+        ]
+    },
+    {
         "version": "0.0.6",
         "title": "Pre-Alpha",
         "notes": [

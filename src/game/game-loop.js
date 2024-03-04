@@ -1,34 +1,56 @@
 import { alertPopup } from "../../Birdhouse/src/main.js";
-import { shipState, solarSystems, factions } from "../../everywhere.js";
+import { shipState, solarSystems, factions, settings } from "../../everywhere.js";
 import { generateMission, checkCompletion } from "./missions.js";
 import { saveGameState } from "./state.js";
 import { findDestinationSystemByCoords } from "./utils.js";
 
-const updateInterval = 1000;
+let FIXED_TIMESTEP = 1000 / 60;
+let accumulator = 0;
+export let deltaTime = 0;
 
 const updateUI = new CustomEvent('updateUI');
+
 export function startGameLoop() {
+    let lastTime = performance.now();
+    let uiAccumulator = 0;
+    const uiUpdateInterval = 1000 / (settings.framerate ? settings.framerate : 60);
 
-    const intervalId = setInterval(() => {
-        validateShipState();
+    setInterval(() => {
+        updateGameLogic();
+    }, FIXED_TIMESTEP);
 
-        updateModules();
+    function loop(currentTime) {
+        deltaTime = currentTime - lastTime;
+        lastTime = currentTime;
 
-        ShipMovement();
-        shipState.lastConsumption = shipState.energyTemp - shipState.energy;
-        shipState.energyTemp = shipState.energy;
-
-        if (shipState.mission == null) {
-            generateMission();
+        uiAccumulator += deltaTime;
+        if (uiAccumulator >= uiUpdateInterval) {
+            document.dispatchEvent(updateUI);
+            uiAccumulator -= uiUpdateInterval;
         }
-        else {
-            checkCompletion(shipState.mission);
-        }
 
-        saveGameState();
+        requestAnimationFrame(loop);
+    }
 
-        document.dispatchEvent(updateUI);
-    }, updateInterval);
+    requestAnimationFrame(loop);
+}
+
+function updateGameLogic() {
+    validateShipState();
+
+    updateModules();
+
+    ShipMovement();
+    shipState.lastConsumption = shipState.energyTemp - shipState.energy;
+    shipState.energyTemp = shipState.energy;
+
+    if (shipState.mission == null) {
+        generateMission();
+    } else {
+        checkCompletion(shipState.mission);
+    }
+
+    saveGameState();
 }
 
 function validateShipState() {
@@ -79,11 +101,11 @@ function ShipMovement() {
 
 let travelTime = 0;
 let targetPlanet = '';
-const defaultPlanetTravelTime = 10000;
-const distancePerTick = 2;
+const defaultPlanetTravelTime = 50000;
+const distancePerTick = 0.1;
 
 function updateShipPositionAndEnergy() {
-    const defaultDecerleration = 0.2;
+    const defaultDecerleration = 0.02 / FIXED_TIMESTEP;
 
     if (shipState.targetSpeed > shipState.maxSpeed) {
         shipState.targetSpeed = shipState.maxSpeed;
@@ -91,13 +113,15 @@ function updateShipPositionAndEnergy() {
 
     if (shipState.engage && shipState.currentSpeed <= shipState.targetSpeed && shipState.acceleration > 0) {
         shipState.currentSpeed += shipState.acceleration;
+
         if (shipState.currentSpeed > shipState.targetSpeed) {
             shipState.currentSpeed = shipState.targetSpeed;
         }
     }
-    else if (!shipState.engage || shipState.currentSpeed > shipState.targetSpeed || shipState.energy <= 0 || shipState.acceleration <= 0) {
+    else if (!shipState.engage || shipState.currentSpeed > shipState.targetSpeed || shipState.currentSpeed > shipState.maxSpeed || shipState.acceleration <= 0) {
         shipState.currentSpeed -= defaultDecerleration;
     }
+
     if (shipState.currentSpeed < 0) {
         shipState.currentSpeed = 0;
     }
@@ -118,7 +142,7 @@ function updateShipPositionAndEnergy() {
     if (shipState.engage && travelTime > 0 && travelToPlanet && shipState.targetPlanet.name != shipState.currentPlanet) {
         shipState.position.x = shipState.course.x;
         shipState.position.y = shipState.course.y;
-        travelTime -= updateInterval * shipState.currentSpeed;
+        travelTime -= FIXED_TIMESTEP * shipState.currentSpeed;
 
         if (travelTime <= 0) {
             shipState.currentPlanet = shipState.targetPlanet.name;
@@ -175,18 +199,18 @@ function calculateETA() {
     const deltaY = shipState.course.y - shipState.position.y;
     const distanceToSystem = Math.sqrt(deltaX ** 2 + deltaY ** 2);
 
-    etaCurrentSpeed = shipState.currentSpeed > 0 ? distanceToSystem / (distancePerTick * shipState.currentSpeed) : Infinity;
-    etaTargetSpeed = shipState.targetSpeed > 0 ? distanceToSystem / (distancePerTick * shipState.targetSpeed) : Infinity;
+    etaCurrentSpeed = shipState.currentSpeed > 0 ? (distanceToSystem / (distancePerTick * shipState.currentSpeed)) / 60 : Infinity;
+    etaTargetSpeed = shipState.targetSpeed > 0 ? (distanceToSystem / (distancePerTick * shipState.targetSpeed)) / 60 : Infinity;
 
     if (travelToPlanet) {
         const defaultTravelTimeInSeconds = (travelTime > 0 ? travelTime : defaultPlanetTravelTime) / 1000;
-        const planetTravelTimeAtCurrentSpeed = defaultTravelTimeInSeconds / (shipState.currentSpeed || 1);
-        const planetTravelTimeAtTargetSpeed = defaultTravelTimeInSeconds / (shipState.targetSpeed || 1);
+        const planetTravelTimeAtCurrentSpeed = shipState.currentSpeed ? defaultTravelTimeInSeconds / shipState.currentSpeed : defaultTravelTimeInSeconds;
+        const planetTravelTimeAtTargetSpeed = shipState.targetSpeed ? defaultTravelTimeInSeconds / shipState.targetSpeed : defaultTravelTimeInSeconds;
 
         etaCurrentSpeed += planetTravelTimeAtCurrentSpeed;
         etaTargetSpeed += planetTravelTimeAtTargetSpeed;
     }
 
-    etaCurrentSpeed = isFinite(etaCurrentSpeed) ? etaCurrentSpeed : 0;
-    etaTargetSpeed = isFinite(etaTargetSpeed) ? etaTargetSpeed : 0;
+    etaCurrentSpeed = isFinite(etaCurrentSpeed) ? Math.max(etaCurrentSpeed, 0) : 0;
+    etaTargetSpeed = isFinite(etaTargetSpeed) ? Math.max(etaTargetSpeed, 0) : 0;
 }

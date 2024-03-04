@@ -470,6 +470,7 @@ button.informationButton:hover {
     padding-right: 1rem;
     width: unset;
     flex-grow: 1;
+    box-sizing: border-box;
 }
 
 .panel .buttonPanel {
@@ -490,8 +491,7 @@ button.informationButton:hover {
     color: var(--panelBackground);
 }
 
-.panel p,
-.panel ul {
+.panel p {
     color: #f0b878;
     border-left: solid 0.2rem var(--accentSecondaryTransparent);
     border-bottom: solid 0.2rem var(--accentSecondaryTransparent);

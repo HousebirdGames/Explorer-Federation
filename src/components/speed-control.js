@@ -62,7 +62,7 @@ export default async function SpeedControl() {
                         <button id="speedControlButton" class="colored">${shipState.targetSpeed > 0 ? "Full Stop" : "Engage"}</button>
                         <button class="setSpeedButton colored" data-speed="0.1">Minimum Impulse</button>
                         <button class="setSpeedButton colored" data-speed="0.9">Maximum Impulse</button>
-                        <button class="setSpeedButton colored" data-speed="${shipState.maxSpeed}">Maximum Warp</button>
+                        <button class="setSpeedButton colored" id="maxWarpButton" data-speed="${shipState.maxSpeed}">Maximum Warp</button>
                     </div>
                 </div>
             </div>
@@ -74,6 +74,15 @@ export function updateSpeed(newSpeed, newSliderValue = null) {
     const targetSpeedDisplay = document.getElementById('targetSpeedDisplay');
     const currentSpeedDisplay = document.getElementById('currentSpeedDisplay');
     const speedSlider = document.getElementById('speedSlider');
+    const maxWarpButton = document.getElementById('maxWarpButton');
+
+    if (shipState.maxSpeed > 0.9) {
+        maxWarpButton.disabled = false;
+        maxWarpButton.dataset.speed = shipState.maxSpeed;
+    }
+    else {
+        maxWarpButton.disabled = true;
+    }
 
     speedSlider.max = shipState.impulseEnabled ? (shipState.maxSpeed > 0.9 ? shipState.maxSpeed : 0.9) : 0;
 

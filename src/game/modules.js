@@ -1,5 +1,6 @@
 import { alertPopup } from "../../Birdhouse/src/main.js";
 import { shipState, solarSystems } from "../../everywhere.js";
+import { deltaTime } from "./game-loop.js";
 
 const moduleTypes = {
     fuelTank: {
@@ -123,11 +124,11 @@ const moduleTypes = {
                 return false;
             }
 
-            let consumptionRate = moduleInstance.properties.fuelConsumptionRate;
+            let consumptionRate = moduleInstance.properties.fuelConsumptionRate / deltaTime;
 
             if (moduleInstance.properties.overclocked) {
                 consumptionRate *= 2;
-                moduleInstance.currentHealth -= 1;
+                moduleInstance.currentHealth -= 1 / deltaTime;
                 if (moduleInstance.currentHealth <= 0) {
                     moduleInstance.onDisable();
                     moduleInstance.currentHealth = 0;
@@ -184,8 +185,8 @@ const moduleTypes = {
             }
 
             if (moduleInstance.enabled && ship.currentSpeed <= 0.9 && ship.engage) {
-                let energyConsumptionRate = Math.max(moduleInstance.properties.energyConsumptionRate * Math.pow(ship.currentSpeed, 2), 0.1);
-                let acceleration = moduleInstance.properties.accelerationRate;
+                let energyConsumptionRate = Math.max(moduleInstance.properties.energyConsumptionRate * Math.pow(ship.currentSpeed, 2), 0.1) / deltaTime;
+                let acceleration = moduleInstance.properties.accelerationRate / 10 / deltaTime;
 
                 if (moduleInstance.properties.overclocked) {
                     energyConsumptionRate *= 2;
@@ -193,7 +194,6 @@ const moduleTypes = {
                 }
 
                 if (ship.energy >= energyConsumptionRate) {
-                    console.log('Impulse drive engaged', ship.energy, energyConsumptionRate, acceleration);
                     ship.acceleration += acceleration;
                     ship.energy -= energyConsumptionRate;
                 }
@@ -211,7 +211,7 @@ const moduleTypes = {
         },
         properties: {
             energyConsumptionRate: 0.1,
-            accelerationRate: 0.1,
+            accelerationRate: 1,
             overclocked: false
         }
     },
@@ -248,9 +248,9 @@ const moduleTypes = {
                 }
             }
 
-            if (ship.currentSpeed > 0.9 && ship.currentSpeed < maxWarp && ship.engage) {
-                let energyConsumptionRate = Math.max(moduleInstance.properties.energyConsumptionRate * Math.pow(Math.min(0.9, ship.currentSpeed), 2), 0.1);
-                let acceleration = moduleInstance.properties.accelerationRate;
+            if (ship.currentSpeed > 0.9 && ship.engage) {
+                let energyConsumptionRate = Math.max(moduleInstance.properties.energyConsumptionRate * Math.pow(ship.currentSpeed, 2), 0.1) / deltaTime;
+                let acceleration = moduleInstance.properties.accelerationRate / 10 / deltaTime;
 
                 if (moduleInstance.properties.overclocked) {
                     energyConsumptionRate *= 2;
@@ -260,7 +260,7 @@ const moduleTypes = {
                 if (ship.energy >= energyConsumptionRate) {
                     if (moduleInstance.properties.overclocked) {
 
-                        moduleInstance.currentHealth -= 1;
+                        moduleInstance.currentHealth -= 1 / deltaTime;
 
                         if (moduleInstance.currentHealth <= 0) {
                             alertPopup(`Warp drive ${moduleInstance.name} has been disabled due to damage.`);
@@ -286,20 +286,18 @@ const moduleTypes = {
         properties: {
             warpSpeed: 3,
             energyConsumptionRate: 0.5,
-            accelerationRate: 0.1,
+            accelerationRate: 1,
             overclocked: false
         }
     },
 };
 
-
-// Specific module models with default properties
 const moduleModels = {
-    fuelTankS1: { type: 'fuelTank', name: 'S1 Fuel Tank', maxHealth: 20, weight: 4, properties: { fuelCapacity: 400 } },
-    batteryS1: { type: 'battery', name: 'S1 Battery', maxHealth: 10, weight: 1, properties: { energyCapacity: 50 } },
-    energyGeneratorS1: { type: 'energyGenerator', name: 'S1 Reactor', maxHealth: 40, weight: 5, properties: { efficiency: 0.5, fuelConsumptionRate: 5, overclocked: false } },
-    impulseDriveS1: { type: 'impulseDrive', name: 'S1 Impulse Drive', maxHealth: 50, weight: 3, properties: { energyConsumptionRate: 0.1, accelerationRate: 0.1, overclocked: false } },
-    warpDriveS1: { type: 'warpDrive', name: 'S1 Warp Drive', maxHealth: 100, weight: 5, properties: { warpSpeed: 5, accelerationRate: 0.1, energyConsumptionRate: 0.3, overclocked: false } },
+    fuelTankS1: { type: 'fuelTank', name: 'S1 Fuel Tank', maxHealth: 20, weight: 4, properties: { fuelCapacity: 10000 } },
+    batteryS1: { type: 'battery', name: 'S1 Battery', maxHealth: 10, weight: 1, properties: { energyCapacity: 100 } },
+    energyGeneratorS1: { type: 'energyGenerator', name: 'S1 Reactor', maxHealth: 40, weight: 5, properties: { efficiency: 0.7, fuelConsumptionRate: 10, overclocked: false } },
+    impulseDriveS1: { type: 'impulseDrive', name: 'S1 Impulse Drive', maxHealth: 50, weight: 3, properties: { energyConsumptionRate: 0.2, accelerationRate: 0.1, overclocked: false } },
+    warpDriveS1: { type: 'warpDrive', name: 'S1 Warp Drive', maxHealth: 100, weight: 5, properties: { warpSpeed: 5, accelerationRate: 0.3, energyConsumptionRate: 0.4, overclocked: false } },
 };
 
 export function addModuleToShip(modelId, ship = shipState) {

@@ -4,9 +4,17 @@ import { displayError, clearError } from "./Birdhouse/src/modules/input-validati
 import { startGameLoop } from "./src/game/game-loop.js";
 import { loadGameState, saveGameState, initialSolarSystem, initialFactions } from "./src/game/state.js";
 
+export let currentFramerate = 60;
+
 export let playerState = {
     reputation: 0,
 };
+
+export const defaultSettings = {
+    framerate: 60,
+};
+
+export let settings = defaultSettings;
 
 export let shipState = {
 
@@ -31,6 +39,8 @@ window.hook('before-adding-base-content', async function (menuHTML) {
 
 window.hook('on-handle-route-change', async function () {
     loadGameState();
+
+    currentFramerate = (settings.framerate ? settings.framerate : 60);
 
     saveGameState();
 });
@@ -368,8 +378,8 @@ window.hook('validate-field', async function (input, value, errorElement, server
     // This hook is triggered when a field is validated. You can use it to add custom validation rules.
     // If there are no errors, the error of the field will be cleared automatically if nothing or true is returned.
 
-    if (input.name === 'exampleInput' && value.length != 8) {
-        displayError(input, errorElement, 'Example input must be 8 characters long.');
+    if (input.id === 'framerateSlider' && input.value != currentFramerate) {
+        displayError(input, errorElement, `Reload the page to apply the changes.`);
         return false;
     }
 

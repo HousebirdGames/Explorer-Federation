@@ -1,7 +1,9 @@
 import { alertPopup, urlPrefix } from "../../Birdhouse/src/main.js";
-import { playerState, shipState, solarSystems, factions } from "../../everywhere.js";
+import { playerState, shipState, solarSystems, factions, settings } from "../../everywhere.js";
 import { generateFactions, generateSolarSystems } from "./generation.js";
 import * as modules from "./modules.js";
+
+let resetting = false;
 
 const defaultShipState = {
     health: 100,
@@ -54,6 +56,10 @@ export const initialFactions = [
 ];
 
 export function saveGameState() {
+    if (resetting) {
+        return;
+    }
+    localStorage.setItem('ef_settings', JSON.stringify(settings));
     localStorage.setItem('playerState', JSON.stringify(playerState));
     localStorage.setItem('shipState', JSON.stringify(shipState));
     localStorage.setItem('factions', JSON.stringify(factions));
@@ -61,6 +67,7 @@ export function saveGameState() {
 }
 
 export function resetGame() {
+    resetting = true;
     alertPopup('Reseting game...');
     localStorage.removeItem('playerState');
     localStorage.removeItem('shipState');
@@ -70,6 +77,11 @@ export function resetGame() {
 }
 
 export function loadGameState() {
+    const savedSettings = JSON.parse(localStorage.getItem('ef_settings'));
+    if (savedSettings) {
+        Object.assign(settings, savedSettings);
+    }
+
     const savedPlayerState = JSON.parse(localStorage.getItem('playerState'));
     if (savedPlayerState) {
         Object.assign(playerState, savedPlayerState);
