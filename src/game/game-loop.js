@@ -42,6 +42,7 @@ function updateGameLogic() {
 
     ShipMovement();
     shipState.lastConsumption = shipState.energyTemp - shipState.energy;
+    updateEnergyFlow();
     shipState.energyTemp = shipState.energy;
 
     if (shipState.mission == null) {
@@ -51,6 +52,18 @@ function updateGameLogic() {
     }
 
     saveGameState();
+}
+
+let energyConsumptions = [];
+export let averageEnergyConsumption = 0;
+function updateEnergyFlow() {
+    energyConsumptions.push(shipState.lastConsumption);
+
+    if (energyConsumptions.length > 60) {
+        energyConsumptions.shift();
+    }
+
+    averageEnergyConsumption = (energyConsumptions.reduce((a, b) => a + b, 0) / energyConsumptions.length).toFixed(2);
 }
 
 function validateShipState() {

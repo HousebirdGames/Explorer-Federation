@@ -38,7 +38,7 @@ export default async function SpeedControl() {
             } else {
                 shipState.engage = false;
                 button.textContent = "Engage";
-                updateSpeed(0);
+                updateSpeed(0, 0);
             }
         }
     });
@@ -97,7 +97,7 @@ export function updateSpeed(newSpeed, newSliderValue = null) {
     currentSpeedDisplay.textContent = shipState.energy > 0 ? formatSpeed(shipState.currentSpeed) : formatSpeed(shipState.currentSpeed) + ' (No power)';
 
     const speedControlButton = document.getElementById('speedControlButton');
-    speedControlButton.textContent = (shipState.targetSpeed > 0 && shipState.currentSpeed > 0) ? "Full Stop" : "Engage";
+    speedControlButton.textContent = ((shipState.targetSpeed > 0 && shipState.currentSpeed > 0) && shipState.engage) ? "Full Stop" : "Engage";
 
     const speedChangeEvent = new CustomEvent('updateSpeed');
     document.dispatchEvent(speedChangeEvent);

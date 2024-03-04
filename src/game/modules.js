@@ -184,7 +184,7 @@ const moduleTypes = {
                 moduleInstance.information = 'In normal operation';
             }
 
-            if (moduleInstance.enabled && ship.currentSpeed <= 0.9 && ship.engage) {
+            if (moduleInstance.enabled && ship.currentSpeed <= 0.9 && ship.targetSpeed > 0 && ship.engage) {
                 let energyConsumptionRate = Math.max(moduleInstance.properties.energyConsumptionRate * Math.pow(ship.currentSpeed, 2), 0.1) / deltaTime;
                 let acceleration = moduleInstance.properties.accelerationRate / 10 / deltaTime;
 

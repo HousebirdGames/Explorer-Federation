@@ -1,6 +1,7 @@
 import { shipState } from "../../everywhere.js";
 import { action } from "../../Birdhouse/src/main.js";
 import { formatSpeed } from "../game/utils.js";
+import { averageEnergyConsumption } from "../game/game-loop.js";
 
 export default async function ShipState() {
     action(displayPositionsAndDestinations);
@@ -15,10 +16,12 @@ export default async function ShipState() {
     `;
 }
 
+
+
 function displayPositionsAndDestinations() {
     const crewSize = shipState.crew.length;
 
-    const energyFlow = shipState.lastConsumption.toFixed(2);
+    const energyFlow = averageEnergyConsumption;
 
     const display = `
     <div class="panel">
@@ -31,10 +34,10 @@ function displayPositionsAndDestinations() {
     </div>
     <div class="panel">
         <h3>Energy</h3>
-            <p>Fuel: ${shipState.fuel.toFixed(2)}</p>
-            <p>Fuel Capacity: ${shipState.fuelCapacity.toFixed(2)}</p>
-            <p>Energy: ${shipState.energy.toFixed(2)}</p>
-            <p>Energy Capacity: ${shipState.energyCapacity.toFixed(2)}</p>
+            <p>Fuel: ${shipState.fuel.toFixed(0)}</p>
+            <p>Fuel Capacity: ${shipState.fuelCapacity.toFixed(0)}</p>
+            <p>Energy: ${shipState.energy.toFixed(0)}</p>
+            <p>Energy Capacity: ${shipState.energyCapacity.toFixed(0)}</p>
             <p>Energy Flow: ${energyFlow == 0 ? 'No flow' : (energyFlow > 0 ? `Negative ~${energyFlow}` : `Positive ~${energyFlow * -1}`)}</p>
     </div>
 `;

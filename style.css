@@ -497,4 +497,6 @@ button.informationButton:hover {
     border-bottom: solid 0.2rem var(--accentSecondaryTransparent);
     border-radius: 0.2rem;
     padding: 0 0 0.4rem 0.4rem;
+    min-width: 24vw;
+    box-sizing: border-box;
 }
