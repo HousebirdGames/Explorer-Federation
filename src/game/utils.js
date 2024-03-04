@@ -1,7 +1,7 @@
 import { shipState, solarSystems } from '../../everywhere.js';
 
 export function formatSpeed(speed) {
-    return speed > 0 ? (speed > 0.9 ? `Warp ${speed.toFixed(1)}` : `Impulse ${Math.round(speed * 10)}`) : '-';
+    return (speed > 0 && speed < 0.1) ? 'Sub-Impulse' : (speed > 0 ? (speed > 0.9 ? `Warp ${speed.toFixed(1)}` : `Impulse ${Math.round(speed * 10)}`) : '-');
 }
 
 export function formatCamelCase(text) {

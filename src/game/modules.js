@@ -1,6 +1,5 @@
 import { alertPopup } from "../../Birdhouse/src/main.js";
-import { shipState, solarSystems } from "../../everywhere.js";
-import { deltaTime } from "./game-loop.js";
+import { shipState, solarSystems, deltaTime } from "../../everywhere.js";
 
 const moduleTypes = {
     fuelTank: {
@@ -124,11 +123,11 @@ const moduleTypes = {
                 return false;
             }
 
-            let consumptionRate = moduleInstance.properties.fuelConsumptionRate / deltaTime;
+            let consumptionRate = moduleInstance.properties.fuelConsumptionRate * deltaTime;
 
             if (moduleInstance.properties.overclocked) {
                 consumptionRate *= 2;
-                moduleInstance.currentHealth -= 1 / deltaTime;
+                moduleInstance.currentHealth -= 1 * deltaTime;
                 if (moduleInstance.currentHealth <= 0) {
                     moduleInstance.onDisable();
                     moduleInstance.currentHealth = 0;
@@ -184,9 +183,10 @@ const moduleTypes = {
                 moduleInstance.information = 'In normal operation';
             }
 
+
             if (moduleInstance.enabled && ship.currentSpeed <= 0.9 && ship.targetSpeed > 0 && ship.engage) {
-                let energyConsumptionRate = Math.max(moduleInstance.properties.energyConsumptionRate * Math.pow(ship.currentSpeed, 2), 0.1) / deltaTime;
-                let acceleration = moduleInstance.properties.accelerationRate / 10 / deltaTime;
+                let energyConsumptionRate = Math.max(moduleInstance.properties.energyConsumptionRate * ship.currentSpeed, 0.1) * deltaTime;
+                let acceleration = moduleInstance.properties.accelerationRate * deltaTime;
 
                 if (moduleInstance.properties.overclocked) {
                     energyConsumptionRate *= 2;
@@ -249,8 +249,8 @@ const moduleTypes = {
             }
 
             if (ship.currentSpeed > 0.9 && ship.engage) {
-                let energyConsumptionRate = Math.max(moduleInstance.properties.energyConsumptionRate * Math.pow(ship.currentSpeed, 2), 0.1) / deltaTime;
-                let acceleration = moduleInstance.properties.accelerationRate / 10 / deltaTime;
+                let energyConsumptionRate = Math.max(moduleInstance.properties.energyConsumptionRate * Math.pow(ship.currentSpeed, 2), 0.1) * deltaTime;
+                let acceleration = moduleInstance.properties.accelerationRate * deltaTime;
 
                 if (moduleInstance.properties.overclocked) {
                     energyConsumptionRate *= 2;
@@ -260,7 +260,7 @@ const moduleTypes = {
                 if (ship.energy >= energyConsumptionRate) {
                     if (moduleInstance.properties.overclocked) {
 
-                        moduleInstance.currentHealth -= 1 / deltaTime;
+                        moduleInstance.currentHealth -= 1 * deltaTime;
 
                         if (moduleInstance.currentHealth <= 0) {
                             alertPopup(`Warp drive ${moduleInstance.name} has been disabled due to damage.`);

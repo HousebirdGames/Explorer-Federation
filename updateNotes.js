@@ -8,6 +8,7 @@ export const updateNotes = [
             "Improved calculations for the game loop and modules",
             "Redesigned mission overview",
             "Added additional buttons to the speed control",
+            "Impulse Drive energy consumption is linear to the speed now",
         ]
     },
     {

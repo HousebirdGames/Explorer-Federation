@@ -1,12 +1,12 @@
 import { alertPopup } from "../../Birdhouse/src/main.js";
-import { shipState, solarSystems, factions, settings } from "../../everywhere.js";
+import { shipState, solarSystems, factions, settings, deltaTime, setDeltaTime } from "../../everywhere.js";
 import { generateMission, checkCompletion } from "./missions.js";
 import { saveGameState } from "./state.js";
 import { findDestinationSystemByCoords } from "./utils.js";
 
 let FIXED_TIMESTEP = 1000 / 60;
-let accumulator = 0;
-export let deltaTime = 0;
+
+let lastLogicUpdate = performance.now();
 
 const updateUI = new CustomEvent('updateUI');
 
@@ -20,10 +20,10 @@ export function startGameLoop() {
     }, FIXED_TIMESTEP);
 
     function loop(currentTime) {
-        deltaTime = currentTime - lastTime;
+        const deltaTimeUI = currentTime - lastTime;
         lastTime = currentTime;
 
-        uiAccumulator += deltaTime;
+        uiAccumulator += deltaTimeUI;
         if (uiAccumulator >= uiUpdateInterval) {
             document.dispatchEvent(updateUI);
             uiAccumulator -= uiUpdateInterval;
@@ -36,6 +36,10 @@ export function startGameLoop() {
 }
 
 function updateGameLogic() {
+    const now = performance.now();
+    setDeltaTime((now - lastLogicUpdate) / 1000);
+    lastLogicUpdate = now;
+
     validateShipState();
 
     updateModules();
@@ -114,11 +118,17 @@ function ShipMovement() {
 
 let travelTime = 0;
 let targetPlanet = '';
-const defaultPlanetTravelTime = 50000;
-const distancePerTick = 0.1;
+const defaultPlanetTravelTime = 20000;
+const defaultDistancePerTick = 0.1;
+let distancePerTick = defaultDistancePerTick;
 
 function updateShipPositionAndEnergy() {
-    const defaultDecerleration = 0.02 / FIXED_TIMESTEP;
+    const defaultDeceleration = 0.1 * deltaTime;
+
+    if (shipState.engage && shipState.acceleration <= 0) {
+        alertPopup('Unable to accelerate or maintain speed.');
+        shipState.engage = false;
+    }
 
     if (shipState.targetSpeed > shipState.maxSpeed) {
         shipState.targetSpeed = shipState.maxSpeed;
@@ -132,7 +142,7 @@ function updateShipPositionAndEnergy() {
         }
     }
     else if (!shipState.engage || shipState.currentSpeed > shipState.targetSpeed || shipState.currentSpeed > shipState.maxSpeed || shipState.acceleration <= 0) {
-        shipState.currentSpeed -= defaultDecerleration;
+        shipState.currentSpeed -= defaultDeceleration;
     }
 
     if (shipState.currentSpeed < 0) {
@@ -152,10 +162,18 @@ function updateShipPositionAndEnergy() {
     const deltaY = shipState.course.y - shipState.position.y;
     const distanceToDestination = Math.sqrt(deltaX ** 2 + deltaY ** 2);
 
-    if (shipState.engage && travelTime > 0 && travelToPlanet && shipState.targetPlanet.name != shipState.currentPlanet) {
+    if (shipState.engage && shipState.targetPlanet && shipState.targetPlanet.name == shipState.currentPlanet) {
+        shipState.engage = false;
+        console.log('Arrived at planet');
+        shipState.currentSpeed = 0;
+        shipState.targetPlanet = null;
+        travelTime = 0;
+        alertPopup(`Already at ${shipState.currentPlanet}`);
+    }
+    else if (shipState.engage && travelTime > 0 && travelToPlanet && shipState.targetPlanet.name != shipState.currentPlanet) {
         shipState.position.x = shipState.course.x;
         shipState.position.y = shipState.course.y;
-        travelTime -= FIXED_TIMESTEP * shipState.currentSpeed;
+        travelTime -= FIXED_TIMESTEP * shipState.currentSpeed * deltaTime;
 
         if (travelTime <= 0) {
             shipState.currentPlanet = shipState.targetPlanet.name;
@@ -205,6 +223,7 @@ function updateShipPositionAndEnergy() {
 export let etaCurrentSpeed = 0;
 export let etaTargetSpeed = 0;
 function calculateETA() {
+    const deltaDistancePerTick = distancePerTick * deltaTime;
     const system = findDestinationSystemByCoords(shipState.course);
     const travelToPlanet = (system && shipState.targetPlanet && system.planets.some(planet => planet.name === shipState.targetPlanet.name)) || false;
 
@@ -212,8 +231,8 @@ function calculateETA() {
     const deltaY = shipState.course.y - shipState.position.y;
     const distanceToSystem = Math.sqrt(deltaX ** 2 + deltaY ** 2);
 
-    etaCurrentSpeed = shipState.currentSpeed > 0 ? (distanceToSystem / (distancePerTick * shipState.currentSpeed)) / 60 : Infinity;
-    etaTargetSpeed = shipState.targetSpeed > 0 ? (distanceToSystem / (distancePerTick * shipState.targetSpeed)) / 60 : Infinity;
+    etaCurrentSpeed = shipState.currentSpeed > 0 ? (distanceToSystem / (deltaDistancePerTick * shipState.currentSpeed)) / 60 * deltaTime : Infinity;
+    etaTargetSpeed = shipState.targetSpeed > 0 ? (distanceToSystem / (deltaDistancePerTick * shipState.targetSpeed)) / 60 * deltaTime : Infinity;
 
     if (travelToPlanet) {
         const defaultTravelTimeInSeconds = (travelTime > 0 ? travelTime : defaultPlanetTravelTime) / 1000;
@@ -222,6 +241,10 @@ function calculateETA() {
 
         etaCurrentSpeed += planetTravelTimeAtCurrentSpeed;
         etaTargetSpeed += planetTravelTimeAtTargetSpeed;
+
+        if (shipState.targetPlanet.name == shipState.currentPlanet) {
+            etaTargetSpeed = 0;
+        }
     }
 
     etaCurrentSpeed = isFinite(etaCurrentSpeed) ? Math.max(etaCurrentSpeed, 0) : 0;

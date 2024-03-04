@@ -5,6 +5,11 @@ import { startGameLoop } from "./src/game/game-loop.js";
 import { loadGameState, saveGameState, initialSolarSystem, initialFactions } from "./src/game/state.js";
 
 export let currentFramerate = 60;
+export let deltaTime = 0;
+
+export function setDeltaTime(time) {
+    deltaTime = time;
+}
 
 export let playerState = {
     reputation: 0,
