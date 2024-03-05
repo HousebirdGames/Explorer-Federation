@@ -150,6 +150,11 @@ h6 {
     font-size: var(--fontSizeMedium);
 }
 
+
+strong {
+    font-weight: bold;
+}
+
 a {
     color: var(--fontHighlight);
     text-decoration: none;

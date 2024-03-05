@@ -1,4 +1,4 @@
-import { shipState, solarSystems } from '../../everywhere.js';
+import { shipState, solarSystems, playerState } from '../../everywhere.js';
 
 export function formatSpeed(speed) {
     return (speed > 0 && speed < 0.1) ? 'Sub-Impulse' : (speed > 0 ? (speed > 0.9 ? `Warp ${speed.toFixed(1)}` : `Impulse ${Math.round(speed * 10)}`) : '-');
@@ -8,6 +8,14 @@ export function formatCamelCase(text) {
     const result = text.replace(/([A-Z])/g, " $1");
     const finalResult = result.charAt(0).toUpperCase() + result.slice(1);
     return finalResult.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+}
+
+export function addLog(type, message) {
+    shipState.crewLog.unshift({
+        type,
+        message,
+        stardate: playerState.stardate
+    });
 }
 
 export function updateShipHealth(amount) {

@@ -1,8 +1,8 @@
 import { alertPopup } from "../../Birdhouse/src/main.js";
-import { shipState, solarSystems, factions, settings, deltaTime, setDeltaTime } from "../../everywhere.js";
+import { shipState, solarSystems, factions, settings, deltaTime, setDeltaTime, playerState } from "../../everywhere.js";
 import { generateMission, checkCompletion } from "./missions.js";
 import { saveGameState } from "./state.js";
-import { findDestinationSystemByCoords } from "./utils.js";
+import { findDestinationSystemByCoords, addLog } from "./utils.js";
 
 let FIXED_TIMESTEP = 1000 / 60;
 
@@ -39,6 +39,9 @@ function updateGameLogic() {
     const now = performance.now();
     setDeltaTime((now - lastLogicUpdate) / 1000);
     lastLogicUpdate = now;
+
+    playerState.stardate += deltaTime;
+    playerState.stardate = parseFloat(playerState.stardate.toFixed(2));
 
     validateShipState();
 
@@ -88,7 +91,7 @@ function updateModules() {
         if (module.currentHealth <= 0 && module.enabled) {
             module.information = 'Module has been disabled due to critical damage.';
             module.onDisable();
-            alertPopup(`${module.name} has been disabled due to critical damage.`);
+            addLog('Engineering', `${module.name} has been disabled due to critical damage.`);
         }
         else if (module.enabled) {
             if (module.type == 'impulseDrive') {
@@ -126,7 +129,7 @@ function updateShipPositionAndEnergy() {
     const defaultDeceleration = 0.1 * deltaTime;
 
     if (shipState.engage && shipState.acceleration <= 0) {
-        alertPopup('Unable to accelerate or maintain speed.');
+        addLog('Helms', 'Unable to accelerate or maintain speed.');
         shipState.engage = false;
     }
 
@@ -168,12 +171,13 @@ function updateShipPositionAndEnergy() {
         shipState.currentSpeed = 0;
         shipState.targetPlanet = null;
         travelTime = 0;
-        alertPopup(`Already at ${shipState.currentPlanet}`);
+        addLog('Helms', `Already at ${shipState.currentPlanet}`);
     }
     else if (shipState.engage && travelTime > 0 && travelToPlanet && shipState.targetPlanet.name != shipState.currentPlanet) {
         shipState.position.x = shipState.course.x;
         shipState.position.y = shipState.course.y;
-        travelTime -= FIXED_TIMESTEP * shipState.currentSpeed * deltaTime;
+        travelTime -= 1000 * shipState.currentSpeed * deltaTime;
+
 
         if (travelTime <= 0) {
             shipState.currentPlanet = shipState.targetPlanet.name;
@@ -181,7 +185,7 @@ function updateShipPositionAndEnergy() {
             shipState.engage = false;
             shipState.currentSpeed = 0;
             travelTime = 0;
-            alertPopup(`Arrived at ${shipState.currentPlanet}`);
+            addLog('Helms', `Arrived at ${shipState.currentPlanet}`);
         }
     }
     else if (shipState.engage && distanceToDestination <= distancePerTick * shipState.currentSpeed) {
@@ -208,7 +212,7 @@ function updateShipPositionAndEnergy() {
             travelTime = defaultPlanetTravelTime;
         }
 
-        alertPopup(alertMessage);
+        addLog('Helms', alertMessage);
     } else if (shipState.engage || shipState.currentSpeed > 0) {
         shipState.currentPlanet = null;
 

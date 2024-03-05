@@ -2,7 +2,7 @@
 import * as main from "./Birdhouse/src/main.js";
 import { displayError, clearError } from "./Birdhouse/src/modules/input-validation.js";
 import { startGameLoop } from "./src/game/game-loop.js";
-import { loadGameState, saveGameState, initialSolarSystem, initialFactions } from "./src/game/state.js";
+import { loadGameState, saveGameState, initialSolarSystem, initialFactions, defaultPlayerState } from "./src/game/state.js";
 
 export let currentFramerate = 60;
 export let deltaTime = 0;
@@ -11,9 +11,7 @@ export function setDeltaTime(time) {
     deltaTime = time;
 }
 
-export let playerState = {
-    reputation: 0,
-};
+export let playerState = {};
 
 export const defaultSettings = {
     framerate: 60,
@@ -21,9 +19,7 @@ export const defaultSettings = {
 
 export let settings = defaultSettings;
 
-export let shipState = {
-
-};
+export let shipState = {};
 
 export let factions = initialFactions;
 
@@ -210,6 +206,7 @@ window.hook('create-routes', async function () {
     main.createPublicRoute('/starmap', 'Star Map', 'map', 'components/starmap.js', true, true);
     main.createPublicRoute('/scanner', 'Scanner', 'search', 'components/scanner.js', true);
     main.createPublicRoute('/missions', 'Missions', 'list', 'components/mission-control.js', true);
+    main.createPublicRoute('/logs', 'Logs', 'list', 'components/logs.js', true);
     main.createPublicRoute('/settings', 'Settings', 'settings', 'components/settings.js', true);
     /*  // We can also use the same component for different routes. But this time without an icon.
      main.createPublicRoute('/example-2', 'Also the Example Page', '', 'components/example.js', true);

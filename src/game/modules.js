@@ -1,5 +1,6 @@
 import { alertPopup } from "../../Birdhouse/src/main.js";
 import { shipState, solarSystems, deltaTime } from "../../everywhere.js";
+import { addLog } from "./utils.js";
 
 const moduleTypes = {
     fuelTank: {
@@ -17,7 +18,7 @@ const moduleTypes = {
             }
 
             if (ship.fuel > ship.fuelCapacity) {
-                alertPopup(`Fuel tank ${moduleInstance.name} has been emptied and ${ship.fuel - ship.fuelCapacity} fuel has been lost.`);
+                addLog('Engineering', `Fuel tank ${moduleInstance.name} has been emptied and ${ship.fuel - ship.fuelCapacity} fuel has been lost.`);
                 ship.fuel = ship.fuelCapacity;
             }
         },
@@ -31,16 +32,16 @@ const moduleTypes = {
                     if (amount === undefined) amount = prompt('How much fuel do you want to eject?', 0);
 
                     if (amount === null || amount <= 0) {
-                        alertPopup('Ejection cancelled.');
+                        addLog('Engineering', 'Ejection cancelled.');
                         return false;
                     }
 
                     if (ship.fuel >= amount) {
                         ship.fuel -= amount;
-                        alertPopup(`Fuel ejected: ${amount}`);
+                        addLog('Engineering', `Fuel ejected: ${amount}`);
                         return true;
                     } else {
-                        alertPopup(`Not enough fuel to eject ${amount}.`);
+                        addLog('Engineering', `Not enough fuel to eject ${amount}.`);
                         return false;
                     }
                 }
@@ -64,7 +65,7 @@ const moduleTypes = {
                 ship.energyCapacity -= moduleInstance.properties.energyCapacity;
 
                 if (ship.energy > ship.energyCapacity) {
-                    alertPopup(`Energy capacity reduced. Discharged battery and lost ${ship.energy - ship.energyCapacity} energy.`);
+                    addLog('Engineering', `Energy capacity reduced. Discharged battery and lost ${ship.energy - ship.energyCapacity} energy.`);
                     ship.energy = ship.energyCapacity;
                 }
             }
@@ -79,16 +80,16 @@ const moduleTypes = {
                     if (amount === undefined) amount = prompt('How much energy do you want to discharge?', 0);
 
                     if (amount === null || amount <= 0) {
-                        alertPopup('Discharge cancelled.');
+                        addLog('Engineering', 'Discharge cancelled.');
                         return false;
                     }
 
                     if (ship.energy >= amount) {
                         ship.energy -= amount;
-                        alertPopup(`Energy discharged: ${amount}`);
+                        addLog('Engineering', `Energy discharged: ${amount}`);
                         return true;
                     } else {
-                        alertPopup(`Not enough energy to discharge ${amount}.`);
+                        addLog('Engineering', `Not enough energy to discharge ${amount}.`);
                         return false;
                     }
                 }
@@ -131,7 +132,7 @@ const moduleTypes = {
                 if (moduleInstance.currentHealth <= 0) {
                     moduleInstance.onDisable();
                     moduleInstance.currentHealth = 0;
-                    alertPopup(`${moduleInstance.name} has been disabled due to overheating.`);
+                    addLog('Engineering', `${moduleInstance.name} has been disabled due to overheating.`);
                     return false;
                 }
             }
@@ -152,7 +153,7 @@ const moduleTypes = {
                 action: (moduleInstance, ship) => {
                     moduleInstance.properties.overclocked = !moduleInstance.properties.overclocked;
                     const status = moduleInstance.properties.overclocked ? 'overclocked' : 'normal operation';
-                    alertPopup(`${moduleInstance.name} is now in ${status}.`);
+                    addLog('Engineering', `${moduleInstance.name} is now in ${status}.`);
                     return moduleInstance.properties.overclocked;
                 }
             }
@@ -205,7 +206,7 @@ const moduleTypes = {
                 action: (moduleInstance, ship) => {
                     moduleInstance.properties.overclocked = !moduleInstance.properties.overclocked;
                     const status = moduleInstance.properties.overclocked ? 'overclocked' : 'in normal operation';
-                    alertPopup(`${moduleInstance.name} is now ${status}.`);
+                    addLog('Engineering', `${moduleInstance.name} is now ${status}.`);
                 }
             }
         },
@@ -263,7 +264,7 @@ const moduleTypes = {
                         moduleInstance.currentHealth -= 1 * deltaTime;
 
                         if (moduleInstance.currentHealth <= 0) {
-                            alertPopup(`Warp drive ${moduleInstance.name} has been disabled due to damage.`);
+                            addLog('Engineering', `Warp drive ${moduleInstance.name} has been disabled due to damage.`);
                             this.onDisable(moduleInstance, ship);
                         }
                     }
@@ -279,7 +280,7 @@ const moduleTypes = {
                 action: (moduleInstance, ship) => {
                     moduleInstance.properties.overclocked = !moduleInstance.properties.overclocked;
                     const status = moduleInstance.properties.overclocked ? 'overclocked' : 'in normal operation';
-                    alertPopup(`${moduleInstance.name} is now ${status}.`);
+                    addLog('Engineering', `${moduleInstance.name} is now ${status}.`);
                 }
             }
         },

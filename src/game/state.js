@@ -5,7 +5,7 @@ import * as modules from "./modules.js";
 
 let resetting = false;
 
-const defaultShipState = {
+export const defaultShipState = {
     health: 100,
     shields: 100,
     fuel: 0,
@@ -32,6 +32,12 @@ const defaultShipState = {
     missionHistory: [],
     generatedNames: [],
     impulseEnabled: false,
+    crewLog: []
+};
+
+export const defaultPlayerState = {
+    stardate: 0,
+    reputation: 0
 };
 
 export const initialSolarSystem = {
@@ -117,6 +123,9 @@ function initializeNewGame() {
     console.log('Starting new game');
     Object.keys(shipState).forEach(key => delete shipState[key]);
     Object.assign(shipState, defaultShipState);
+
+    Object.keys(playerState).forEach(key => delete playerState[key]);
+    Object.assign(playerState, defaultPlayerState);
 
     modules.addModuleToShip('fuelTankS1');
     modules.addModuleToShip('batteryS1');
