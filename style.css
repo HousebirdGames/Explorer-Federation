@@ -402,6 +402,10 @@ button.informationButton:hover {
     /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
 }
 
+.noPointerEvents {
+    pointer-events: none;
+}
+
 
 .hugeSelection {
     display: flex;
@@ -504,4 +508,165 @@ button.informationButton:hover {
     padding: 0 0 0.4rem 0.4rem;
     min-width: 14rem;
     box-sizing: border-box;
+}
+
+/* Rooms/Bridge */
+
+.room-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 1rem;
+    background: #c0c0c0;
+}
+
+.room {
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+}
+
+.room.center {
+    flex: 3;
+    align-items: center;
+}
+
+.room.left,
+.room.right {
+    flex: 1;
+    display: flex;
+}
+
+@media (max-width: 600px) {
+
+    .room.center {
+        order: 1;
+        min-width: 100%;
+    }
+
+    .room.left,
+    .room.right {
+        flex-basis: 50%;
+    }
+
+    .room.left {
+        order: 2;
+    }
+
+    .room.right {
+        order: 3;
+    }
+}
+
+.screen {
+    width: 80%;
+    border: solid 0.2rem white;
+    border-radius: 1rem;
+    background: var(--panelBackground);
+    flex: 2;
+}
+
+.centerConsole {
+    width: 80%;
+    flex: 1;
+    background: #747474;
+    display: flex;
+    flex-direction: row;
+}
+
+.console {
+    display: flex;
+    justify-content: center;
+    padding: 0.4rem;
+    transition: var(--transitionFast);
+    background-image: url('img/graphics/console.png');
+    image-rendering: pixelated;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.console div {
+    max-height: 100%;
+}
+
+.centerConsole .console {
+    flex: 1;
+}
+
+@media (max-width: 600px) {
+    .screen {
+        width: 100%;
+    }
+
+    .centerConsole {
+        width: 100%;
+    }
+}
+
+.room .top {
+    flex: 1;
+}
+
+.room .sideConsole {
+    flex: 2;
+    background: #747474;
+    transition: var(--transitionFast);
+    background-image: url('img/graphics/console.png');
+    image-rendering: pixelated;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+@media (max-width: 600px) {
+
+    .room.center {
+        order: 1;
+        min-width: 100%;
+    }
+
+    .room .top {
+        order: 2;
+    }
+
+    .room .sideConsole {
+        order: 1;
+    }
+}
+
+.console:hover,
+.sideConsole:hover {
+    box-shadow: 0 0 1rem white;
+    cursor: pointer;
+}
+
+img.crew {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 1rem;
+}
+
+span.action {
+    font-weight: bold;
+    color: var(--highlightHover);
+    cursor: pointer;
+    transition: var(--transitionFast);
+}
+
+span.action:hover {
+    color: var(--highlightActive);
+}
+
+span.action:active {
+    color: var(--fontColor);
+}
+
+/* Starmap */
+
+text {
+    font-size: var(--fontSizeExtraLarge);
+}
+
+circle.starmapStar {
+    r: 1rem;
 }

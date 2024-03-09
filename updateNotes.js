@@ -73,7 +73,7 @@ export const updateNotes = [
             "Added basic ship status and speed control",
             "Added Star Map",
             "Added travel to planets",
-            "Added solar system scanning",
+            "Added star system scanning",
         ]
     }
 ];  

@@ -1,5 +1,5 @@
 import { updateTitleAndMeta, action } from "../../Birdhouse/src/main.js";
-import { shipState, solarSystems } from "../../everywhere.js";
+import { shipState, starSystems } from "../../everywhere.js";
 import { formatCamelCase } from "../game/utils.js";
 
 export default async function ModuleManagement() {

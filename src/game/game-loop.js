@@ -1,8 +1,8 @@
 import { alertPopup } from "../../Birdhouse/src/main.js";
-import { shipState, solarSystems, factions, settings, deltaTime, setDeltaTime, playerState } from "../../everywhere.js";
+import { shipState, starSystems, factions, settings, deltaTime, setDeltaTime, playerState } from "../../everywhere.js";
 import { generateMission, checkCompletion } from "./missions.js";
 import { saveGameState } from "./state.js";
-import { findDestinationSystemByCoords, addLog } from "./utils.js";
+import { getDestinationByCoords, addLog } from "./utils.js";
 
 let FIXED_TIMESTEP = 1000 / 60;
 
@@ -119,12 +119,6 @@ function ShipMovement() {
     updateShipPositionAndEnergy();
 }
 
-let travelTime = 0;
-let targetPlanet = '';
-const defaultPlanetTravelTime = 20000;
-const defaultDistancePerTick = 0.1;
-let distancePerTick = defaultDistancePerTick;
-
 function updateShipPositionAndEnergy() {
     const defaultDeceleration = 0.1 * deltaTime;
 
@@ -152,73 +146,39 @@ function updateShipPositionAndEnergy() {
         shipState.currentSpeed = 0;
     }
 
-    const system = findDestinationSystemByCoords(shipState.course);
+    if (shipState.engage) {
+        // Calculate delta vectors
+        const deltaX = shipState.course.x - shipState.position.x;
+        const deltaY = shipState.course.y - shipState.position.y;
+        const deltaZ = shipState.course.z - shipState.position.z;
 
-    const travelToPlanet = (system && shipState.targetPlanet && system.planets.some(planet => planet.name === shipState.targetPlanet.name)) || false;
+        // Calculate distance to destination
+        const distanceToDestination = Math.sqrt(deltaX ** 2 + deltaY ** 2 + deltaZ ** 2);
 
-    if (shipState.engage && shipState.targetPlanet && targetPlanet != shipState.targetPlanet.name && travelToPlanet && shipState.position.x === shipState.course.x && shipState.position.y === shipState.course.y) {
-        targetPlanet = shipState.targetPlanet.name;
-        travelTime = defaultPlanetTravelTime;
-    }
+        // Calculate normalized direction vector
+        const dirX = deltaX / distanceToDestination;
+        const dirY = deltaY / distanceToDestination;
+        const dirZ = deltaZ / distanceToDestination;
 
-    const deltaX = shipState.course.x - shipState.position.x;
-    const deltaY = shipState.course.y - shipState.position.y;
-    const distanceToDestination = Math.sqrt(deltaX ** 2 + deltaY ** 2);
+        // Calculate speed modifier (distance to move this update)
+        const speedModifier = shipState.currentSpeed * deltaTime;
 
-    if (shipState.engage && shipState.targetPlanet && shipState.targetPlanet.name == shipState.currentPlanet) {
-        shipState.engage = false;
-        console.log('Arrived at planet');
-        shipState.currentSpeed = 0;
-        shipState.targetPlanet = null;
-        travelTime = 0;
-        addLog('Helms', `Already at ${shipState.currentPlanet}`);
-    }
-    else if (shipState.engage && travelTime > 0 && travelToPlanet && shipState.targetPlanet.name != shipState.currentPlanet) {
-        shipState.position.x = shipState.course.x;
-        shipState.position.y = shipState.course.y;
-        travelTime -= 1000 * shipState.currentSpeed * deltaTime;
-
-
-        if (travelTime <= 0) {
-            shipState.currentPlanet = shipState.targetPlanet.name;
-            shipState.targetPlanet = null;
+        if (distanceToDestination > speedModifier) {
+            // Move towards the destination without overshooting
+            shipState.position.x += dirX * speedModifier;
+            shipState.position.y += dirY * speedModifier;
+            shipState.position.z += dirZ * speedModifier;
+        } else {
+            // Snap to destination to prevent overshooting
+            shipState.position.x = shipState.course.x;
+            shipState.position.y = shipState.course.y;
+            shipState.position.z = shipState.course.z;
             shipState.engage = false;
             shipState.currentSpeed = 0;
-            travelTime = 0;
-            addLog('Helms', `Arrived at ${shipState.currentPlanet}`);
+            const destination = getDestinationByCoords(shipState.position);
+            const message = destination.planet ? `Now orbiting ${destination.planet.name} in the ${destination.system.name} system.` : `Entered the ${destination.system.name} system.`
+            alertPopup(`Arrived at the destination`, message);
         }
-    }
-    else if (shipState.engage && distanceToDestination <= distancePerTick * shipState.currentSpeed) {
-        shipState.position.x = shipState.course.x;
-        shipState.position.y = shipState.course.y;
-
-        if (!travelToPlanet) {
-            shipState.engage = false;
-            shipState.currentSpeed = 0;
-        }
-
-        let alertMessage = '';
-        if (system.faction && system.faction == 'Federation') {
-            alertMessage = `Arrived at the ${system.name} system`, `You are now in Federation space and have been refuled`;
-            shipState.fuel = shipState.fuelCapacity;
-        }
-        else {
-            alertMessage = `Arrived at the ${system.name} system`;
-        }
-
-        if (travelToPlanet) {
-            alertMessage += ` and are now taveling to ${shipState.targetPlanet.name}`;
-            targetPlanet = shipState.targetPlanet.name;
-            travelTime = defaultPlanetTravelTime;
-        }
-
-        addLog('Helms', alertMessage);
-    } else if (shipState.engage || shipState.currentSpeed > 0) {
-        shipState.currentPlanet = null;
-
-        const angleToDestination = Math.atan2(deltaY, deltaX);
-        shipState.position.x += Math.cos(angleToDestination) * distancePerTick * shipState.currentSpeed;
-        shipState.position.y += Math.sin(angleToDestination) * distancePerTick * shipState.currentSpeed;
     }
 
     calculateETA();
@@ -227,30 +187,21 @@ function updateShipPositionAndEnergy() {
 export let etaCurrentSpeed = 0;
 export let etaTargetSpeed = 0;
 function calculateETA() {
-    const deltaDistancePerTick = distancePerTick * deltaTime;
-    const system = findDestinationSystemByCoords(shipState.course);
-    const travelToPlanet = (system && shipState.targetPlanet && system.planets.some(planet => planet.name === shipState.targetPlanet.name)) || false;
-
+    // Calculate the 3D distance including the Z coordinate as the planet index
+    // Assuming Z distance conversion is handled or Z directly represents a spatial measurement
     const deltaX = shipState.course.x - shipState.position.x;
     const deltaY = shipState.course.y - shipState.position.y;
-    const distanceToSystem = Math.sqrt(deltaX ** 2 + deltaY ** 2);
+    const deltaZ = shipState.course.z - shipState.position.z;
 
-    etaCurrentSpeed = shipState.currentSpeed > 0 ? (distanceToSystem / (deltaDistancePerTick * shipState.currentSpeed)) / 60 * deltaTime : Infinity;
-    etaTargetSpeed = shipState.targetSpeed > 0 ? (distanceToSystem / (deltaDistancePerTick * shipState.targetSpeed)) / 60 * deltaTime : Infinity;
+    const distanceToDestination = Math.sqrt(deltaX ** 2 + deltaY ** 2 + deltaZ ** 2);
 
-    if (travelToPlanet) {
-        const defaultTravelTimeInSeconds = (travelTime > 0 ? travelTime : defaultPlanetTravelTime) / 1000;
-        const planetTravelTimeAtCurrentSpeed = shipState.currentSpeed ? defaultTravelTimeInSeconds / shipState.currentSpeed : defaultTravelTimeInSeconds;
-        const planetTravelTimeAtTargetSpeed = shipState.targetSpeed ? defaultTravelTimeInSeconds / shipState.targetSpeed : defaultTravelTimeInSeconds;
+    // Update ETA calculations to use the actual distance and current/target speeds
+    // Ensure to handle the case when speed is 0 to avoid division by zero
+    etaCurrentSpeed = shipState.currentSpeed > 0 ? distanceToDestination / shipState.currentSpeed : Infinity;
+    etaTargetSpeed = shipState.targetSpeed > 0 ? distanceToDestination / shipState.targetSpeed : Infinity;
 
-        etaCurrentSpeed += planetTravelTimeAtCurrentSpeed;
-        etaTargetSpeed += planetTravelTimeAtTargetSpeed;
-
-        if (shipState.targetPlanet.name == shipState.currentPlanet) {
-            etaTargetSpeed = 0;
-        }
-    }
-
+    // Convert ETA from seconds to more appropriate time unit if needed, e.g., minutes or hours
+    // Assuming the speed units are such that distance/speed gives seconds
     etaCurrentSpeed = isFinite(etaCurrentSpeed) ? Math.max(etaCurrentSpeed, 0) : 0;
     etaTargetSpeed = isFinite(etaTargetSpeed) ? Math.max(etaTargetSpeed, 0) : 0;
 }

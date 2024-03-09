@@ -1,31 +1,12 @@
-import { shipState, solarSystems } from "../../everywhere.js";
+import { shipState, starSystems } from "../../everywhere.js";
 import { alertPopup, updateTitleAndMeta, action } from "../../Birdhouse/src/main.js";
-import { formatSpeed, findDestinationIndexByCoords } from "../game/utils.js";
+import { formatSpeed, getDestinationByCoords } from "../game/utils.js";
 
 export default async function Scanner() {
     action({
         type: 'click',
         handler: () => {
-            if (shipState.energy <= 0) {
-                alertPopup('No Power');
-                return;
-            }
-
-            const currentSystemIndex = findDestinationIndexByCoords([shipState.position.x, shipState.position.y]);
-
-            if (currentSystemIndex == null) {
-                alertPopup('No System found');
-                return;
-            }
-
-            if (solarSystems[currentSystemIndex].discovered) {
-                alertPopup('System already scanned');
-                return;
-            }
-
-            solarSystems[currentSystemIndex].discovered = true;
-            alertPopup('System scanned');
-            updateTexts();
+            scanCurrentSystem();
         },
         selector: '#scanSystemButton'
     });
@@ -49,28 +30,48 @@ export default async function Scanner() {
     `;
 }
 
+export function scanCurrentSystem() {
+    if (shipState.energy <= 0) {
+        alertPopup('No Power');
+        return;
+    }
+
+    const currentLocation = getDestinationByCoords(shipState.position);
+
+    if (currentLocation == null) {
+        alertPopup('No System found');
+        return;
+    }
+
+    if (currentLocation.system.discovered) {
+        alertPopup(currentLocation.system.name + ' system already scanned');
+        return;
+    }
+
+    starSystems[currentSystemIndex].discovered = true;
+    alertPopup(`Successfully scanned the ${currentLocation.system.name} system`);
+    updateTexts();
+}
+
 export function updateTexts() {
     const systemNameText = document.getElementById('systemNameText');
     const systemDiscoveredText = document.getElementById('systemDiscoveredText');
-    let currentSystemIndex = findDestinationIndexByCoords([shipState.position.x, shipState.position.y]);
     const systemInfoText = document.getElementById('systemInfoText');
 
-    if (currentSystemIndex == null) {
-        currentSystemIndex = findDestinationIndexByCoords([shipState.position.x, shipState.position.y]);
-    }
+    let currentLocation = getDestinationByCoords(shipState.position);
 
-    if (currentSystemIndex == null) {
+    if (currentLocation == null) {
         systemNameText.textContent = 'Not in a system';
         systemDiscoveredText.textContent = '-';
         systemInfoText.textContent = '-';
         return;
     }
 
-    systemNameText.textContent = solarSystems[currentSystemIndex].name;
-    systemDiscoveredText.textContent = solarSystems[currentSystemIndex].discovered ? 'Yes' : 'No';
+    systemNameText.textContent = currentLocation.system.name;
+    systemDiscoveredText.textContent = currentLocation.system.discovered ? 'Yes' : 'No';
 
-    if (solarSystems[currentSystemIndex].discovered) {
-        systemInfoText.textContent = (solarSystems[currentSystemIndex].faction ? solarSystems[currentSystemIndex].faction : 'No Faction') + ', Planets: ' + solarSystems[currentSystemIndex].planets.length;
+    if (currentLocation.system.discovered) {
+        systemInfoText.textContent = (currentLocation.system.faction ? currentLocation.system.faction : 'No Faction') + ', Planets: ' + currentLocation.system.planets.length;
     }
     else {
         systemInfoText.textContent = 'Unknown';

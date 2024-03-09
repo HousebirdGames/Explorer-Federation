@@ -1,7 +1,7 @@
 import { updateTitleAndMeta, action } from "../../Birdhouse/src/main.js";
-import { shipState, solarSystems } from "../../everywhere.js";
+import { shipState, starSystems } from "../../everywhere.js";
 import { etaCurrentSpeed, etaTargetSpeed } from "../game/game-loop.js";
-import { findDestinationSystemByCoords } from "../game/utils.js";
+import { getDestinationByCoords } from "../game/utils.js";
 
 export default async function NavigationDisplay() {
 
@@ -24,7 +24,8 @@ export default async function NavigationDisplay() {
 function displayPositionsAndDestinations() {
     const currentPos = shipState.position;
     const coursePos = shipState.course;
-    const destination = findDestinationSystemByCoords(coursePos);
+    const currentLocation = getDestinationByCoords(currentPos);
+    const destination = getDestinationByCoords(coursePos);
 
     const display = `
         <div class="panel">
@@ -32,14 +33,14 @@ function displayPositionsAndDestinations() {
             <div class="panelRow">
                 <div class="panel">
                     <h3>Ship Position</h3>
-                    <p>Current Position: X: ${Math.round(currentPos.x)}, Y: ${Math.round(currentPos.y)}</p>
-                    <p>${shipState.currentPlanet ? 'Currently orbiting ' + shipState.currentPlanet : 'Not orbiting a planet'}</p>
+                    <p>Current Position: ${Math.round(currentPos.x)}:${Math.round(currentPos.y)},${Math.round(currentPos.z)}</p>
+                    <p>${currentLocation.planet != null ? 'Currently orbiting ' + currentLocation.planet.name : 'Not orbiting a planet'}</p>
                 </div>
                 <div class="panel">
                     <h3>Travel</h3>
-                    ${destination.name ? `<p>Destination System: ${destination.name}</p>` : '<p>Empty Space</p>'}
-                    <p>Destination Coordinates: X: ${Math.round(coursePos.x)}, Y: ${Math.round(coursePos.y)}</p>
-                    <p>Destination Planet: ${shipState.targetPlanet ? `${shipState.targetPlanet.name}` : (destination.discovered ? 'No planet set.' : 'Destination system not discovered.')}</p>
+                    ${destination.system != null ? `<p>Destination System: ${destination.system.name}</p>` : '<p>Empty Space</p>'}
+                    <p>Destination Coordinates: ${Math.round(coursePos.x)}:${Math.round(coursePos.y)},${Math.round(coursePos.z)}</p>
+                    <p>Destination Planet: ${destination.planet != null ? `${destination.planet.name}` : (destination.system.discovered ? 'No planet set.' : 'Destination system not discovered.')}</p>
                     <p>ETA at current speed: ${formatTime(etaCurrentSpeed)}</p>
                     <p>ETA at target speed: ${formatTime(etaTargetSpeed)}</p>
                 </div>

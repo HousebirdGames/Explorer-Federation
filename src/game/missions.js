@@ -1,5 +1,5 @@
 import { alertPopup } from "../../Birdhouse/src/main.js";
-import { playerState, shipState, solarSystems } from "../../everywhere.js";
+import { playerState, shipState, starSystems } from "../../everywhere.js";
 import { addLog } from "./utils.js";
 
 class Mission {
@@ -21,12 +21,12 @@ export function checkCompletion(mission) {
     let system = null;
     switch (mission.type) {
         case 'Discover System':
-            if (solarSystems.find(system => system.name === mission.target).discovered) {
+            if (starSystems.find(system => system.name === mission.target).discovered) {
                 state = 'Completed';
             }
             break;
         case 'Patrol System':
-            system = solarSystems.find(system => system.name === mission.target);
+            system = starSystems.find(system => system.name === mission.target);
             if (shipState.position.x === system.coordinates.x && shipState.position.y === system.coordinates.y) {
                 state = 'Completed';
             }
@@ -78,7 +78,7 @@ export function generateMission() {
 }
 
 function generateDiscoverSystemMission() {
-    const undiscoveredSystem = solarSystems.find(system => !system.discovered && system.position !== shipState.position);
+    const undiscoveredSystem = starSystems.find(system => !system.discovered && system.position !== shipState.position);
 
     if (undiscoveredSystem) {
         return new Mission('Discover System', undiscoveredSystem.name, 20, `Travel to the <strong>${undiscoveredSystem.name}</strong> system and scan it.`);
@@ -88,7 +88,7 @@ function generateDiscoverSystemMission() {
 }
 
 function generatePatrolSystemMission() {
-    const otherSystems = solarSystems.filter(system => system.position !== shipState.position);
+    const otherSystems = starSystems.filter(system => system.position !== shipState.position);
 
     if (otherSystems.length === 0) {
         console.error('No other systems available for patrol mission.');
@@ -101,7 +101,7 @@ function generatePatrolSystemMission() {
 }
 
 function generatePatrolPlanetMission() {
-    const discoveredSystems = solarSystems.filter(system => system.discovered && system.position !== shipState.position);
+    const discoveredSystems = starSystems.filter(system => system.discovered && system.position !== shipState.position);
 
     if (discoveredSystems.length === 0) {
         console.error('No discovered systems with planets available for patrol mission.');

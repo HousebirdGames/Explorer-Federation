@@ -1,8 +1,8 @@
 import { alertPopup } from "../../Birdhouse/src/main.js";
-import { shipState, solarSystems, deltaTime } from "../../everywhere.js";
+import { shipState, starSystems, deltaTime } from "../../everywhere.js";
 import { addLog } from "./utils.js";
 
-const moduleTypes = {
+export const moduleTypes = {
     fuelTank: {
         startEnabled: true,
         onEnable: (moduleInstance, ship) => {
@@ -367,4 +367,23 @@ export function getAllFunctionsForModule(moduleName) {
     });
 
     return functionsWithFriendlyNames;
+}
+
+export function getModuleInformation(moduleName, ship = shipState) {
+    const moduleInstance = ship.modules.find(module => module.name === moduleName);
+    if (!moduleInstance) {
+        console.error(`Module ${moduleName} not found.`);
+        return;
+    }
+
+    return moduleInstance.information;
+}
+
+export function getModulesOfType(type, ship = shipState) {
+    if (!ship.modules) {
+        console.error('ship.modules is undefined');
+        return [];
+    }
+
+    return ship.modules.filter(module => module.type === type);
 }

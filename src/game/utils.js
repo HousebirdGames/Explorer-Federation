@@ -1,4 +1,4 @@
-import { shipState, solarSystems, playerState } from '../../everywhere.js';
+import { shipState, starSystems, playerState } from '../../everywhere.js';
 
 export function formatSpeed(speed) {
     return (speed > 0 && speed < 0.1) ? 'Sub-Impulse' : (speed > 0 ? (speed > 0.9 ? `Warp ${speed.toFixed(1)}` : `Impulse ${Math.round(speed * 10)}`) : '-');
@@ -38,25 +38,34 @@ export function removeCrewMember(name) {
     main.alertPopup(`Crew member removed: ${name}`);
 }
 
-export function findDestinationSystemByCoords(coords) {
-    for (const system of solarSystems) {
-        if (system.coordinates.x === coords.x && system.coordinates.y === coords.y) {
-            return system;
-        }
+export function getDestinationByCoords(coords) {
+    // Find the destination system and its index
+    let destinationSystemIndex = starSystems.findIndex(system => system.coordinates.x === coords.x && system.coordinates.y === coords.y);
+    let destinationSystem = starSystems[destinationSystemIndex] || null;
+
+    let destinationPlanet = null;
+    let destinationPlanetIndex = -1; // Default to -1 to indicate not found
+
+    if (destinationSystem && coords.z > 0) {
+        // Adjust for 0-based index since coords.z starts from 1 for the first planet
+        destinationPlanetIndex = coords.z - 1;
+        destinationPlanet = destinationSystem.planets[destinationPlanetIndex] || null;
     }
 
-    console.error('Destination not found');
-    let thisEmptySpace = emptySpace;
-    thisEmptySpace.coordinates = { x: coords.x, y: coords.y };
-    return thisEmptySpace;
+    return {
+        system: destinationSystem,
+        systemIndex: destinationSystemIndex,
+        planet: destinationPlanet,
+        planetIndex: destinationPlanetIndex
+    };
 }
 
-export function findDestinationIndexByCoords(coords) {
-    const index = solarSystems.findIndex(system => system.coordinates.x === coords[0] && system.coordinates.y === coords[1]);
+/* export function findDestinationIndexByCoords(coords) {
+    const index = starSystems.findIndex(system => system.coordinates.x === coords[0] && system.coordinates.y === coords[1]);
 
     if (index === -1) {
         return null;
     }
 
     return index;
-}
+} */

@@ -1,4 +1,4 @@
-import { playerState, shipState, solarSystems, factions } from "../../everywhere.js";
+import { playerState, shipState, starSystems, factions } from "../../everywhere.js";
 
 const emptySpace = {
     name: "Empty Space",
@@ -24,7 +24,7 @@ export function generateFactions(number) {
     }
 }
 
-export function generateSolarSystems(number) {
+export function generateStarSystems(number) {
     const maxDistance = 1000;
     const planetTypes = ['Terrestrial', 'Gas Giant', 'Ice Giant', 'Dwarf'];
     const faunaTypes = ['None', 'Sparse', 'Abundant', 'Diverse'];
@@ -57,7 +57,7 @@ export function generateSolarSystems(number) {
             }
         }
 
-        solarSystems.push({
+        starSystems.push({
             name,
             coordinates,
             discovered,
@@ -66,7 +66,7 @@ export function generateSolarSystems(number) {
         });
     }
 
-    solarSystems.sort((a, b) => {
+    starSystems.sort((a, b) => {
         if (a.name === 'Sol') return -1;
         if (b.name === 'Sol') return 1;
         return a.name.localeCompare(b.name);

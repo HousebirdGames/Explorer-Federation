@@ -1,5 +1,5 @@
 import { updateTitleAndMeta, action } from "../../Birdhouse/src/main.js";
-import { playerState, shipState, solarSystems } from "../../everywhere.js";
+import { playerState, shipState, starSystems } from "../../everywhere.js";
 
 export default async function MissionControl() {
     action(updateMissions);

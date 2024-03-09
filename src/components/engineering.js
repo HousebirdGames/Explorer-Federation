@@ -1,5 +1,5 @@
 import { updateTitleAndMeta } from "../../Birdhouse/src/main.js";
-import { shipState, solarSystems } from "../../everywhere.js";
+import { shipState, starSystems } from "../../everywhere.js";
 import ShipState from './ship-state.js';
 import ModuleManagement from "./module-management.js";
 

@@ -1,11 +1,13 @@
 import { alertPopup, urlPrefix } from "../../Birdhouse/src/main.js";
-import { playerState, shipState, solarSystems, factions, settings } from "../../everywhere.js";
-import { generateFactions, generateSolarSystems } from "./generation.js";
+import { playerState, shipState, starSystems, factions, settings } from "../../everywhere.js";
+import { generateFactions, generateStarSystems } from "./generation.js";
 import * as modules from "./modules.js";
 
 let resetting = false;
 
 export const defaultShipState = {
+    name: 'Ocean',
+    level: 1,
     health: 100,
     shields: 100,
     fuel: 0,
@@ -23,11 +25,8 @@ export const defaultShipState = {
     efficiency: 0,
     lastConsumption: 0,
     acceleration: 0,
-    position: { x: 0, y: 0 },
-    destinationIndex: 0,
-    course: { x: 0, y: 0 },
-    currentPlanet: 'Earth',
-    targetPlanet: null,
+    position: { x: 0, y: 0, z: 0 },
+    course: { x: 0, y: 0, z: 0 },
     mission: null,
     missionHistory: [],
     generatedNames: [],
@@ -40,7 +39,10 @@ export const defaultPlayerState = {
     reputation: 0
 };
 
-export const initialSolarSystem = {
+//currentPlanet
+//destinationIndex
+
+export const initialStarSystem = {
     name: "Sol",
     coordinates: { x: 0, y: 0 },
     discovered: true,
@@ -69,7 +71,7 @@ export function saveGameState() {
     localStorage.setItem('playerState', JSON.stringify(playerState));
     localStorage.setItem('shipState', JSON.stringify(shipState));
     localStorage.setItem('factions', JSON.stringify(factions));
-    localStorage.setItem('solarSystems', JSON.stringify(solarSystems));
+    localStorage.setItem('starSystems', JSON.stringify(starSystems));
 }
 
 export function resetGame() {
@@ -78,7 +80,7 @@ export function resetGame() {
     localStorage.removeItem('playerState');
     localStorage.removeItem('shipState');
     localStorage.removeItem('factions');
-    localStorage.removeItem('solarSystems');
+    localStorage.removeItem('starSystems');
     window.location.href = urlPrefix + '/?message=Game+reset+successful';
 }
 
@@ -104,17 +106,17 @@ export function loadGameState() {
         Object.assign(factions, savedFactionsState);
     }
 
-    const savedSolarSystemsState = JSON.parse(localStorage.getItem('solarSystems'));
-    if (savedSolarSystemsState) {
-        Object.assign(solarSystems, savedSolarSystemsState);
+    const savedStarSystemsState = JSON.parse(localStorage.getItem('starSystems'));
+    if (savedStarSystemsState) {
+        Object.assign(starSystems, savedStarSystemsState);
     }
 
-    if (Object.keys(shipState).length === 0 || Object.keys(factions).length <= 1 || Object.keys(solarSystems).length <= 1) {
+    if (Object.keys(shipState).length === 0 || Object.keys(factions).length <= 1 || Object.keys(starSystems).length <= 1) {
         console.log('No saved game state found');
         localStorage.removeItem('playerState');
         localStorage.removeItem('shipState');
         localStorage.removeItem('factions');
-        localStorage.removeItem('solarSystems');
+        localStorage.removeItem('starSystems');
         initializeNewGame();
     }
 }
@@ -140,7 +142,7 @@ function initializeNewGame() {
         generateFactions(3);
     }
 
-    if (solarSystems.length <= 1) {
-        generateSolarSystems(100);
+    if (starSystems.length <= 1) {
+        generateStarSystems(100);
     }
 }

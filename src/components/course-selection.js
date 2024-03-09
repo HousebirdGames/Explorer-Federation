@@ -1,15 +1,16 @@
 import { updateTitleAndMeta, alertPopup, action } from "../../Birdhouse/src/main.js";
-import { shipState, solarSystems } from "../../everywhere.js";
+import { shipState, starSystems } from "../../everywhere.js";
+import { getDestinationByCoords } from "../game/utils.js";
 
 const courseChangeEvent = new CustomEvent('courseChange');
 
 export default async function CourseSelection() {
-    action(() => setDestinationSystem(shipState.destinationIndex));
+    action(() => setDestinationSystemByCoords(shipState.course));
     action({
         type: 'click',
         handler: (event) => {
             const index = event.target.getAttribute('data-index');
-            setDestinationSystem(index);
+            setDestinationSystemByCoords(starSystems[index].coordinates);
         },
         selector: '.course-btn'
     });
@@ -17,11 +18,7 @@ export default async function CourseSelection() {
         type: 'updateUI',
         handler: updateDestinationSystemText
     });
-    action({
-        type: 'click',
-        handler: updateDestinationSystemText,
-        selector: '.course-btn'
-    });
+
     action({
         type: 'click',
         handler: resetCourse,
@@ -40,9 +37,9 @@ export default async function CourseSelection() {
                 </div>
                 <div class="panel">
                     <h3>Destination System</h3>
-                    <p id="destinationSystemChosen">Choose destination solar system</p>
-                    <button id="resetCourseButton" class="colored">Return to Sol</button>    
-                    <div class="buttonPanel">${solarSystems.map((system, index) => `<button class="course-btn informationButton ${system.discovered ? 'discovered' : ''}" data-index="${index}">${system.name}</button>`).join('')}</div>
+                    <p id="destinationSystemChosen">Choose destination star system</p>
+                    <button id="resetCourseButton" class="colored">Return to Earth</button>    
+                    <div class="buttonPanel">${starSystems.map((system, index) => `<button class="course-btn informationButton ${system.discovered ? 'discovered' : ''}" data-index="${index}">${system.name}</button>`).join('')}</div>
                 </div>
             </div>
         </div>
@@ -52,42 +49,36 @@ export default async function CourseSelection() {
 function updateDestinationSystemText() {
     const destinationSystemChosen = document.getElementById('destinationSystemChosen');
     if (destinationSystemChosen) {
-        const destinationSystem = solarSystems[shipState.destinationIndex].name;
-        destinationSystemChosen.innerHTML = destinationSystem ? `Selected Destination: ${destinationSystem}` : 'Choose destination solar system';
+        const destinationSystem = getDestinationByCoords(shipState.course).system;
+        destinationSystemChosen.innerHTML = destinationSystem != null ? `Selected Destination: ${destinationSystem.name}` : 'Choose destination star system';
     }
 }
 
 function resetCourse() {
-    shipState.course = { x: 0, y: 0 };
-    shipState.destinationIndex = 0;
-    shipState.targetPlanet = null;
-    setDestinationSystem(0);
+    setDestinationSystemByCoords({ x: 0, y: 0, z: 3 });
     document.dispatchEvent(courseChangeEvent);
 }
 
-export function setDestinationSystem(index) {
-    if (index == null) {
+export function setDestinationSystemByCoords(coords) {
+    if (coords == null) {
+        console.error('No coordinates given');
         return;
     }
 
-    const destinationSystem = solarSystems[index];
-    shipState.course = destinationSystem.coordinates;
-    shipState.destinationIndex = index;
+    const destinationSystem = getDestinationByCoords(coords).system;
     document.dispatchEvent(courseChangeEvent);
-    //alertPopup(`Course set to: ${destinationSystem.name} at ${JSON.stringify(destinationSystem.coordinates)}`);
-
-    if (shipState.targetPlanet && !destinationSystem.planets.some(planet => planet.name === shipState.targetPlanet.name)) {
-        shipState.targetPlanet = null;
-    }
 
     const planetsDiv = document.getElementById('planets');
     if (!planetsDiv) {
         return;
     }
-    if (shipState.destinationIndex == null) {
+    if (destinationSystem == null) {
         planetsDiv.innerHTML = '<p>No Solar System</p>';
+        return;
     }
-    else if (destinationSystem.discovered) {
+
+    shipState.course = { x: destinationSystem.coordinates.x, y: destinationSystem.coordinates.y, z: (coords.z ? coords.z : 0) };
+    if (destinationSystem.discovered) {
         planetsDiv.innerHTML = destinationSystem.planets.length > 0 ? (destinationSystem.planets.map((planet, i) => `
         <button class="planet-btn" data-index="${i}">${planet.name}</button>
     `).join('')) : '-';
@@ -97,12 +88,11 @@ export function setDestinationSystem(index) {
     }
 }
 
-function setupPlanetEventHandlers(solarSystem) {
+function setupPlanetEventHandlers(starSystem) {
     document.querySelectorAll('.planet-btn').forEach(button => {
         button.addEventListener('click', (event) => {
-            const index = event.target.getAttribute('data-index');
-            const targetPlanet = solarSystem.planets[index];
-            shipState.targetPlanet = targetPlanet;
+            const zCoord = parseInt(event.target.getAttribute('data-index')) + 1;
+            shipState.course = { x: starSystem.coordinates.x, y: starSystem.coordinates.y, z: zCoord };
             document.dispatchEvent(courseChangeEvent);
             //alertPopup(`Target planet set to: ${targetPlanet.name}`);
         });

@@ -12,7 +12,7 @@ export default async function SpeedControl() {
 
     action({
         type: 'click', selector: '.setSpeedButton', handler: (e) => {
-            setTargetSpeed(e)
+            setTargetSpeedEvent(e)
         }
     });
 
@@ -23,7 +23,7 @@ export default async function SpeedControl() {
                 if (shipState.course == null) {
                     alertPopup('No course set');
                     return;
-                } else if (shipState.course.x === shipState.position.x && shipState.course.y === shipState.position.y && (shipState.targetPlanet == null || shipState.targetPlanet === shipState.currentPlanet)) {
+                } else if (shipState.course.x === shipState.position.x && shipState.course.y === shipState.position.y && shipState.course.z === shipState.position.z) {
                     alertPopup('Already at destination');
                     return;
                 } else if (shipState.targetSpeed === 0) {
@@ -103,18 +103,22 @@ export function updateSpeed(newSpeed, newSliderValue = null) {
     document.dispatchEvent(speedChangeEvent);
 }
 
-function setTargetSpeed(event) {
+function setTargetSpeedEvent(event) {
     const newSpeed = parseFloat(event.target.getAttribute('data-speed'));
 
+    if (setTargetSpeed(newSpeed)) {
+        updateSpeed(newSpeed, newSpeed);
+    }
+}
+
+function setTargetSpeed(newSpeed) {
     if (!shipState.impulseEnabled) {
         alertPopup('Impulse disabled');
-        return;
+        return false;
     }
     else if (newSpeed > shipState.maxSpeed) {
         alertPopup('This speed is currently not available');
-        return;
+        return false;
     }
-
-
-    updateSpeed(newSpeed, newSpeed);
+    return true;
 }

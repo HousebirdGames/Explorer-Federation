@@ -2,7 +2,7 @@
 import * as main from "./Birdhouse/src/main.js";
 import { displayError, clearError } from "./Birdhouse/src/modules/input-validation.js";
 import { startGameLoop } from "./src/game/game-loop.js";
-import { loadGameState, saveGameState, initialSolarSystem, initialFactions, defaultPlayerState } from "./src/game/state.js";
+import { loadGameState, saveGameState, initialStarSystem, initialFactions } from "./src/game/state.js";
 
 export let currentFramerate = 60;
 export let deltaTime = 0;
@@ -24,7 +24,7 @@ export let shipState = {};
 export let factions = initialFactions;
 
 
-export let solarSystems = [initialSolarSystem];
+export let starSystems = [initialStarSystem];
 
 // More hooks might become available or necessary in the future.
 // Remember to keep your everywhere.js file up to date with the latest version of the example everywhere.js file.
@@ -200,6 +200,7 @@ window.hook('create-routes', async function () {
     main.createPublicRoute('/', 'Navigation', 'article', 'components/navigation.js', false);
     main.createPublicRoute('/index.html', 'Navigation', 'article', 'components/navigation.js', false);
 
+    main.createPublicRoute('/bridge', 'Bridge', 'star', 'components/bridge.js', true);
     main.createPublicRoute('/navigation', 'Navigation', 'article', 'components/navigation.js', true);
     main.createPublicRoute('/engineering', 'Engineering', 'settings', 'components/engineering.js', true);
     main.createPublicRoute('/ship-state', 'Ship State', 'settings', 'components/ship-state.js', false);

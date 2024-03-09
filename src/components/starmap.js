@@ -1,10 +1,10 @@
 import { updateTitleAndMeta, action } from "../../Birdhouse/src/main.js";
-import { shipState, solarSystems } from "../../everywhere.js";
-import { setDestinationSystem } from "./course-selection.js";
-import { formatSpeed, findDestinationIndexByCoords } from "../game/utils.js";
+import { shipState, starSystems } from "../../everywhere.js";
+import { setDestinationSystemByCoords } from "./course-selection.js";
+import { formatSpeed, getDestinationByCoords } from "../game/utils.js";
 
 let isInteractable = false;
-export default async function StarMap(interactable = false) {
+export default async function StarMap(interactable = false, onlyMap = false) {
     isInteractable = interactable;
 
     action(displayStarMap);
@@ -34,8 +34,15 @@ export default async function StarMap(interactable = false) {
         }
     }
 
-    return `<div class="panel"><h2>${isInteractable ? 'Interactive Star Map' : 'Star Map'}</h2><svg id="starMap" class="noSelect ${isInteractable ? 'interactable' : ''}" viewBox="${shipState.position.x} ${shipState.position.y} 1000 1000"></svg>
-    ${isInteractable ? `<div class="panelRow" id="zoom-controls">
+    let html = '';
+    if (!onlyMap) {
+        html = `<div class="panel"><h2>${isInteractable ? 'Interactive Star Map' : 'Star Map'}</h2>`;
+    }
+
+    html += `<svg id="starMap" class="noSelect ${onlyMap ? 'noPointerEvents' : ''} ${isInteractable ? 'interactable' : ''}" viewBox="${shipState.position.x} ${shipState.position.y} 1000 1000"></svg>`;
+
+    if (!onlyMap) {
+        html += `${isInteractable ? `<div class="panelRow" id="zoom-controls">
     <div class="panel">
     <div class="panelRow" id="zoom-controls">
     <h3>Starmap Controls</h3>
@@ -46,9 +53,12 @@ export default async function StarMap(interactable = false) {
     <div class="panel">
     <h3>Information</h3>
     <p>Move the map around to find a destination</p>
-    <p>Click on a solar system to select it as destination</p>
+    <p>Click on a star system to select it as destination</p>
     </div></div></div>` : '</div>'}
     `;
+    }
+
+    return html;
 }
 
 function click(event) {
@@ -56,7 +66,7 @@ function click(event) {
 
     if (target.tagName === 'circle') {
         let coords = target.getAttribute('data-coordinates').split(',').map(Number);
-        setDestinationSystem(findDestinationIndexByCoords(coords));
+        setDestinationSystemByCoords(coords);
     } else {
         const rect = starMap.getBoundingClientRect();
         const x = event.clientX - rect.left;
@@ -101,6 +111,7 @@ function zoomEvent(event) {
 }
 
 function zoom(scale) {
+    console.log('zooming', scale);
     zoomLevel *= scale;
 
     const starMap = document.getElementById('starMap');
@@ -178,15 +189,11 @@ function endPan() {
 }
 
 function displayStarMap() {
-    if (panning) {
-        return;
-    }
-
     let svgContent = ``;
 
-    if (shipState.destinationIndex !== null || shipState.course) {
-        const targetX = shipState.destinationIndex !== null ? solarSystems[shipState.destinationIndex].coordinates.x : shipState.course.x;
-        const targetY = shipState.destinationIndex !== null ? solarSystems[shipState.destinationIndex].coordinates.y : shipState.course.y;
+    if (shipState.course) {
+        const targetX = shipState.course.x;
+        const targetY = shipState.course.y;
 
         svgContent += `
             <line x1="${shipState.position.x + 500}" y1="${shipState.position.y + 500}" x2="${targetX + 500}" y2="${targetY + 500}" stroke="red" stroke-dasharray="5,5">
@@ -195,22 +202,22 @@ function displayStarMap() {
         `;
     }
 
-    svgContent += `
-        <circle cx="${shipState.position.x + 500}" cy="${shipState.position.y + 500}" r="10" fill="blue">
-            <title>Ship</title>
-        </circle>
-        <text x="${shipState.position.x + 487}" y="${shipState.position.y + 485}" fill="lightblue">You</text>
-    `;
-
-    for (const system of solarSystems) {
-        const fillColor = system.coordinates === shipState.course ? 'red' : 'white';
+    for (const system of starSystems) {
+        const fillColor = (system.coordinates.x === shipState.course.x && system.coordinates.y === shipState.course.y) ? 'red' : 'white';
         svgContent += `
-            <circle cx="${system.coordinates.x + 500}" cy="${system.coordinates.y + 500}" r="5" fill="${fillColor}" data-coordinates="${system.coordinates.x},${system.coordinates.y}">
-                <title>${system.name}</title>
-            </circle>
-            <text x="${system.coordinates.x + 515}" y="${system.coordinates.y + 505}" fill="grey">${system.name}</text>
+        <circle class="starmapStar" cx="${system.coordinates.x + 500}" cy="${system.coordinates.y + 500}" fill="${fillColor}" data-coordinates="${system.coordinates.x},${system.coordinates.y}">
+        <title>${system.name}</title>
+        </circle>
+        <text x="${system.coordinates.x + 515}" y="${system.coordinates.y + 505}" fill="grey">${system.name}</text>
         `;
     }
+
+    svgContent += `
+            <circle cx="${shipState.position.x + 500}" cy="${shipState.position.y + 500}" r="10" fill="blue">
+                <title>Ship</title>
+            </circle>
+            <text x="${shipState.position.x + 487}" y="${shipState.position.y + 485}" fill="lightblue">You</text>
+        `;
 
     if (shipState.destinationIndex === null) {
         svgContent += `
