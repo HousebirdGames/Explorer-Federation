@@ -39,9 +39,6 @@ export const defaultPlayerState = {
     reputation: 0
 };
 
-//currentPlanet
-//destinationIndex
-
 export const initialStarSystem = {
     name: "Sol",
     coordinates: { x: 0, y: 0 },

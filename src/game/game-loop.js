@@ -123,7 +123,7 @@ function updateShipPositionAndEnergy() {
     const defaultDeceleration = 0.1 * deltaTime;
 
     if (shipState.engage && shipState.acceleration <= 0) {
-        addLog('Helms', 'Unable to accelerate or maintain speed.');
+        addLog('Navigation', 'Unable to accelerate or maintain speed.');
         shipState.engage = false;
     }
 
@@ -178,6 +178,7 @@ function updateShipPositionAndEnergy() {
             const destination = getDestinationByCoords(shipState.position);
             const message = destination.planet ? `Now orbiting ${destination.planet.name} in the ${destination.system.name} system.` : `Entered the ${destination.system.name} system.`
             alertPopup(`Arrived at the destination`, message);
+            addLog('Navigation', `${message}`);
         }
     }
 

@@ -14,7 +14,7 @@ export default async function Navigation() {
     ${await Log('Comms', 1)}
     ${await StarMap()}
     ${await NavigationDisplay()}
-    ${await Log('Helms', 3)}
+    ${await Log('Navigation', 3)}
     ${await SpeedControl()}
     ${await CourseSelection()}
 `;

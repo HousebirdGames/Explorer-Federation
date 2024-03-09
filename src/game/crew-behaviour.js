@@ -1,6 +1,6 @@
 import { alertPopup, goToRoute } from "../../Birdhouse/src/main.js";
 import { playerState, shipState, starSystems } from "../../everywhere.js";
-import { formatSpeed, getDestinationByCoords } from "../game/utils.js";
+import { formatSpeed, getDestinationByCoords, addLog } from "../game/utils.js";
 import { getModulesOfType, getModuleInformation } from "./modules.js";
 
 export const crewTypes = {
@@ -45,8 +45,8 @@ function displaySuggestions(type, suggestions) {
             button.addEventListener('click', () => {
                 suggestion.action();
                 alertPopup('Aye, Captain.', `We will ${suggestion.text}.`);
-                //addLog(type, `Captain ${playerState.name} approved that we ${suggestion.text}`);
-                console.log(`Captain ${playerState.name} approved that we ${suggestion.text}.`);
+                const message = `Captain ${playerState.name} approved that we ${suggestion.text}`;
+                addLog(type, message);
             });
         }
     });
