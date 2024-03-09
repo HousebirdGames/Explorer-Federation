@@ -33,6 +33,7 @@ module.exports = {
         "img/favicons",
         "img/icons",
         "img/screenshots",
+        "img/graphics",
         "uploads"
     ],
     directoriesToExcludeFromCache: [
