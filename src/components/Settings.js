@@ -42,8 +42,8 @@ export default async function Settings() {
     });
 
     return `
-        <div class="panel">
         <h1>Settings</h1>
+        <div class="panel">
         <div class="panelRow">
             <div class="panel">
                 <h3>General</h3>

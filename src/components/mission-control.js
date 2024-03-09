@@ -1,16 +1,17 @@
 import { updateTitleAndMeta, action } from "../../Birdhouse/src/main.js";
 import { playerState, shipState, starSystems } from "../../everywhere.js";
+import { getDestinationByCoords } from "../game/utils.js";
 
 export default async function MissionControl() {
     action(updateMissions);
     action({
-        type: 'updateUI',
+        type: 'updatedLogic',
         handler: updateMissions
     });
 
     return `
+    <h1>Mission Control</h1>
     <div class="panel" id="mission-control">
-            <h2>Mission Control</h2>
             <p>Reputation: <span id="reputation"></span></p>
             <div class="panelRow">
                 <div class="panel">
@@ -28,16 +29,22 @@ export default async function MissionControl() {
 
 function updateMissions() {
     document.getElementById('reputation').innerHTML = playerState.reputation;
+    const missionLocation = getDestinationByCoords(shipState.mission.location);
     document.getElementById('missionCurrent').innerHTML = shipState.mission === null ? '<p>No mission</p>' : `
     <p>Your current mission: ${shipState.mission.description}</p>
     <ul>
-    <li>Mission: ${shipState.mission.type}</li>
-    <li>Target: ${shipState.mission.target}</li>
-    <li>Reward: ${shipState.mission.reputation} Reputation</li>
+    <li>Mission: <strong>${shipState.mission.type}</strong></li>
+    ${shipState.mission.target ? `<li>Target: <strong>${shipState.mission.target}</strong></li>` : ''}
+    ${missionLocation ? `<li>Location: ${missionLocation.planet ? `Planet <strong>${missionLocation.planet.name}</strong> in the ` : ''}<strong>${missionLocation.system.name}</strong> System</li>` : ''}
+    <li>Reward: <strong>${shipState.mission.reputation}</strong> Reputation</li>
     </ul>
     `;
-    document.getElementById('missionHistory').innerHTML = shipState.missionHistory.length <= 0 ? '<p>No mission history</p>' :
-        '<ul>' + shipState.missionHistory.map(mission => `
-        <li>${mission.type}: ${mission.target} (${mission.state} | Reward: ${mission.reputation} Reputation)</li>
-        `).join('') + '</ul>';
+    document.getElementById('missionHistory').innerHTML = shipState.missionHistory.length <= 0
+        ? '<p>No mission history</p>'
+        : '<ul>' + shipState.missionHistory.map(mission => {
+            const location = getDestinationByCoords(mission.location);
+            return `
+            <li>${mission.type}: ${location.planet ? `Planet <strong>${location.planet.name}</strong> in the ` : ''}<strong>${location.system.name}</strong> System${mission.target ? ` > ${mission.target}` : ''} (${mission.state} | Reward: ${mission.reputation} Reputation)</li>
+            `;
+        }).join('') + '</ul>';
 }

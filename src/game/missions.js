@@ -1,13 +1,14 @@
 import { alertPopup } from "../../Birdhouse/src/main.js";
 import { playerState, shipState, starSystems } from "../../everywhere.js";
-import { addLog } from "./utils.js";
+import { addLog, getDestinationByCoords } from "./utils.js";
 
 class Mission {
-    constructor(type, target, reputation = 10, description = null) {
+    constructor(type, reputation = 10, location = null, description = null, target = null) {
         this.type = type;
         this.reputation = reputation
+        this.location = location;
         this.target = target;
-        this.description = description ? description : `${type} > ${target}`;
+        this.description = description ? description : `${type}${this.location ? ` at ${this.location}` : ''}${target ? ` > ${target}` : ''}`;
         this.state = 'Active';
     }
 }
@@ -16,21 +17,20 @@ const missionTypes = ['Discover System', 'Patrol System', 'Patrol Planet'];
 
 export function checkCompletion(mission) {
     let state = 'Active';
-    let system = null;
     switch (mission.type) {
         case 'Discover System':
-            if (starSystems.find(system => system.name === mission.target).discovered) {
+            const system = getDestinationByCoords(mission.location).system;
+            if (system.discovered) {
                 state = 'Completed';
             }
             break;
         case 'Patrol System':
-            system = starSystems.find(system => system.name === mission.target);
-            if (shipState.position.x === system.coordinates.x && shipState.position.y === system.coordinates.y) {
+            if (shipState.position.x === mission.location.x && shipState.position.y === mission.location.y) {
                 state = 'Completed';
             }
             break;
         case 'Patrol Planet':
-            if (shipState.currentPlanet === mission.target) {
+            if (shipState.position.x === mission.location.x && shipState.position.y === mission.location.y && shipState.position.z === mission.location.z) {
                 state = 'Completed';
             }
             break;
@@ -79,7 +79,7 @@ function generateDiscoverSystemMission() {
     const undiscoveredSystem = starSystems.find(system => !system.discovered && system.position !== shipState.position);
 
     if (undiscoveredSystem) {
-        return new Mission('Discover System', undiscoveredSystem.name, 20, `Travel to the <strong>${undiscoveredSystem.name}</strong> system and scan it.`);
+        return new Mission('Discover System', 20, undiscoveredSystem.coordinates, `Travel to the <strong>${undiscoveredSystem.name}</strong> system and scan it.`);
     } else {
         return null;
     }
@@ -95,7 +95,7 @@ function generatePatrolSystemMission() {
 
     const systemIndex = Math.floor(Math.random() * otherSystems.length);
     const system = otherSystems[systemIndex];
-    return new Mission('Patrol System', system.name, 10, `Travel to the <strong>${system.name}</strong> system.`);
+    return new Mission('Patrol System', 10, system.coordinates, `Travel to the <strong>${system.name}</strong> system.`);
 }
 
 function generatePatrolPlanetMission() {
@@ -115,7 +115,6 @@ function generatePatrolPlanetMission() {
     }
 
     const planetIndex = Math.floor(Math.random() * system.planets.length);
-    const planet = system.planets[planetIndex];
 
-    return new Mission('Patrol Planet', planet.name, 15, `Travel to <strong>${planet.name}</strong> in the <strong>${system.name}</strong> system.`);
+    return new Mission('Patrol Planet', 15, { x: system.coordinates.x, y: system.coordinates.y, z: planetIndex + 1 }, `Travel to the planet <strong>${system.planets[planetIndex].name}</strong> in the <strong>${system.name}</strong> system.`);
 }

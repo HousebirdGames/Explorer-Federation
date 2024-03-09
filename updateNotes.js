@@ -7,7 +7,8 @@ export const updateNotes = [
             "Added bridge mockup with some basic functionality",
             "Added the first crew suggestions for actions that can be taken",
             "Improved movement/travel system which no longer has a fixed travel time between planets",
-            "Replaced many popups with the new log functionality"
+            "Replaced many popups with the new log functionality",
+            "Missions now use location coordinates instead of system and planet names",
         ]
     },
     {

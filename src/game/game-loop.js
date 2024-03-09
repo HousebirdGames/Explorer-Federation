@@ -9,6 +9,7 @@ let FIXED_TIMESTEP = 1000 / 60;
 let lastLogicUpdate = performance.now();
 
 const updateUI = new CustomEvent('updateUI');
+const updatedLogic = new CustomEvent('updatedLogic');
 
 export function startGameLoop() {
     let lastTime = performance.now();
@@ -58,6 +59,7 @@ function updateGameLogic() {
         checkCompletion(shipState.mission);
     }
 
+    document.dispatchEvent(updatedLogic);
     saveGameState();
 }
 
@@ -121,24 +123,24 @@ function ShipMovement() {
 
 function updateShipPositionAndEnergy() {
     const defaultDeceleration = 0.1 * deltaTime;
+    let canMove = shipState.engage;
 
     if (shipState.engage && shipState.acceleration <= 0) {
-        addLog('Navigation', 'Unable to accelerate or maintain speed.');
-        shipState.engage = false;
+        canMove = false;
     }
 
     if (shipState.targetSpeed > shipState.maxSpeed) {
         shipState.targetSpeed = shipState.maxSpeed;
     }
 
-    if (shipState.engage && shipState.currentSpeed <= shipState.targetSpeed && shipState.acceleration > 0) {
+    if (canMove && shipState.currentSpeed <= shipState.targetSpeed && shipState.acceleration > 0) {
         shipState.currentSpeed += shipState.acceleration;
 
         if (shipState.currentSpeed > shipState.targetSpeed) {
             shipState.currentSpeed = shipState.targetSpeed;
         }
     }
-    else if (!shipState.engage || shipState.currentSpeed > shipState.targetSpeed || shipState.currentSpeed > shipState.maxSpeed || shipState.acceleration <= 0) {
+    else if (!canMove || shipState.currentSpeed > shipState.targetSpeed || shipState.currentSpeed > shipState.maxSpeed || shipState.acceleration <= 0) {
         shipState.currentSpeed -= defaultDeceleration;
     }
 
@@ -146,34 +148,32 @@ function updateShipPositionAndEnergy() {
         shipState.currentSpeed = 0;
     }
 
-    if (shipState.engage) {
-        const deltaX = shipState.course.x - shipState.position.x;
-        const deltaY = shipState.course.y - shipState.position.y;
-        const deltaZ = shipState.course.z - shipState.position.z;
+    const deltaX = shipState.course.x - shipState.position.x;
+    const deltaY = shipState.course.y - shipState.position.y;
+    const deltaZ = shipState.course.z - shipState.position.z;
 
-        const distanceToDestination = Math.sqrt(deltaX ** 2 + deltaY ** 2 + deltaZ ** 2);
+    const distanceToDestination = Math.sqrt(deltaX ** 2 + deltaY ** 2 + deltaZ ** 2);
 
-        const dirX = deltaX / distanceToDestination;
-        const dirY = deltaY / distanceToDestination;
-        const dirZ = deltaZ / distanceToDestination;
+    const dirX = deltaX / distanceToDestination;
+    const dirY = deltaY / distanceToDestination;
+    const dirZ = deltaZ / distanceToDestination;
 
-        const speedModifier = shipState.currentSpeed * deltaTime;
+    const speedModifier = shipState.currentSpeed * deltaTime;
 
-        if (distanceToDestination > speedModifier) {
-            shipState.position.x += dirX * speedModifier;
-            shipState.position.y += dirY * speedModifier;
-            shipState.position.z += dirZ * speedModifier;
-        } else {
-            shipState.position.x = shipState.course.x;
-            shipState.position.y = shipState.course.y;
-            shipState.position.z = shipState.course.z;
-            shipState.engage = false;
-            shipState.currentSpeed = 0;
-            const destination = getDestinationByCoords(shipState.position);
-            const message = destination.planet ? `Now orbiting ${destination.planet.name} in the ${destination.system.name} system.` : `Entered the ${destination.system.name} system.`
-            alertPopup(`Arrived at the destination`, message);
-            addLog('Navigation', `${message}`);
-        }
+    if (distanceToDestination > speedModifier) {
+        shipState.position.x += dirX * speedModifier;
+        shipState.position.y += dirY * speedModifier;
+        shipState.position.z += dirZ * speedModifier;
+    } else if (shipState.engage) {
+        shipState.position.x = shipState.course.x;
+        shipState.position.y = shipState.course.y;
+        shipState.position.z = shipState.course.z;
+        shipState.engage = false;
+        shipState.currentSpeed = 0;
+        const destination = getDestinationByCoords(shipState.position);
+        const message = destination.planet ? `Now orbiting ${destination.planet.name} in the ${destination.system.name} system.` : `Entered the ${destination.system.name} system.`
+        alertPopup(`Arrived at the destination`, message);
+        addLog('Navigation', `${message}`);
     }
 
     calculateETA();

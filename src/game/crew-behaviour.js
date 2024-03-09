@@ -2,6 +2,7 @@ import { alertPopup, goToRoute } from "../../Birdhouse/src/main.js";
 import { playerState, shipState, starSystems } from "../../everywhere.js";
 import { formatSpeed, getDestinationByCoords, addLog } from "../game/utils.js";
 import { getModulesOfType, getModuleInformation } from "./modules.js";
+import { setDestinationSystemByCoords } from "../components/course-selection.js";
 
 export const crewTypes = {
     Engineering: 'Engineering',
@@ -24,8 +25,6 @@ export function selectCrewMember(type) {
 }
 
 function displaySuggestions(type, suggestions) {
-    console.log('displaySuggestions', type, suggestions);
-
     const suggestionTexts = suggestions.slice(0, 3).map((suggestion, index) => {
         if (typeof suggestion === 'string') {
             return suggestion;
@@ -103,10 +102,26 @@ function analyzeEngineering() {
 function analyzeNavigation() {
     const suggestions = [];
 
-    /* if(shipState.mission != null){
-        if (shipState.mission.target != shipState.destinationIndex) {
-            Hier implementieren, korrekt Kurs zu setzen
-    } */
+    if (shipState.currentSpeed <= 0) {
+        suggestions.push('We are not moving.');
+    }
+    else {
+        suggestions.push('We are moving at ' + formatSpeed(shipState.currentSpeed) + '.');
+    }
+
+    if (shipState.mission != null) {
+        if (shipState.mission.location.x !== shipState.course.x ||
+            shipState.mission.location.y !== shipState.course.y ||
+            shipState.mission.location.z !== shipState.course.z) {
+            const location = getDestinationByCoords(shipState.mission.location);
+            suggestions.push({
+                text: `set course to ${location.planet ? location.planet.name + ' in the ' : 'the '}${location.system.name} system`,
+                action: () => {
+                    setDestinationSystemByCoords(shipState.mission.location);
+                }
+            });
+        }
+    }
 
     if (shipState.currentSpeed < shipState.targetSpeed && !shipState.engage) {
         suggestions.push({
@@ -115,13 +130,6 @@ function analyzeNavigation() {
                 shipState.engage = true;
             }
         });
-    }
-
-    if (shipState.currentSpeed <= 0) {
-        suggestions.push('We are not moving.');
-    }
-    else {
-        suggestions.push('We are moving at ' + formatSpeed(shipState.currentSpeed) + '.');
     }
 
     if (shipState.currentSpeed > 0.9) {
@@ -154,10 +162,10 @@ import { scanCurrentSystem } from "../components/scanner.js";
 function analyzeScience() {
     const suggestions = [];
 
-    const destinationSystem = starSystems[shipState.destinationIndex];
+    const destinationSystem = getDestinationByCoords(shipState.course).system;
     if (destinationSystem) {
         if (destinationSystem.discovered === false) {
-            if (destinationSystem.position.x === shipState.position.x && destinationSystem.position.y === shipState.position.y) {
+            if (destinationSystem.coordinates.x === shipState.position.x && destinationSystem.coordinates.y === shipState.position.y) {
                 suggestions.push({
                     text: 'scan this star system',
                     action: scanCurrentSystem

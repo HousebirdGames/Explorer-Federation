@@ -65,6 +65,8 @@ export function setDestinationSystemByCoords(coords) {
         return;
     }
 
+    shipState.course = coords;
+
     const destinationSystem = getDestinationByCoords(coords).system;
     document.dispatchEvent(courseChangeEvent);
 

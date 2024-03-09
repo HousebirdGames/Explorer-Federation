@@ -48,7 +48,7 @@ export function scanCurrentSystem() {
         return;
     }
 
-    starSystems[currentSystemIndex].discovered = true;
+    starSystems[currentLocation.systemIndex].discovered = true;
     alertPopup(`Successfully scanned the ${currentLocation.system.name} system`);
     updateTexts();
 }
@@ -57,6 +57,10 @@ export function updateTexts() {
     const systemNameText = document.getElementById('systemNameText');
     const systemDiscoveredText = document.getElementById('systemDiscoveredText');
     const systemInfoText = document.getElementById('systemInfoText');
+
+    if (!systemNameText || !systemDiscoveredText || !systemInfoText) {
+        return;
+    }
 
     let currentLocation = getDestinationByCoords(shipState.position);
 

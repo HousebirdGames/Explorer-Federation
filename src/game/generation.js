@@ -35,7 +35,8 @@ export function generateStarSystems(number) {
         const name = generateUniqueName(4, 1);
         const coordinates = {
             x: Math.floor(Math.random() * maxDistance) * (Math.random() < 0.5 ? -1 : 1),
-            y: Math.floor(Math.random() * maxDistance) * (Math.random() < 0.5 ? -1 : 1)
+            y: Math.floor(Math.random() * maxDistance) * (Math.random() < 0.5 ? -1 : 1),
+            z: 0
         };
 
         let planets = Array.from({ length: Math.max(1, Math.floor(Math.random() * 10)) }, () => ({
