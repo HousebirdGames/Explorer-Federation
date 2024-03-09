@@ -579,7 +579,7 @@ button.informationButton:hover {
     justify-content: center;
     padding: 0.4rem;
     transition: var(--transitionFast);
-    background-image: url('img/graphics/console.png');
+    background-image: url('img/graphics/Console.png');
     image-rendering: pixelated;
     background-size: contain;
     background-repeat: no-repeat;
@@ -611,7 +611,7 @@ button.informationButton:hover {
     flex: 2;
     background: #747474;
     transition: var(--transitionFast);
-    background-image: url('img/graphics/console.png');
+    background-image: url('img/graphics/Console.png');
     image-rendering: pixelated;
     background-size: contain;
     background-repeat: no-repeat;
