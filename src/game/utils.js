@@ -39,15 +39,13 @@ export function removeCrewMember(name) {
 }
 
 export function getDestinationByCoords(coords) {
-    // Find the destination system and its index
     let destinationSystemIndex = starSystems.findIndex(system => system.coordinates.x === coords.x && system.coordinates.y === coords.y);
     let destinationSystem = starSystems[destinationSystemIndex] || null;
 
     let destinationPlanet = null;
-    let destinationPlanetIndex = -1; // Default to -1 to indicate not found
+    let destinationPlanetIndex = -1;
 
     if (destinationSystem && coords.z > 0) {
-        // Adjust for 0-based index since coords.z starts from 1 for the first planet
         destinationPlanetIndex = coords.z - 1;
         destinationPlanet = destinationSystem.planets[destinationPlanetIndex] || null;
     }
@@ -59,13 +57,3 @@ export function getDestinationByCoords(coords) {
         planetIndex: destinationPlanetIndex
     };
 }
-
-/* export function findDestinationIndexByCoords(coords) {
-    const index = starSystems.findIndex(system => system.coordinates.x === coords[0] && system.coordinates.y === coords[1]);
-
-    if (index === -1) {
-        return null;
-    }
-
-    return index;
-} */

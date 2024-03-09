@@ -62,7 +62,6 @@ export default async function Bridge() {
         selector: '#scientist'
     });
 
-    //${await Scanner()}
     return `
     <h1>Bridge</h1>
     <div class="room-container">

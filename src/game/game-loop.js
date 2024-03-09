@@ -147,29 +147,23 @@ function updateShipPositionAndEnergy() {
     }
 
     if (shipState.engage) {
-        // Calculate delta vectors
         const deltaX = shipState.course.x - shipState.position.x;
         const deltaY = shipState.course.y - shipState.position.y;
         const deltaZ = shipState.course.z - shipState.position.z;
 
-        // Calculate distance to destination
         const distanceToDestination = Math.sqrt(deltaX ** 2 + deltaY ** 2 + deltaZ ** 2);
 
-        // Calculate normalized direction vector
         const dirX = deltaX / distanceToDestination;
         const dirY = deltaY / distanceToDestination;
         const dirZ = deltaZ / distanceToDestination;
 
-        // Calculate speed modifier (distance to move this update)
         const speedModifier = shipState.currentSpeed * deltaTime;
 
         if (distanceToDestination > speedModifier) {
-            // Move towards the destination without overshooting
             shipState.position.x += dirX * speedModifier;
             shipState.position.y += dirY * speedModifier;
             shipState.position.z += dirZ * speedModifier;
         } else {
-            // Snap to destination to prevent overshooting
             shipState.position.x = shipState.course.x;
             shipState.position.y = shipState.course.y;
             shipState.position.z = shipState.course.z;
@@ -188,21 +182,15 @@ function updateShipPositionAndEnergy() {
 export let etaCurrentSpeed = 0;
 export let etaTargetSpeed = 0;
 function calculateETA() {
-    // Calculate the 3D distance including the Z coordinate as the planet index
-    // Assuming Z distance conversion is handled or Z directly represents a spatial measurement
     const deltaX = shipState.course.x - shipState.position.x;
     const deltaY = shipState.course.y - shipState.position.y;
     const deltaZ = shipState.course.z - shipState.position.z;
 
     const distanceToDestination = Math.sqrt(deltaX ** 2 + deltaY ** 2 + deltaZ ** 2);
 
-    // Update ETA calculations to use the actual distance and current/target speeds
-    // Ensure to handle the case when speed is 0 to avoid division by zero
     etaCurrentSpeed = shipState.currentSpeed > 0 ? distanceToDestination / shipState.currentSpeed : Infinity;
     etaTargetSpeed = shipState.targetSpeed > 0 ? distanceToDestination / shipState.targetSpeed : Infinity;
 
-    // Convert ETA from seconds to more appropriate time unit if needed, e.g., minutes or hours
-    // Assuming the speed units are such that distance/speed gives seconds
     etaCurrentSpeed = isFinite(etaCurrentSpeed) ? Math.max(etaCurrentSpeed, 0) : 0;
     etaTargetSpeed = isFinite(etaTargetSpeed) ? Math.max(etaTargetSpeed, 0) : 0;
 }

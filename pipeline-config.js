@@ -3,7 +3,7 @@ module.exports = {
     productionPath: "explorer_federation",
     stagingPath: "explorer_federation_staging",
     htaccessFile: "UPLOAD-THIS.htaccess",
-    databaseDir: "database",
+    databaseDir: "",
     uncompressedDir: "img/uploads-uncompressed",
     compressedDir: "uploads",
     faviconPath: "img/logos-originals/Birdhouse-Logo.jpg",

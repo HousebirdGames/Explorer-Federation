@@ -1,5 +1,16 @@
 export const updateNotes = [
     {
+        "version": "0.0.8",
+        "title": "Pre-Alpha",
+        "notes": [
+            "Added ship's log to many components",
+            "Added bridge mockup with some basic functionality",
+            "Added the first crew suggestions for actions that can be taken",
+            "Improved movement/travel system which no longer has a fixed travel time between planets",
+            "Replaced many popups with the new log functionality"
+        ]
+    },
+    {
         "version": "0.0.7",
         "title": "Pre-Alpha",
         "notes": [

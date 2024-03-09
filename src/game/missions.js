@@ -9,8 +9,6 @@ class Mission {
         this.target = target;
         this.description = description ? description : `${type} > ${target}`;
         this.state = 'Active';
-
-        //alertPopup(`New mission`, `${this.description}`);
     }
 }
 
