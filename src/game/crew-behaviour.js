@@ -13,7 +13,7 @@ export const crewTypes = {
     Tactical: 'Tactical'
 };
 
-export function selectCrewMember(type) {
+export function getSuggestionsForCrewType(type, containerId = null) {
     const crewMember = crewTypes[type];
     if (!crewMember) {
         console.error("Crew member type doesn't exist");
@@ -21,30 +21,41 @@ export function selectCrewMember(type) {
     }
 
     const suggestions = analyzeSituation(type);
-    displaySuggestions(type, suggestions);
+    displaySuggestions(type, suggestions, containerId);
 }
 
-function displaySuggestions(type, suggestions) {
-    const suggestionTexts = suggestions.slice(0, 3).map((suggestion, index) => {
+function displaySuggestions(type, suggestions, containerId = null) {
+    const suggestionTexts = suggestions.map((suggestion, index) => {
         if (typeof suggestion === 'string') {
-            return suggestion;
+            return `<li>${suggestion}</li>`;
         } else if (typeof suggestion === 'object' && typeof suggestion.text === 'string' && typeof suggestion.action === 'function') {
-            return `<p>We could <span class="action" id="${type}-suggestion-action-${index}">${suggestion.text}</span>.</p>`;
+            return `<li>We could <span class="action" id="${type}-suggestion-action-${index}">${suggestion.text}</span>.</li>`;
         } else {
             console.error('Invalid suggestion format');
-            return 'I have nothing to say right now.';
+            return '<li>I have nothing to say right now.</li>';
         }
-    });
+    }).join('');
 
-    alertPopup(`Suggestions from ${type}`, suggestionTexts.join('\n'));
+    if (containerId) {
+        const container = document.getElementById(containerId);
+        if (container) {
+            container.innerHTML = `<ul>${suggestionTexts}</ul>`;
+        } else {
+            console.error("Specified container ID doesn't exist");
+        }
+    } else {
+        alertPopup(`Suggestions from ${type}`, `<ul>${suggestionTexts}</ul>`);
+    }
 
-    suggestions.slice(0, 3).forEach((suggestion, index) => {
-        const button = document.getElementById(`${type}-suggestion-action-${index}`);
-        if (button && typeof suggestion === 'object' && typeof suggestion.action === 'function') {
-            button.addEventListener('click', () => {
+    suggestions.forEach((suggestion, index) => {
+        const actionButton = document.getElementById(`${type}-suggestion-action-${index}`);
+        if (actionButton && typeof suggestion === 'object' && typeof suggestion.action === 'function') {
+            actionButton.addEventListener('click', () => {
                 suggestion.action();
-                alertPopup('Aye, Captain.', `We will ${suggestion.text}.`);
-                const message = `Captain ${playerState.name} approved that we ${suggestion.text}`;
+                if (!containerId) {
+                    alertPopup('Aye, Captain.', `We will ${suggestion.text}.`);
+                }
+                const message = `Captain ${playerState.name} approved that we ${suggestion.text}.`;
                 addLog(type, message);
             });
         }
@@ -75,6 +86,11 @@ function analyzeEngineering() {
     const suggestions = [];
 
     const energyGenerators = getModulesOfType('energyGenerator');
+
+    if (shipState.energy < shipState.energyCapacity * 0.2) {
+        suggestions.push(`Energy reserves at ${Math.round(shipState.energy / shipState.energyCapacity * 100)}%.`);
+    }
+
     if (shipState.energy < shipState.energyCapacity * 0.5) {
         if (energyGenerators.length === 0) {
             suggestions.push('We need an energy generator.');
@@ -82,19 +98,21 @@ function analyzeEngineering() {
         else {
             let mostEfficientGenerator = energyGenerators[0];
             energyGenerators.forEach(energyGenerator => {
-                if (energyGenerator.efficiency > mostEfficientGenerator.efficiency && !energyGenerator.isActive) {
+                if (energyGenerator.efficiency > mostEfficientGenerator.efficiency && !energyGenerator.enabled) {
                     mostEfficientGenerator = energyGenerator;
                 }
             });
-            suggestions.push({
-                text: `activate the ${mostEfficientGenerator.name} energy generator`,
-                action: mostEfficientGenerator.onEnable
-            });
+            if (!mostEfficientGenerator.enabled) {
+                suggestions.push({
+                    text: `activate the ${mostEfficientGenerator.name} energy generator`,
+                    action: mostEfficientGenerator.onEnable
+                });
+            }
         }
     }
 
     if (suggestions.length === 0) {
-        suggestions.push('I don\'t have any suggestions right now.');
+        suggestions.push(`There is nothing I can do right now, Captain ${playerState.name}.`);
     }
     return suggestions;
 }
@@ -132,7 +150,7 @@ function analyzeNavigation() {
         });
     }
 
-    if (shipState.currentSpeed > 0.9) {
+    if (shipState.currentSpeed > 0.9 && shipState.targetSpeed > 0.9) {
         suggestions.push({
             text: 'reduce the speed to maximum impulse',
             action: () => { shipState.targetSpeed = 0.9; }
@@ -184,7 +202,7 @@ function analyzeScience() {
     }
 
     if (suggestions.length === 0) {
-        suggestions.push('I don\'t have any suggestions right now.');
+        suggestions.push('There is nothing to scan right now.');
     }
     return suggestions;
 }
@@ -210,8 +228,15 @@ function analyzeSecurity() {
 function analyzeTactical() {
     const suggestions = [];
 
+    if (shipState.shields <= 0) {
+        suggestions.push('Our shields are down.');
+    }
+    else if (shipState.shields < shipState.shieldsCapacity * 0.8) {
+        suggestions.push(`Shields at ${Math.round(shipState.shields / shipState.shieldsCapacity * 100)}%.`);
+    }
+
     if (suggestions.length === 0) {
-        suggestions.push('I don\'t have any suggestions right now.');
+        suggestions.push('Everything is fine here, Captain. Nothing to report.');
     }
     return suggestions;
 }

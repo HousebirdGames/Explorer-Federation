@@ -1,5 +1,14 @@
 export const updateNotes = [
     {
+        "version": "0.0.9",
+        "title": "Pre-Alpha",
+        "notes": [
+            "Overhauled the bridge with new functionality and style",
+            "Added new crew suggestions",
+            "The bridge is now the main hub for the game",
+        ]
+    },
+    {
         "version": "0.0.8",
         "title": "Pre-Alpha",
         "notes": [

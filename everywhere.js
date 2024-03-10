@@ -197,10 +197,10 @@ window.hook('create-routes', async function () {
     main.createPublicRoute('/example-inputs', 'Example Inputs', 'input', 'components/example-inputs.js', true); */
 
     // As we want something to view on our front page, let's reuse the example component, but not add it to the menu.
-    main.createPublicRoute('/', 'Navigation', 'article', 'components/navigation.js', false);
-    main.createPublicRoute('/index.html', 'Navigation', 'article', 'components/navigation.js', false);
-
+    main.createPublicRoute('/', 'Bridge', 'star', 'components/bridge.js', false);
+    main.createPublicRoute('/index.html', 'Bridge', 'star', 'components/bridge.js', false);
     main.createPublicRoute('/bridge', 'Bridge', 'star', 'components/bridge.js', true);
+
     main.createPublicRoute('/navigation', 'Navigation', 'article', 'components/navigation.js', true);
     main.createPublicRoute('/engineering', 'Engineering', 'settings', 'components/engineering.js', true);
     main.createPublicRoute('/ship-state', 'Ship State', 'settings', 'components/ship-state.js', false);

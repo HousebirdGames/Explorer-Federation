@@ -10,6 +10,7 @@ export const defaultShipState = {
     level: 1,
     health: 100,
     shields: 100,
+    shieldsCapacity: 100,
     fuel: 0,
     fuelCapacity: 0,
     modules: [],
@@ -35,6 +36,7 @@ export const defaultShipState = {
 };
 
 export const defaultPlayerState = {
+    name: 'Player',
     stardate: 0,
     reputation: 0
 };

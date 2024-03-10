@@ -428,6 +428,10 @@ button.informationButton:hover {
     align-self: center;
 }
 
+.panelRow.unsetWidth .panel {
+    width: unset;
+}
+
 #starMap.interactable {
     touch-action: none;
 }
@@ -450,6 +454,7 @@ button.informationButton:hover {
     background-color: var(--panelBackground);
     box-sizing: border-box;
     width: 100%;
+    user-select: none;
 }
 
 .panelRow {
@@ -512,53 +517,8 @@ button.informationButton:hover {
 
 /* Rooms/Bridge */
 
-.room-container {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    padding: 1rem;
-    background: #c0c0c0;
-}
-
-.room {
-    height: 400px;
-    display: flex;
-    flex-direction: column;
-}
-
-.room.center {
-    flex: 3;
-    align-items: center;
-}
-
-.room.left,
-.room.right {
-    flex: 1;
-    display: flex;
-}
-
-@media (max-width: 600px) {
-
-    .room.center {
-        order: 1;
-        min-width: 100%;
-    }
-
-    .room.left,
-    .room.right {
-        flex-basis: 50%;
-    }
-
-    .room.left {
-        order: 2;
-    }
-
-    .room.right {
-        order: 3;
-    }
-}
-
 .screen {
+    aspect-ratio: 16/9;
     width: 80%;
     border: solid 0.2rem white;
     border-radius: 1rem;
@@ -566,84 +526,93 @@ button.informationButton:hover {
     flex: 2;
 }
 
-.centerConsole {
-    width: 80%;
-    flex: 1;
-    background: #747474;
+.crewSection {
     display: flex;
     flex-direction: row;
+    gap: var(--padding);
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+    width: 100%;
 }
 
-.console {
+.crewStation {
     display: flex;
-    justify-content: center;
-    padding: 0.4rem;
-    transition: var(--transitionFast);
-    background-image: url('img/graphics/Console.png');
-    image-rendering: pixelated;
-    background-size: contain;
-    background-repeat: no-repeat;
-}
-
-.console div {
-    max-height: 100%;
-}
-
-.centerConsole .console {
+    flex-direction: row;
+    gap: var(--padding);
+    padding: var(--padding);
+    border-radius: 0.2rem;
+    border: 0.2rem solid var(--accentSecondary);
+    width: fit-content;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    background-color: var(--accentSecondaryTransparent);
+    box-sizing: border-box;
+    width: 100%;
+    min-width: calc(50% - var(--padding));
     flex: 1;
+    align-items: stretch;
 }
 
-@media (max-width: 600px) {
+@media screen and (max-width: 1000px) {
+    .panelRow.unsetWidth {
+        flex-direction: column;
+    }
+
+    .panelRow.unsetWidth .panel {
+        width: 100%;
+    }
+
     .screen {
         width: 100%;
     }
 
-    .centerConsole {
-        width: 100%;
+    .crewStation {
+        min-width: 100%;
     }
 }
 
-.room .top {
+.crewSection p {
+    pointer-events: none;
+}
+
+.crewSection .column {
+    display: flex;
+    flex-direction: column;
+    gap: var(--padding);
     flex: 1;
 }
 
-.room .sideConsole {
-    flex: 2;
-    background: #747474;
-    transition: var(--transitionFast);
-    background-image: url('img/graphics/Console.png');
-    image-rendering: pixelated;
-    background-size: contain;
-    background-repeat: no-repeat;
+.crewStation .console {
+    background: var(--accentSecondary);
+    padding: 1rem;
+    border-radius: 0.2rem;
+    height: 3rem;
+    width: 7rem;
 }
 
-@media (max-width: 600px) {
-
-    .room.center {
-        order: 1;
-        min-width: 100%;
-    }
-
-    .room .top {
-        order: 2;
-    }
-
-    .room .sideConsole {
-        order: 1;
-    }
+.crewStation .crew {
+    background: var(--fontHighlight);
+    padding: 1rem;
+    width: 7rem;
+    height: 7rem;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--panelBackground);
 }
 
-.console:hover,
-.sideConsole:hover {
-    box-shadow: 0 0 1rem white;
-    cursor: pointer;
-}
-
-img.crew {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 1rem;
+.crewStation .suggestions {
+    flex: 3;
+    min-width: 10rem;
+    height: 14rem;
+    max-height: 14rem;
+    overflow-y: scroll;
+    background: var(--panelBackground);
+    padding: var(--padding);
 }
 
 span.action {

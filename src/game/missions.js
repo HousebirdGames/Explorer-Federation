@@ -44,7 +44,8 @@ export function checkCompletion(mission) {
         }
         shipState.missionHistory.unshift(mission);
         shipState.mission = null;
-        addLog('Comms', `Mission ${state}. ${mission.type}: <strong>${mission.target}</strong>. ${state === 'Completed' ? `Gained ${mission.reputation} reputation.` : ''}`);
+        const location = getDestinationByCoords(mission.location);
+        addLog('Comms', `Mission ${state}. ${mission.type}: ${location.planet ? `Planet <strong>${location.planet.name}</strong> in the ` : ''}<strong>${location.system.name}</strong> System${mission.target ? ` > ${mission.target}` : ''}. ${state === 'Completed' ? `Gained ${mission.reputation} reputation.` : ''}`);
     }
 }
 
