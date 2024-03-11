@@ -81,7 +81,7 @@ export function setDestinationSystemByCoords(coords) {
 
     shipState.course = { x: destinationSystem.coordinates.x, y: destinationSystem.coordinates.y, z: (coords.z ? coords.z : 0) };
     if (destinationSystem.discovered) {
-        planetsDiv.innerHTML = destinationSystem.planets.length > 0 ? (destinationSystem.planets.map((planet, i) => `
+        planetsDiv.innerHTML = destinationSystem.planets.length > 0 ? '<button class="planet-btn" data-index="-1">None</button>' + (destinationSystem.planets.map((planet, i) => `
         <button class="planet-btn" data-index="${i}">${planet.name}</button>
     `).join('')) : '-';
         setupPlanetEventHandlers(destinationSystem);
@@ -96,7 +96,6 @@ function setupPlanetEventHandlers(starSystem) {
             const zCoord = parseInt(event.target.getAttribute('data-index')) + 1;
             shipState.course = { x: starSystem.coordinates.x, y: starSystem.coordinates.y, z: zCoord };
             document.dispatchEvent(courseChangeEvent);
-            //alertPopup(`Target planet set to: ${targetPlanet.name}`);
         });
     });
 }

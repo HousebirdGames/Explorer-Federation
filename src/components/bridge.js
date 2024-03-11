@@ -79,8 +79,8 @@ export default async function Bridge() {
         ${await StarMap()}
         <div class="screen">
         </div>
-        ${await Log(null, 3)}
     </div>
+    ${await Log(null, 3)}
     <div class="crewSection">
         <div class="crewStation">
             <div class="column">

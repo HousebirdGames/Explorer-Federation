@@ -40,7 +40,7 @@ function displayPositionsAndDestinations() {
                     <h3>Travel</h3>
                     ${destination.system != null ? `<p>Destination System: ${destination.system.name}</p>` : '<p>Empty Space</p>'}
                     <p>Destination Coordinates: ${Math.round(coursePos.x)}:${Math.round(coursePos.y)},${Math.round(coursePos.z)}</p>
-                    <p>Destination Planet: ${destination.planet != null ? `${destination.planet.name}` : (destination.system.discovered ? 'No planet set.' : 'Destination system not discovered.')}</p>
+                    <p>Destination Planet: ${destination.planet != null ? `${destination.planet.name}` : (destination.system.discovered ? 'No planet set' : 'Destination system not discovered.')}</p>
                     <p>ETA at current speed: ${formatTime(etaCurrentSpeed)}</p>
                     <p>ETA at target speed: ${formatTime(etaTargetSpeed)}</p>
                 </div>

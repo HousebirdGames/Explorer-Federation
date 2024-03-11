@@ -520,6 +520,7 @@ button.informationButton:hover {
 .screen {
     aspect-ratio: 16/9;
     width: 80%;
+    max-width: 40rem;
     border: solid 0.2rem white;
     border-radius: 1rem;
     background: var(--panelBackground);

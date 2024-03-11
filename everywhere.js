@@ -21,8 +21,9 @@ export let settings = defaultSettings;
 
 export let shipState = {};
 
-export let factions = initialFactions;
+export let npcShips = {};
 
+export let factions = initialFactions;
 
 export let starSystems = [initialStarSystem];
 
