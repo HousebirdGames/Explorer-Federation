@@ -1,6 +1,7 @@
-import { shipState, starSystems } from "../../everywhere.js";
+import { factions, shipState, starSystems } from "../../everywhere.js";
 import { alertPopup, updateTitleAndMeta, action } from "../../Birdhouse/src/main.js";
 import { formatSpeed, getDestinationByCoords } from "../game/utils.js";
+import Ships from "./ships.js";
 
 export default async function Scanner() {
     action({
@@ -27,6 +28,7 @@ export default async function Scanner() {
                 </div>
             </div>
         </div>
+        ${await Ships()}
     `;
 }
 
@@ -64,7 +66,7 @@ export function updateTexts() {
 
     let currentLocation = getDestinationByCoords(shipState.position);
 
-    if (currentLocation == null) {
+    if (currentLocation.system == null) {
         systemNameText.textContent = 'Not in a system';
         systemDiscoveredText.textContent = '-';
         systemInfoText.textContent = '-';
@@ -75,7 +77,7 @@ export function updateTexts() {
     systemDiscoveredText.textContent = currentLocation.system.discovered ? 'Yes' : 'No';
 
     if (currentLocation.system.discovered) {
-        systemInfoText.textContent = (currentLocation.system.faction ? currentLocation.system.faction : 'No Faction') + ', Planets: ' + currentLocation.system.planets.length;
+        systemInfoText.textContent = (factions[currentLocation.system.faction] ? factions[currentLocation.system.faction].name : 'No Faction') + ', Planets: ' + currentLocation.system.planets.length;
     }
     else {
         systemInfoText.textContent = 'Unknown';

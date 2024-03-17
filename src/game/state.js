@@ -1,12 +1,13 @@
 import { alertPopup, urlPrefix } from "../../Birdhouse/src/main.js";
-import { playerState, shipState, starSystems, factions, settings } from "../../everywhere.js";
-import { generateFactions, generateStarSystems } from "./generation.js";
+import { playerState, shipState, starSystems, factions, settings, npcShips } from "../../everywhere.js";
+import { generateFactions, generateStarSystems, generateNPCShips } from "./generation.js";
 import * as modules from "./modules.js";
 
 let resetting = false;
 
 export const defaultShipState = {
     name: 'Ocean',
+    faction: 0,
     level: 1,
     health: 100,
     shields: 100,
@@ -45,7 +46,7 @@ export const initialStarSystem = {
     name: "Sol",
     coordinates: { x: 0, y: 0 },
     discovered: true,
-    faction: "Federation",
+    faction: 0,
     planets: [
         { name: "Mercury", type: "Terrestrial", fauna: "None", flora: "None", population: 0, civilization: "None" },
         { name: "Venus", type: "Terrestrial", fauna: "None", flora: "None", population: 0, civilization: "None" },
@@ -55,11 +56,13 @@ export const initialStarSystem = {
         { name: "Saturn", type: "Gas Giant", fauna: "None", flora: "None", population: 0, civilization: "None" },
         { name: "Uranus", type: "Ice Giant", fauna: "None", flora: "None", population: 0, civilization: "None" },
         { name: "Neptune", type: "Ice Giant", fauna: "None", flora: "None", population: 0, civilization: "None" }
-    ]
+    ],
+    ships: [],
+    stations: []
 };
 
 export const initialFactions = [
-    { name: "Federation", color: "blue", alliedWith: [], warWith: [] },
+    { name: "Federation", color: "blue", identifier: 'F.S.S.', alliedWith: [], warWith: [] },
 ];
 
 export function saveGameState() {
@@ -69,6 +72,7 @@ export function saveGameState() {
     localStorage.setItem('ef_settings', JSON.stringify(settings));
     localStorage.setItem('playerState', JSON.stringify(playerState));
     localStorage.setItem('shipState', JSON.stringify(shipState));
+    localStorage.setItem('npcShips', JSON.stringify(npcShips));
     localStorage.setItem('factions', JSON.stringify(factions));
     localStorage.setItem('starSystems', JSON.stringify(starSystems));
 }
@@ -79,6 +83,7 @@ export function resetGame() {
     localStorage.removeItem('playerState');
     localStorage.removeItem('shipState');
     localStorage.removeItem('factions');
+    localStorage.removeItem('npcShips');
     localStorage.removeItem('starSystems');
     window.location.href = urlPrefix + '/?message=Game+reset+successful';
 }
@@ -108,6 +113,11 @@ export function loadGameState() {
     const savedStarSystemsState = JSON.parse(localStorage.getItem('starSystems'));
     if (savedStarSystemsState) {
         Object.assign(starSystems, savedStarSystemsState);
+    }
+
+    const savedNpcShips = JSON.parse(localStorage.getItem('npcShips'));
+    if (savedNpcShips) {
+        Object.assign(npcShips, savedNpcShips);
     }
 
     if (Object.keys(shipState).length === 0 || Object.keys(factions).length <= 1 || Object.keys(starSystems).length <= 1) {
@@ -143,5 +153,9 @@ function initializeNewGame() {
 
     if (starSystems.length <= 1) {
         generateStarSystems(100);
+    }
+
+    if (npcShips.length <= 0) {
+        generateNPCShips();
     }
 }

@@ -16,5 +16,6 @@ export default class NPCShip {
         this.weaponsStrength = 100;
         this.health = 100;
         this.maxHealth = 100;
+        this.attackTime - 5000;
     }
 }

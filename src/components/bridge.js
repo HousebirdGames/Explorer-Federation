@@ -1,5 +1,5 @@
 import { updateTitleAndMeta, goToRoute, action } from "../../Birdhouse/src/main.js";
-import { shipState, starSystems, playerState } from "../../everywhere.js";
+import { shipState, starSystems, playerState, factions } from "../../everywhere.js";
 import StarMap from "./starmap.js";
 import { crewTypes, getSuggestionsForCrewType } from "../game/crew-behaviour.js";
 import Log from "./log.js";
@@ -74,7 +74,7 @@ export default async function Bridge() {
     });
 
     return `
-    <h1>Bridge</h1>
+    <h1>Bridge of the ${factions[shipState.faction].identifier} ${shipState.name}</h1>
     <div class="panelRow unsetWidth">
         ${await StarMap()}
         <div class="screen">

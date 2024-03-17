@@ -1,4 +1,5 @@
-import { playerState, shipState, starSystems, factions } from "../../everywhere.js";
+import { playerState, shipState, starSystems, factions, npcShips } from "../../everywhere.js";
+import NPCShip from "./npc-ship.js";
 
 const emptySpace = {
     name: "Empty Space",
@@ -17,6 +18,7 @@ export function generateFactions(number) {
 
         factions.push({
             name,
+            identifier: name.charAt(0).toUpperCase(),
             color,
             alliedWith,
             warWith
@@ -52,8 +54,8 @@ export function generateStarSystems(number) {
         let discovered = false;
         let faction = null;
         if (Math.random() < 0.25) {
-            faction = factions[Math.floor(Math.random() * factions.length)].name;
-            if (faction === 'Federation') {
+            faction = Math.floor(Math.random() * factions.length);
+            if (factions[faction].name === 'Federation') {
                 discovered = true;
             }
         }
@@ -63,7 +65,8 @@ export function generateStarSystems(number) {
             coordinates,
             discovered,
             planets,
-            faction
+            faction,
+            stations: []
         });
     }
 
@@ -71,6 +74,25 @@ export function generateStarSystems(number) {
         if (a.name === 'Sol') return -1;
         if (b.name === 'Sol') return 1;
         return a.name.localeCompare(b.name);
+    });
+}
+
+export function generateNPCShips() {
+    const maxNPCShipsPerSystem = 3;
+
+    starSystems.forEach(system => {
+        const numNPCShips = Math.floor(Math.random() * (maxNPCShipsPerSystem + 1));
+
+        for (let i = 0; i < numNPCShips; i++) {
+            const name = `${generateUniqueName(3, 1)}`;
+            const zCoordinate = Math.floor(Math.random() * system.planets.length);
+            const position = { ...system.coordinates, z: zCoordinate };
+            const course = { ...system.coordinates, z: zCoordinate };
+            const faction = system.faction;
+
+            const npcShip = new NPCShip(name, position, course, faction);
+            npcShips.push(npcShip);
+        }
     });
 }
 

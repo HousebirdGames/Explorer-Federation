@@ -21,7 +21,7 @@ export let settings = defaultSettings;
 
 export let shipState = {};
 
-export let npcShips = {};
+export let npcShips = [];
 
 export let factions = initialFactions;
 
