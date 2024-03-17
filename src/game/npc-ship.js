@@ -3,6 +3,7 @@ import { npcShips } from "../../everywhere.js";
 export default class NPCShip {
     // When shieldsCapacity, energyCapacity, maxSpeed, weaponsStrength are 0, they are disabled
     constructor(name, position, course, faction) {
+        this.destroyed = false;
         this.name = name;
         this.position = position;
         this.course = course;

@@ -1,5 +1,14 @@
 export const updateNotes = [
     {
+        "version": "0.0.10",
+        "title": "Pre-Alpha",
+        "notes": [
+            "Added NPC Ships to the game",
+            "Added tactical overview to the game",
+            "NPC Ships can now be targeted"
+        ]
+    },
+    {
         "version": "0.0.9",
         "title": "Pre-Alpha",
         "notes": [

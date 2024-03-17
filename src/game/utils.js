@@ -1,4 +1,4 @@
-import { shipState, starSystems, playerState } from '../../everywhere.js';
+import { shipState, starSystems, playerState, npcShips } from '../../everywhere.js';
 
 export function formatSpeed(speed) {
     return (speed > 0 && speed < 0.1) ? 'Sub-Impulse' : (speed > 0 ? (speed > 0.9 ? `Warp ${speed.toFixed(1)}` : `Impulse ${Math.round(speed * 10)}`) : '-');
@@ -56,4 +56,44 @@ export function getDestinationByCoords(coords) {
         planet: destinationPlanet,
         planetIndex: destinationPlanetIndex
     };
+}
+
+export function getShipsAtCurrentPosition() {
+    return npcShips.filter(ship => {
+        return ship.position.x === shipState.position.x &&
+            ship.position.y === shipState.position.y &&
+            ship.position.z === shipState.position.z;
+    });
+}
+
+export function getShipsAtCurrentSystem() {
+    return npcShips.filter(ship => {
+        return ship.position.x === shipState.position.x &&
+            ship.position.y === shipState.position.y;
+    });
+}
+
+export function filterShipsByPlanetIndex(ships, planetIndex) {
+    return ships.filter(ship => {
+        return ship.position.z === planetIndex;
+    });
+}
+
+export function arraysAreEqual(a, b) {
+    if (a.length !== b.length) return false;
+    for (let i = 0; i < a.length; i++) {
+        if (a[i] !== b[i]) return false;
+    }
+    return true;
+}
+
+export function hash(obj) {
+    const str = JSON.stringify(obj);
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
+    }
+    return hash;
 }

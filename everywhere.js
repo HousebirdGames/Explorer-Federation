@@ -203,6 +203,7 @@ window.hook('create-routes', async function () {
     main.createPublicRoute('/bridge', 'Bridge', 'star', 'components/bridge.js', true);
 
     main.createPublicRoute('/navigation', 'Navigation', 'article', 'components/navigation.js', true);
+    main.createPublicRoute('/tactical', 'Tactical', 'article', 'components/tactical.js', true);
     main.createPublicRoute('/engineering', 'Engineering', 'settings', 'components/engineering.js', true);
     main.createPublicRoute('/ship-state', 'Ship State', 'settings', 'components/ship-state.js', false);
     main.createPublicRoute('/starmap', 'Star Map', 'map', 'components/starmap.js', true, true);

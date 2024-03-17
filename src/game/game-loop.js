@@ -1,5 +1,5 @@
 import { alertPopup } from "../../Birdhouse/src/main.js";
-import { shipState, starSystems, factions, settings, deltaTime, setDeltaTime, playerState } from "../../everywhere.js";
+import { shipState, starSystems, factions, settings, deltaTime, setDeltaTime, playerState, npcShips } from "../../everywhere.js";
 import { generateMission, checkCompletion } from "./missions.js";
 import { saveGameState } from "./state.js";
 import { getDestinationByCoords, addLog } from "./utils.js";
@@ -57,6 +57,13 @@ function updateGameLogic() {
         generateMission();
     } else {
         checkCompletion(shipState.mission);
+    }
+
+    if (npcShips[shipState.shipTarget] != null && (npcShips[shipState.shipTarget].position.x != shipState.position.x || npcShips[shipState.shipTarget].position.y != shipState.position.y || npcShips[shipState.shipTarget].position.z != shipState.position.z)) {
+        const targetName = (npcShips[shipState.shipTarget].faction != null ? factions[npcShips[shipState.shipTarget].faction].identifier + ' ' : '') + npcShips[shipState.shipTarget].name;
+        shipState.attacking = false;
+        shipState.shipTarget = null;
+        addLog('Tactical', `Lost target lock on the ${targetName}.`);
     }
 
     document.dispatchEvent(updatedLogic);
