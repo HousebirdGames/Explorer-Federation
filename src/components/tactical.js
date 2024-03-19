@@ -36,8 +36,10 @@ export default async function Tactical() {
     });
     action({
         type: 'updateUI',
-        handler: displayCurrentTarger
+        handler: displayCurrentTarget
     });
+
+    resetPreviousShipsHash();
 
     return `
         <h1>Tactical Overview</h1>
@@ -52,7 +54,7 @@ export default async function Tactical() {
         `;
 }
 
-function displayCurrentTarger() {
+function displayCurrentTarget() {
     const currentTarget = document.getElementById('currentTarget');
     if (currentTarget) {
         const ship = shipState.shipTarget != null ? npcShips[shipState.shipTarget] : null;

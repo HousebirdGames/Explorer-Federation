@@ -109,6 +109,10 @@ function displayModuleProperties(module, moduleIndex) {
 
 function formatProperty(propName, propValue) {
     const formattedName = formatCamelCase(propName);
-    propValue = typeof propValue === 'boolean' ? (propValue ? 'Yes' : 'No') : propValue;
+    if (typeof propValue === 'boolean') {
+        propValue = propValue ? 'Yes' : 'No';
+    } else if (typeof propValue === 'number') {
+        propValue = propValue.toFixed(1);
+    }
     return `${formattedName}: ${propValue}`;
 }

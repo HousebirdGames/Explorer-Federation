@@ -24,7 +24,7 @@ function displayShips() {
 
     let shipsByPlanet = npcShipsAtCurrentXY.reduce((map, ship) => {
         const orbitingPlanet = currentSystem.planets[ship.position.z - 1] ? currentSystem.planets[ship.position.z - 1].name : 'Empty Space';
-        const shipName = `${ship.faction != null ? factions[ship.faction].identifier + ' ' : ''}${ship.name}`;
+        const shipName = `${ship.faction != null ? factions[ship.faction].identifier + ' ' : ''}${ship.name}${ship.destroyed ? ' (destroyed)' : ''}`;
 
         if (!map[orbitingPlanet]) {
             map[orbitingPlanet] = [];
@@ -61,7 +61,7 @@ export function resetPreviousShipsHash() {
 
 export function displayShipsDetails(containerID, targetButtons = false) {
     const npcShipsAtCurrentPosition = getShipsAtCurrentPosition(shipState.position);
-    const currentHash = hash(npcShipsAtCurrentPosition + window.location.href);
+    const currentHash = hash(npcShipsAtCurrentPosition);
 
     if (currentHash !== previousHash) {
         previousHash = currentHash;
@@ -89,7 +89,7 @@ export function displayShipDetails(ship, index, targetButton = false) {
     const currentSystem = getDestinationByCoords(shipState.position).system;
     return `
     <div class="panel">
-        <h3>${ship.faction != null ? factions[ship.faction].identifier + ' ' : ''}${ship.name}</h3>
+        <h3>${ship.faction != null ? factions[ship.faction].identifier + ' ' : ''}${ship.name}${ship.destroyed ? ' (destroyed)' : ''}</h3>
         <p>Faction: ${ship.faction != null ? factions[ship.faction].name : 'None'}</p>
         ${currentSystem.planets[ship.position.z - 1] ? `<p>Orbiting: ${currentSystem.planets[ship.position.z - 1].name}</p>` : ''}
         <p>Current Speed: ${ship.speed}</p>

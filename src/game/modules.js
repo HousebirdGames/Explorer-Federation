@@ -1,6 +1,7 @@
 import { alertPopup } from "../../Birdhouse/src/main.js";
-import { shipState, starSystems, deltaTime } from "../../everywhere.js";
+import { shipState, starSystems, deltaTime, npcShips } from "../../everywhere.js";
 import { addLog } from "./utils.js";
+import { damage } from "./npc-ship.js";
 
 export const moduleTypes = {
     fuelTank: {
@@ -291,6 +292,72 @@ export const moduleTypes = {
             overclocked: false
         }
     },
+    phaserBank: {
+        startEnabled: false,
+        onEnable: (moduleInstance, ship) => {
+            if (!moduleInstance.enabled) {
+                moduleInstance.enabled = true;
+            }
+        },
+        onDisable: (moduleInstance, ship) => {
+            if (moduleInstance.enabled) {
+                moduleInstance.properties.energyLevel = 0;
+                moduleInstance.enabled = false;
+            }
+        },
+        tickEffect: (moduleInstance, ship) => {
+            moduleInstance.properties.currentTarget = null;
+            if (!moduleInstance.enabled) {
+                return;
+            }
+
+            if (ship.shipTarget != null) {
+                moduleInstance.properties.currentTarget = npcShips[ship.shipTarget].name;
+            }
+
+            let energyConsumptionRate = moduleInstance.properties.energyConsumptionRate * deltaTime;
+
+            if (ship.energy >= energyConsumptionRate && moduleInstance.properties.energyLevel < moduleInstance.properties.energyCapacity) {
+                moduleInstance.properties.energyLevel += energyConsumptionRate;
+                ship.energy -= energyConsumptionRate;
+
+                if (moduleInstance.properties.energyLevel >= moduleInstance.properties.energyCapacity) {
+                    moduleInstance.properties.energyLevel = moduleInstance.properties.energyCapacity;
+                }
+            }
+        },
+        functions: {
+            shoot: {
+                friendlyName: 'Fire Phasers',
+                action: (moduleInstance, ship) => {
+                    if (moduleInstance.properties.energyLevel >= moduleInstance.properties.energyCapacity && ship.shipTarget !== null) {
+                        moduleInstance.properties.energyLevel = 0;
+                        if (Math.random() < moduleInstance.properties.accuracy) {
+                            addLog('Tactical', `Phasers successfully fired at the ${npcShips[ship.shipTarget].name}.`);
+                            damage(npcShips[ship.shipTarget], moduleInstance.properties.firepower);
+                        }
+                        else {
+                            addLog('Tactical', `Phasers fired, but missed the ${npcShips[ship.shipTarget].name}.`);
+                        }
+                    }
+                    else if (ship.shipTarget === null) {
+                        alertPopup('Unable to fire phasers', 'No target selected.');
+                    }
+                    else {
+                        alertPopup('Unable to fire phasers', 'Energy level below capacity.');
+                    }
+                }
+            }
+        },
+        properties: {
+            currentTarget: null,
+            firepower: 10,
+            accuracy: 80,
+            energyLevel: 0,
+            energyCapacity: 40,
+            energyConsumptionRate: 2,
+        }
+    },
 };
 
 const moduleModels = {
@@ -299,6 +366,7 @@ const moduleModels = {
     energyGeneratorS1: { type: 'energyGenerator', name: 'S1 Reactor', maxHealth: 40, weight: 5, properties: { efficiency: 0.7, fuelConsumptionRate: 10, overclocked: false } },
     impulseDriveS1: { type: 'impulseDrive', name: 'S1 Impulse Drive', maxHealth: 50, weight: 3, properties: { energyConsumptionRate: 0.2, accelerationRate: 0.1, overclocked: false } },
     warpDriveS1: { type: 'warpDrive', name: 'S1 Warp Drive', maxHealth: 100, weight: 5, properties: { warpSpeed: 5, accelerationRate: 0.3, energyConsumptionRate: 0.4, overclocked: false } },
+    phaserBankS1: { type: 'phaserBank', name: 'S1 Phaser Bank', maxHealth: 30, weight: 2, properties: { firepower: 40, accuracy: 0.8, energyLevel: 0, energyCapacity: 40, energyConsumptionRate: 2 } }
 };
 
 export function addModuleToShip(modelId, ship = shipState) {

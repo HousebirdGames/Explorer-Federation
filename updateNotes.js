@@ -5,7 +5,9 @@ export const updateNotes = [
         "notes": [
             "Added NPC Ships to the game",
             "Added tactical overview to the game",
-            "NPC Ships can now be targeted"
+            "NPC Ships can now be targeted",
+            "Added NPC Ship damage mechanics",
+            "Added phaser module to the players ship"
         ]
     },
     {

@@ -146,6 +146,7 @@ function initializeNewGame() {
     modules.addModuleToShip('energyGeneratorS1');
     modules.addModuleToShip('impulseDriveS1');
     modules.addModuleToShip('warpDriveS1');
+    modules.addModuleToShip('phaserBankS1');
 
     shipState.fuel = shipState.fuelCapacity;
 

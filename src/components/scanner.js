@@ -2,6 +2,7 @@ import { factions, shipState, starSystems } from "../../everywhere.js";
 import { alertPopup, updateTitleAndMeta, action } from "../../Birdhouse/src/main.js";
 import { formatSpeed, getDestinationByCoords } from "../game/utils.js";
 import Ships from "./ships.js";
+import { resetPreviousShipsHash } from "./ships.js";
 
 export default async function Scanner() {
     action({
@@ -14,6 +15,8 @@ export default async function Scanner() {
 
     action(updateTexts);
     action({ type: 'updateUI', handler: updateTexts });
+
+    resetPreviousShipsHash();
 
     return `
         <div class="panel">
