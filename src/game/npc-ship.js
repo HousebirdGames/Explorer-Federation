@@ -1,23 +1,28 @@
 import { addLog } from "./utils.js";
 
 export default class NPCShip {
-    constructor(name, position, course, faction) {
-        this.destroyed = false;
+    constructor(name, position, course, faction, multiplier = 1) {
+        this.multiplier = multiplier;
         this.name = name;
         this.position = position;
         this.course = course;
-        this.speed = 0;
-        this.maxSpeed = 10;
         this.faction = faction;
-        this.energy = 100;
-        this.energyCapacity = 100;
-        this.shields = 100;
-        this.shieldsCapacity = 100;
-        this.weaponsStrength = 100;
-        this.health = 100;
-        this.maxHealth = 100;
-        this.attackTime = 5000;
+        resetShip(this);
     }
+}
+
+export function resetShip(ship) {
+    ship.destroyed = false;
+    ship.speed = 0;
+    ship.maxSpeed = (1.7 * ship.multiplier).toFixed(0);
+    ship.energyCapacity = 124 * ship.multiplier * 10;
+    ship.energy = ship.energyCapacity;
+    ship.shieldsCapacity = 110 * ship.multiplier;
+    ship.shields = ship.shieldsCapacity;
+    ship.weaponsStrength = 50 * ship.multiplier * 0.5;
+    ship.maxHealth = 120 * ship.multiplier;
+    ship.health = ship.maxHealth;
+    ship.attackTime = 10000 / ship.multiplier;
 }
 
 export function damage(npcShip, damageAmount, specialTarget = null) {

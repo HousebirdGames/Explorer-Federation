@@ -1,8 +1,9 @@
 import { alertPopup } from "../../Birdhouse/src/main.js";
 import { shipState, starSystems, factions, settings, deltaTime, setDeltaTime, playerState, npcShips } from "../../everywhere.js";
 import { generateMission, checkCompletion } from "./missions.js";
+import NPCShip, { resetShip } from "./npc-ship.js";
 import { saveGameState } from "./state.js";
-import { getDestinationByCoords, addLog } from "./utils.js";
+import { getDestinationByCoords, addLog, getShipsAtCurrentSystem } from "./utils.js";
 
 let FIXED_TIMESTEP = 1000 / 60;
 
@@ -181,6 +182,12 @@ function updateShipPositionAndEnergy() {
         const message = destination.planet ? `Now orbiting ${destination.planet.name} in the ${destination.system.name} system.` : `Entered the ${destination.system.name} system.`
         alertPopup(`Arrived at the destination`, message);
         addLog('Navigation', `${message}`);
+
+        const shipsAtCurrentSystem = getShipsAtCurrentSystem();
+        shipsAtCurrentSystem.forEach(npcShip => {
+            resetShip(npcShip);
+        });
+        saveGameState();
     }
 
     calculateETA();

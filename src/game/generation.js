@@ -90,7 +90,8 @@ export function generateNPCShips() {
             const course = { ...system.coordinates, z: zCoordinate };
             const faction = system.faction;
 
-            const npcShip = new NPCShip(name, position, course, faction);
+            const multiplier = (Math.random() * 4.6 + 0.4).toFixed(1);
+            const npcShip = new NPCShip(name, position, course, faction, multiplier);
             npcShips.push(npcShip);
         }
     });
