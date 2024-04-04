@@ -3,6 +3,7 @@ module.exports = {
     productionPath: "explorer_federation",
     stagingPath: "explorer_federation_staging",
     htaccessFile: "UPLOAD-THIS.htaccess",
+    basePath: "/",
     databaseDir: "",
     uncompressedDir: "img/uploads-uncompressed",
     compressedDir: "uploads",
@@ -11,13 +12,13 @@ module.exports = {
     faviconsFileName: "Favicon",
     faviconSizes: [
 
-    ],
+        ],
     manifestIconPath: "img/logos-originals/Birdhouse-Logo.png",
     manifestIconOutputDir: "img/icons",
     manifestIconFileName: "Icon",
     manifestIconSizes: [
 
-    ],
+        ],
     statisticsFile: "pipeline-log.txt",
     ignoredFileTypes: [
         ".zip",
@@ -26,7 +27,7 @@ module.exports = {
         ".txt",
         ".psd",
         ".htaccess"
-    ],
+        ],
     directoriesToInclude: [
         "src",
         "fonts",
@@ -35,9 +36,15 @@ module.exports = {
         "img/screenshots",
         "img/graphics",
         "uploads"
-    ],
+        ],
     directoriesToExcludeFromCache: [
         "img/screenshots",
         "uploads"
-    ]
-};
+        ],
+    preReleaseScripts: [
+
+        ],
+    postReleaseScripts: [
+
+        ]
+    };

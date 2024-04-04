@@ -1,6 +1,6 @@
 import { alertPopup, goToRoute } from "../../Birdhouse/src/main.js";
-import { playerState, shipState, starSystems } from "../../everywhere.js";
-import { formatSpeed, getDestinationByCoords, addLog } from "../game/utils.js";
+import { playerState, shipState, starSystems, npcShips } from "../../everywhere.js";
+import { formatSpeed, getDestinationByCoords, addLog, hash, getShipsAtCurrentPosition } from "../game/utils.js";
 import { getModulesOfType, getModuleInformation } from "./modules.js";
 import { setDestinationSystemByCoords } from "../components/course-selection.js";
 
@@ -13,6 +13,12 @@ export const crewTypes = {
     Tactical: 'Tactical'
 };
 
+let hashes = {};
+
+export function resetHashes() {
+    hashes = {};
+}
+
 export function getSuggestionsForCrewType(type, containerId = null) {
     const crewMember = crewTypes[type];
     if (!crewMember) {
@@ -21,6 +27,13 @@ export function getSuggestionsForCrewType(type, containerId = null) {
     }
 
     const suggestions = analyzeSituation(type);
+
+    const suggestionHash = hash(suggestions);
+    if (hashes[type] === suggestionHash) {
+        return;
+    }
+
+    hashes[type] = suggestionHash;
     displaySuggestions(type, suggestions, containerId);
 }
 
@@ -227,6 +240,46 @@ function analyzeSecurity() {
 
 function analyzeTactical() {
     const suggestions = [];
+
+    const phasersBanks = getModulesOfType('phaserBank');
+    let phasersEnabled = false;
+    phasersBanks.forEach(phaser => {
+        if (phaser.enabled) {
+            phasersEnabled = true;
+        }
+    });
+
+    if (!phasersEnabled) {
+        suggestions.push('All phasers are offline.');
+    }
+
+    const targetedShip = shipState.shipTarget != null ? npcShips[shipState.shipTarget] : null;
+    if (targetedShip && !shipState.attacking && phasersEnabled) {
+        suggestions.push({
+            text: `attack the ${targetedShip.name}`,
+            action: () => { shipState.attacking = true; }
+        });
+    }
+    else if (shipState.attacking) {
+        suggestions.push({
+            text: 'stop attacking',
+            action: () => { shipState.attacking = false; }
+        });
+    }
+
+    const shipsAtCurrentPosition = getShipsAtCurrentPosition(shipState.position);
+
+    if (shipsAtCurrentPosition.length > 0) {
+        shipsAtCurrentPosition.forEach(ship => {
+
+            if (shipState.shipTarget != npcShips.indexOf(ship)) {
+                suggestions.push({
+                    text: `target the ${ship.name}`,
+                    action: () => { shipState.shipTarget = npcShips.indexOf(ship); }
+                });
+            }
+        });
+    }
 
     if (shipState.shields <= 0) {
         suggestions.push('Our shields are down.');

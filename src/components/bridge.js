@@ -1,11 +1,13 @@
 import { updateTitleAndMeta, goToRoute, action } from "../../Birdhouse/src/main.js";
 import { shipState, starSystems, playerState, factions } from "../../everywhere.js";
 import StarMap from "./starmap.js";
-import { crewTypes, getSuggestionsForCrewType } from "../game/crew-behaviour.js";
+import { crewTypes, getSuggestionsForCrewType, resetHashes } from "../game/crew-behaviour.js";
 import Log from "./log.js";
 
 export default async function Bridge() {
     updateTitleAndMeta('Bridge', `The bridge of the ${shipState.name}`);
+
+    resetHashes();
 
     action({
         type: 'click', handler: () => {
@@ -26,6 +28,13 @@ export default async function Bridge() {
             goToRoute('navigation');
         },
         selector: '#navigationConsole'
+    });
+
+    action({
+        type: 'click', handler: () => {
+            goToRoute('tactical');
+        },
+        selector: '#tacticalConsole'
     });
 
     action({
@@ -96,7 +105,7 @@ export default async function Bridge() {
         </div>
         <div class="crewStation">
             <div class="column">
-                <div class="console" id="tacticalonsole">
+                <div class="console" id="tacticalConsole">
                     <p>Tactical Console</p>
                 </div>
                 <div class="crew" id="tactical">

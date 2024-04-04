@@ -1,5 +1,6 @@
 import { alertPopup } from "../../Birdhouse/src/main.js";
 import { shipState, starSystems, factions, settings, deltaTime, setDeltaTime, playerState, npcShips } from "../../everywhere.js";
+import { getModulesOfType } from "../game/modules.js";
 import { generateMission, checkCompletion } from "./missions.js";
 import NPCShip, { resetShip } from "./npc-ship.js";
 import { saveGameState } from "./state.js";
@@ -48,6 +49,8 @@ function updateGameLogic() {
     validateShipState();
 
     updateModules();
+
+    updateShipFunctions();
 
     ShipMovement();
     shipState.lastConsumption = shipState.energyTemp - shipState.energy;
@@ -122,6 +125,19 @@ function updateModules() {
 
     if (!shipState.impulseEnabled) {
         shipState.maxSpeed = 0;
+    }
+}
+
+function updateShipFunctions() {
+    if (shipState.attacking) {
+        const phasers = getModulesOfType('phaserBank');
+        if (phasers.length > 0) {
+            phasers.forEach(phaser => {
+                if (phaser.enabled && phaser.properties.energyLevel >= phaser.properties.energyCapacity) {
+                    phaser.functions.shoot.action(phaser, shipState);
+                }
+            })
+        }
     }
 }
 

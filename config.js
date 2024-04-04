@@ -1,5 +1,5 @@
 export default {
-  "version": "0.0.10.6",
+  "version": "0.0.10.9",
   "pageTitle": "Explorer Federation",
   "cookieIdentifier": "explorer_federation",
   "foundationYear": 2024,
@@ -12,5 +12,6 @@ export default {
   "enableInputValidation": true,
   "enableImageComparisonSliders": false,
   "enableInfoBar": false,
-  "userLoginEnabled": false
+  "userLoginEnabled": false,
+  "redirect404ToRoot": false
 };

@@ -198,19 +198,19 @@ window.hook('create-routes', async function () {
     main.createPublicRoute('/example-inputs', 'Example Inputs', 'input', 'components/example-inputs.js', true); */
 
     // As we want something to view on our front page, let's reuse the example component, but not add it to the menu.
-    main.createPublicRoute('/', 'Bridge', 'star', 'components/bridge.js', false);
-    main.createPublicRoute('/index.html', 'Bridge', 'star', 'components/bridge.js', false);
-    main.createPublicRoute('/bridge', 'Bridge', 'star', 'components/bridge.js', true);
+    main.createPublicRoute('/', 'Bridge', 'star', 'components/bridge', false);
+    main.createPublicRoute('/index.html', 'Bridge', 'star', 'components/bridge', false);
+    main.createPublicRoute('/bridge', 'Bridge', 'star', 'components/bridge', true);
 
-    main.createPublicRoute('/navigation', 'Navigation', 'article', 'components/navigation.js', true);
-    main.createPublicRoute('/tactical', 'Tactical', 'article', 'components/tactical.js', true);
-    main.createPublicRoute('/engineering', 'Engineering', 'settings', 'components/engineering.js', true);
-    main.createPublicRoute('/ship-state', 'Ship State', 'settings', 'components/ship-state.js', false);
-    main.createPublicRoute('/starmap', 'Star Map', 'map', 'components/starmap.js', true, true);
-    main.createPublicRoute('/scanner', 'Scanner', 'search', 'components/scanner.js', true);
-    main.createPublicRoute('/missions', 'Missions', 'list', 'components/mission-control.js', true);
-    main.createPublicRoute('/logs', 'Logs', 'list', 'components/logs.js', true);
-    main.createPublicRoute('/settings', 'Settings', 'settings', 'components/settings.js', true);
+    main.createPublicRoute('/navigation', 'Navigation', 'article', 'components/navigation', true);
+    main.createPublicRoute('/tactical', 'Tactical', 'article', 'components/tactical', true);
+    main.createPublicRoute('/engineering', 'Engineering', 'settings', 'components/engineering', true);
+    main.createPublicRoute('/ship-state', 'Ship State', 'settings', 'components/ship-state', false);
+    main.createPublicRoute('/starmap', 'Star Map', 'map', 'components/starmap', true, true);
+    main.createPublicRoute('/scanner', 'Scanner', 'search', 'components/scanner', true);
+    main.createPublicRoute('/missions', 'Missions', 'list', 'components/mission-control', true);
+    main.createPublicRoute('/logs', 'Logs', 'list', 'components/logs', true);
+    main.createPublicRoute('/settings', 'Settings', 'settings', 'components/settings', true);
     /*  // We can also use the same component for different routes. But this time without an icon.
      main.createPublicRoute('/example-2', 'Also the Example Page', '', 'components/example.js', true);
  
