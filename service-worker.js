@@ -19,7 +19,7 @@ code of 503, signaling service unavailability. This approach ensures data availa
 offline scenarios, enhancing the user experience by leveraging modern web capabilities.
 */
 
-self.CACHE_VERSION = "0.0.10.14";
+self.CACHE_VERSION = "0.0.11.0";
 importScripts('./config-sw.js' + `?v=${self.CACHE_VERSION}`);
 self.importScripts('Birdhouse/filesToCache.js' + `?v=${self.CACHE_VERSION}`);
 

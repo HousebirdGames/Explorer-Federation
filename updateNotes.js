@@ -1,5 +1,16 @@
 export const updateNotes = [
     {
+        "version": "0.0.11",
+        "title": "Pre-Alpha",
+        "notes": [
+            "Added automatic phaser firing in attack mode",
+            "Added new suggestions to tactical officer",
+            "Added alert system visuals (red alert, yellow alert, black alert)",
+            "Added alert system functionality and crew suggestions",
+            "Added shield generator module to the players ship",
+        ]
+    },
+    {
         "version": "0.0.10",
         "title": "Pre-Alpha",
         "notes": [
@@ -8,10 +19,6 @@ export const updateNotes = [
             "NPC Ships can now be targeted",
             "Added NPC Ship damage mechanics",
             "Added phaser module to the players ship",
-            "Added automatic phaser firing in attack mode",
-            "Added new suggestions to tactical officer",
-            "Added alert system visuals (red alert, yellow alert, black alert)",
-            "Added alert system functionality and crew suggestions"
         ]
     },
     {

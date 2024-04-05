@@ -310,8 +310,8 @@ function analyzeTactical() {
     if (shipState.shields <= 0) {
         suggestions.push('Our shields are down.');
     }
-    else if (shipState.shields < shipState.shieldsCapacity * 0.8) {
-        suggestions.push(`Shields at ${Math.round(shipState.shields / shipState.shieldsCapacity * 100)}%.`);
+    else if (shipState.shields < shipState.shieldCapacity * 0.8) {
+        suggestions.push(`Shields at ${Math.round(shipState.shields / shipState.shieldCapacity * 100)}%.`);
     }
 
     if (suggestions.length === 0) {

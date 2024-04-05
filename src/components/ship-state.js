@@ -1,5 +1,5 @@
 import { shipState } from "../../everywhere.js";
-import { action } from "../../Birdhouse/src/main.js";
+import { action, roundToFull, roundToHalf } from "../../Birdhouse/src/main.js";
 import { formatSpeed } from "../game/utils.js";
 import { averageEnergyConsumption } from "../game/game-loop.js";
 
@@ -29,7 +29,7 @@ function displayPositionsAndDestinations() {
             <p>Current Speed: ${formatSpeed(shipState.currentSpeed)}</p>
             <p>Maximum Speed: ${shipState.impulseEnabled ? formatSpeed(shipState.maxSpeed) : 'Impulse Drive required'}</p>
             <p>Hull Integrity: ${shipState.health}</p>
-            <p>Shields: ${shipState.shields}</p>
+            <p>Shields: ${roundToFull(shipState.shields)}/${shipState.shieldCapacity}</p>
             <p>Crew Size: ${crewSize}</p>
     </div>
     <div class="panel">

@@ -18,8 +18,8 @@ export function resetShip(ship) {
     ship.maxSpeed = (1.7 * ship.multiplier).toFixed(0);
     ship.energyCapacity = roundToFull(124 * ship.multiplier * 10);
     ship.energy = ship.energyCapacity;
-    ship.shieldsCapacity = roundToFull(110 * ship.multiplier);
-    ship.shields = ship.shieldsCapacity;
+    ship.shieldCapacity = roundToFull(110 * ship.multiplier);
+    ship.shields = ship.shieldCapacity;
     ship.weaponsStrength = roundToFull(50 * ship.multiplier * 0.5);
     ship.maxHealth = roundToFull(120 * ship.multiplier);
     ship.health = ship.maxHealth;
@@ -47,8 +47,8 @@ export function damage(npcShip, damageAmount, specialTarget = null) {
         if (specialTarget) {
             if (specialTarget === 'engines') {
                 npcShip.maxSpeed = Math.max(0, npcShip.maxSpeed - damageAmount);
-            } else if (specialTarget === 'shields' && npcShip.shieldsCapacity > 0) {
-                npcShip.shieldsCapacity = Math.max(0, npcShip.shieldsCapacity - damageAmount);
+            } else if (specialTarget === 'shields' && npcShip.shieldCapacity > 0) {
+                npcShip.shieldCapacity = Math.max(0, npcShip.shieldCapacity - damageAmount);
                 addLog('Tactical', `The shields of the ${npcShip.name} are disabled.`);
             } else if (specialTarget === 'weapons' && npcShip.weaponsStrength > 0) {
                 npcShip.weaponsStrength = Math.max(0, npcShip.weaponsStrength - damageAmount);

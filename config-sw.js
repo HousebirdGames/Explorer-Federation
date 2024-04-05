@@ -1,5 +1,5 @@
 self.config = {
-  "version": "0.0.10.14",
+  "version": "0.0.11.0",
   "pageTitle": "Explorer Federation",
   "cookieIdentifier": "explorer_federation",
   "foundationYear": 2024,

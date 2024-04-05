@@ -10,8 +10,8 @@ export const defaultShipState = {
     faction: 0,
     level: 1,
     health: 100,
-    shields: 100,
-    shieldsCapacity: 100,
+    shields: 0,
+    shieldCapacity: 0,
     fuel: 0,
     fuelCapacity: 0,
     modules: [],
@@ -149,6 +149,7 @@ function initializeNewGame() {
     modules.addModuleToShip('impulseDriveS1');
     modules.addModuleToShip('warpDriveS1');
     modules.addModuleToShip('phaserBankS1');
+    modules.addModuleToShip('shieldGeneratorS1');
 
     shipState.fuel = shipState.fuelCapacity;
 

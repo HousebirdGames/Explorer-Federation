@@ -358,6 +358,52 @@ export const moduleTypes = {
             energyConsumptionRate: 2,
         }
     },
+    shieldGenerator: {
+        startEnabled: false,
+        onEnable: (moduleInstance, ship) => {
+            if (!moduleInstance.enabled) {
+                moduleInstance.enabled = true;
+                ship.shieldCapacity += moduleInstance.properties.shieldCapacity;
+                addLog('Engineering', `Shield generator enabled. Shield capacity increased by ${moduleInstance.properties.shieldCapacity}.`);
+            }
+        },
+        onDisable: (moduleInstance, ship) => {
+            if (moduleInstance.enabled) {
+                moduleInstance.enabled = false;
+                ship.shieldCapacity -= moduleInstance.properties.shieldCapacity;
+                if (ship.shields > ship.shieldCapacity) {
+                    addLog('Engineering', `Shield generator disabled. Shield capacity reduced. Lost ${ship.shields - ship.shieldCapacity} shield.`);
+                    ship.shields = ship.shieldCapacity;
+                }
+                if (ship.shields <= 0) {
+                    addLog('Tactical', `Shields offline.`);
+                }
+            }
+        },
+        tickEffect: (moduleInstance, ship) => {
+            const energyConsumption = moduleInstance.properties.energyConsumptionRate * deltaTime;
+            if (ship.energy >= energyConsumption) {
+                ship.energy -= energyConsumption;
+                if (ship.shields < ship.shieldCapacity) {
+                    ship.shields += energyConsumption * moduleInstance.properties.efficiency;
+                    if (ship.shields > ship.shieldCapacity) {
+                        ship.shields = ship.shieldCapacity;
+                    }
+                }
+            } else {
+                moduleInstance.onDisable();
+            }
+        },
+        functions: {
+        },
+        properties: {
+            shieldCapacity: 100,
+            energyConsumptionRate: 2,
+            efficiency: 1,
+            dischargeRate: 1
+        }
+    },
+
 };
 
 const moduleModels = {
@@ -366,7 +412,8 @@ const moduleModels = {
     energyGeneratorS1: { type: 'energyGenerator', name: 'S1 Reactor', maxHealth: 40, weight: 5, properties: { efficiency: 0.7, fuelConsumptionRate: 10, overclocked: false } },
     impulseDriveS1: { type: 'impulseDrive', name: 'S1 Impulse Drive', maxHealth: 50, weight: 3, properties: { energyConsumptionRate: 0.2, accelerationRate: 0.1, overclocked: false } },
     warpDriveS1: { type: 'warpDrive', name: 'S1 Warp Drive', maxHealth: 100, weight: 5, properties: { warpSpeed: 5, accelerationRate: 0.3, energyConsumptionRate: 0.4, overclocked: false } },
-    phaserBankS1: { type: 'phaserBank', name: 'S1 Phaser Bank', maxHealth: 30, weight: 2, properties: { firepower: 40, accuracy: 0.8, energyLevel: 0, energyCapacity: 40, energyConsumptionRate: 2 } }
+    phaserBankS1: { type: 'phaserBank', name: 'S1 Phaser Bank', maxHealth: 30, weight: 2, properties: { firepower: 40, accuracy: 0.8, energyLevel: 0, energyCapacity: 40, energyConsumptionRate: 2 } },
+    shieldGeneratorS1: { type: 'shieldGenerator', name: 'S1 Shield Generator', maxHealth: 50, weight: 10, properties: { shieldCapacity: 100, energyConsumptionRate: 2, efficiency: 0.7, dischargeRate: 2 } },
 };
 
 export function addModuleToShip(modelId, ship = shipState) {
