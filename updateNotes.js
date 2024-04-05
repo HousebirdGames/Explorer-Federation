@@ -11,6 +11,7 @@ export const updateNotes = [
             "Added automatic phaser firing in attack mode",
             "Added new suggestions to tactical officer",
             "Added alert system visuals (red alert, yellow alert, black alert)",
+            "Added alert system functionality and crew suggestions"
         ]
     },
     {

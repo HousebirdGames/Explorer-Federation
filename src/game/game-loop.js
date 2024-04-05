@@ -1,6 +1,6 @@
 import { alertPopup } from "../../Birdhouse/src/main.js";
 import { shipState, starSystems, factions, settings, deltaTime, setDeltaTime, playerState, npcShips } from "../../everywhere.js";
-import { getModulesOfType } from "../game/modules.js";
+import { getModulesOfType, toggleModulesOfType } from "../game/modules.js";
 import { generateMission, checkCompletion } from "./missions.js";
 import NPCShip, { resetShip } from "./npc-ship.js";
 import { saveGameState } from "./state.js";
@@ -130,6 +130,7 @@ function updateModules() {
     }
 }
 
+
 function updateShipAlert() {
     if (shipState.alert == null) {
         console.error('No alert state set');
@@ -137,6 +138,33 @@ function updateShipAlert() {
     }
 
     setAlertClass('content', shipState.alert);
+
+    if (shipState.alert == shipState.lastAlert) {
+        return;
+    }
+
+    shipState.lastAlert = shipState.alert;
+
+    switch (shipState.alert) {
+        case 'Red':
+            toggleModulesOfType('phaserBank', true);
+            toggleModulesOfType('shieldGenerator', true);
+            break;
+        case 'Yellow':
+            toggleModulesOfType('phaserBank', false);
+            toggleModulesOfType('shieldGenerator', true);
+            break;
+        case 'Black':
+            toggleModulesOfType('impulseDrive', false);
+            toggleModulesOfType('warpDrive', false);
+            break;
+        default:
+            toggleModulesOfType('phaserBank', false);
+            toggleModulesOfType('shieldGenerator', false);
+            toggleModulesOfType('impulseDrive', true);
+            toggleModulesOfType('warpDrive', true);
+            break;
+    }
 }
 
 function setAlertClass(elementId, className) {

@@ -1,6 +1,6 @@
 import { updateTitleAndMeta, alertPopup, action } from "../../Birdhouse/src/main.js";
 import { shipState, starSystems } from "../../everywhere.js";
-import { getDestinationByCoords } from "../game/utils.js";
+import { addLog, getDestinationByCoords } from "../game/utils.js";
 
 export default async function Alerts() {
     action(() => {
@@ -11,8 +11,7 @@ export default async function Alerts() {
         type: 'click',
         handler: (event) => {
             const alert = event.target.getAttribute('data-alert');
-            shipState.alert = alert;
-            document.getElementById('alertLevel').innerText = alert;
+            setAlert(alert);
         },
         selector: '.alertButton'
     });
@@ -49,4 +48,20 @@ export default async function Alerts() {
             </div>
         </div>
         `;
+}
+
+export function setAlert(alert) {
+    shipState.alert = alert;
+    shipState.lastAlert = null;
+    const alertLevelText = document.getElementById('alertLevel')
+    if (alertLevelText) {
+        alertLevelText.innerText = alert;
+    }
+
+    if (alert == 'None') {
+        addLog('Captain', `We returned to normal operations.`);
+    }
+    else {
+        addLog('Captain', `We've gone to ${alert} Alert.`);
+    }
 }

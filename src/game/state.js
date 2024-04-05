@@ -37,6 +37,7 @@ export const defaultShipState = {
     impulseEnabled: false,
     crewLog: [],
     alert: 'None',
+    lastAlert: 'None',
 };
 
 export const defaultPlayerState = {

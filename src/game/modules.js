@@ -455,3 +455,14 @@ export function getModulesOfType(type, ship = shipState) {
 
     return ship.modules.filter(module => module.type === type);
 }
+
+export function toggleModulesOfType(moduleType, enable, ship = shipState) {
+    const modules = getModulesOfType(moduleType, ship);
+    modules.forEach(module => {
+        if (enable) {
+            module.onEnable();
+        } else if (!enable) {
+            module.onDisable();
+        }
+    });
+}

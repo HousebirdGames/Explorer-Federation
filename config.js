@@ -1,5 +1,5 @@
 export default {
-  "version": "0.0.10.11",
+  "version": "0.0.10.13",
   "pageTitle": "Explorer Federation",
   "cookieIdentifier": "explorer_federation",
   "foundationYear": 2024,

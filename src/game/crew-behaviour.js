@@ -1,5 +1,5 @@
 import { alertPopup, goToRoute } from "../../Birdhouse/src/main.js";
-import { playerState, shipState, starSystems, npcShips } from "../../everywhere.js";
+import { playerState, shipState, starSystems, npcShips, factions } from "../../everywhere.js";
 import { formatSpeed, getDestinationByCoords, addLog, hash, getShipsAtCurrentPosition } from "../game/utils.js";
 import { getModulesOfType, getModuleInformation } from "./modules.js";
 import { setDestinationSystemByCoords } from "../components/course-selection.js";
@@ -190,6 +190,7 @@ function analyzeNavigation() {
 }
 
 import { scanCurrentSystem } from "../components/scanner.js";
+import { setAlert } from "../components/alerts.js";
 function analyzeScience() {
     const suggestions = [];
 
@@ -271,6 +272,31 @@ function analyzeTactical() {
 
     if (shipsAtCurrentPosition.length > 0) {
         shipsAtCurrentPosition.forEach(ship => {
+
+            if (factions[shipState.faction].warWith.includes(ship.faction)) {
+                if (shipState.alert !== 'Red' && shipState.alert !== 'Yellow') {
+                    suggestions.push({
+                        text: `go to red alert, because the enemy ship ${ship.name} from the ${factions[ship.faction].name} is here`,
+                        action: () => {
+                            setAlert('Red');
+                        }
+                    });
+                    suggestions.push({
+                        text: `go to yellow alert, to raise our defenses`,
+                        action: () => {
+                            setAlert('Yellow');
+                        }
+                    });
+                }
+            }
+            else if (shipState.alert !== 'None') {
+                suggestions.push({
+                    text: `return to normal operations as there are no enemy ships in the vicinity`,
+                    action: () => {
+                        setAlert('None');
+                    }
+                });
+            }
 
             if (shipState.shipTarget != npcShips.indexOf(ship)) {
                 suggestions.push({
