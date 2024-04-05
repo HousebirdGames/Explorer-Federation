@@ -48,6 +48,8 @@ function updateGameLogic() {
 
     validateShipState();
 
+    updateShipAlert();
+
     updateModules();
 
     updateShipFunctions();
@@ -125,6 +127,30 @@ function updateModules() {
 
     if (!shipState.impulseEnabled) {
         shipState.maxSpeed = 0;
+    }
+}
+
+function updateShipAlert() {
+    if (shipState.alert == null) {
+        console.error('No alert state set');
+        shipState.alert = 'None';
+    }
+
+    setAlertClass('content', shipState.alert);
+}
+
+function setAlertClass(elementId, className) {
+    const element = document.getElementById(elementId);
+    const classes = ['None', 'Red', 'Yellow', 'Black'];
+
+    classes.forEach((cls) => {
+        if (element.classList.contains(cls) && cls !== className) {
+            element.classList.remove(cls);
+        }
+    });
+
+    if (!element.classList.contains(className)) {
+        element.classList.add(className);
     }
 }
 

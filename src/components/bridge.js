@@ -3,6 +3,7 @@ import { shipState, starSystems, playerState, factions } from "../../everywhere.
 import StarMap from "./starmap.js";
 import { crewTypes, getSuggestionsForCrewType, resetHashes } from "../game/crew-behaviour.js";
 import Log from "./log.js";
+import Alerts from "./alerts.js";
 
 export default async function Bridge() {
     updateTitleAndMeta('Bridge', `The bridge of the ${shipState.name}`);
@@ -139,6 +140,8 @@ export default async function Bridge() {
             <div class="suggestions" id="scienceSuggestions">
             </div>
         </div>
+        
+    ${await Alerts()}
     </div>
 `;
 }

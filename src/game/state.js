@@ -35,7 +35,8 @@ export const defaultShipState = {
     missionHistory: [],
     generatedNames: [],
     impulseEnabled: false,
-    crewLog: []
+    crewLog: [],
+    alert: 'None',
 };
 
 export const defaultPlayerState = {

@@ -256,13 +256,13 @@ function analyzeTactical() {
     const targetedShip = shipState.shipTarget != null ? npcShips[shipState.shipTarget] : null;
     if (targetedShip && !shipState.attacking && phasersEnabled) {
         suggestions.push({
-            text: `attack the ${targetedShip.name}`,
+            text: `attack the ${targetedShip.destroyed ? 'destroyed ' : ''}${targetedShip.name}`,
             action: () => { shipState.attacking = true; }
         });
     }
     else if (shipState.attacking) {
         suggestions.push({
-            text: 'stop attacking',
+            text: `stop attacking the ${targetedShip.destroyed ? 'destroyed ' : ''}${targetedShip.name}`,
             action: () => { shipState.attacking = false; }
         });
     }

@@ -1,3 +1,4 @@
+import { roundToFull } from "../../Birdhouse/src/main.js";
 import { addLog } from "./utils.js";
 
 export default class NPCShip {
@@ -15,12 +16,12 @@ export function resetShip(ship) {
     ship.destroyed = false;
     ship.speed = 0;
     ship.maxSpeed = (1.7 * ship.multiplier).toFixed(0);
-    ship.energyCapacity = 124 * ship.multiplier * 10;
+    ship.energyCapacity = roundToFull(124 * ship.multiplier * 10);
     ship.energy = ship.energyCapacity;
-    ship.shieldsCapacity = 110 * ship.multiplier;
+    ship.shieldsCapacity = roundToFull(110 * ship.multiplier);
     ship.shields = ship.shieldsCapacity;
-    ship.weaponsStrength = 50 * ship.multiplier * 0.5;
-    ship.maxHealth = 120 * ship.multiplier;
+    ship.weaponsStrength = roundToFull(50 * ship.multiplier * 0.5);
+    ship.maxHealth = roundToFull(120 * ship.multiplier);
     ship.health = ship.maxHealth;
     ship.attackTime = 10000 / ship.multiplier;
 }
@@ -35,6 +36,10 @@ export function damage(npcShip, damageAmount, specialTarget = null) {
         } else {
             damageAmount -= npcShip.shields;
             npcShip.shields = 0;
+        }
+
+        if (npcShip.shields === 0) {
+            addLog('Tactical', `The shields of the ${npcShip.name} have collapsed.`);
         }
     }
 

@@ -15,7 +15,7 @@
     --highlightHover: #ffb168;
     --highlightActive: #ff8615;
     --background: #1a1a1a;
-    --warning: rgb(218, 113, 113);
+    --warning: rgb(255, 113, 113);
     --none: rgb(255, 255, 255, 0);
 
     --padding: 1rem;
@@ -87,11 +87,12 @@ footer {
 }
 
 #content {
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: var(--padding);
     padding: var(--padding);
-    margin-bottom: 4rem;
+    padding-bottom: 4rem;
     min-height: 100vh;
     width: 100%;
     box-sizing: border-box;
@@ -143,6 +144,7 @@ h2 {
 h3,
 h4 {
     font-size: var(--fontSizeLarge);
+    transition: var(--transitionNormal);
 }
 
 h5,
@@ -591,6 +593,12 @@ button.informationButton:hover {
     border-radius: 0.2rem;
     height: 3rem;
     width: 7rem;
+    border: solid 0.1rem var(--accentSecondary);
+}
+
+.crewStation .console:hover {
+    cursor: pointer;
+    border: solid 0.1rem var(--highlight);
 }
 
 .crewStation .crew {
@@ -639,4 +647,117 @@ text {
 
 circle.starmapStar {
     r: 1rem;
+}
+
+/* Alerts */
+
+#content::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    pointer-events: none;
+    transition: var(--transitionNormal);
+}
+
+#content.Red::after,
+#content.Red .panel h3::after {
+    animation: redAlert 2.4s infinite ease-in-out;
+}
+
+#content.Yellow::after,
+#content.Yellow .panel h3::after {
+    animation: yellowAlert 4s infinite ease-in-out;
+}
+
+#content.Black .panel h3 {
+    background-color: #7a7a7a !important;
+}
+
+#content.Black::after {
+    animation: blackAlert 5.4s infinite ease-in-out;
+}
+
+#content .panel h3 {
+    position: relative;
+}
+
+#content .panel h3::after {
+    content: '';
+    border-radius: 0.2rem 1rem 1rem 0.2rem;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    pointer-events: none;
+}
+
+.alertButton.red {
+    background: var(--warning);
+    color: var(--panelBackground);
+}
+
+.alertButton.yellow {
+    background: #ffca37;
+    color: var(--panelBackground);
+}
+
+.alertButton.black {
+    background: #7a7a7a;
+    color: var(--panelBackground);
+}
+
+@keyframes redAlert {
+    0% {
+        box-shadow: inset 0 0 0rem var(--warning);
+    }
+
+    50% {
+        box-shadow: inset 0 0 1.4rem var(--warning);
+    }
+
+    100% {
+        box-shadow: inset 0 0 0rem var(--warning);
+    }
+}
+
+@keyframes yellowAlert {
+    0% {
+        box-shadow: inset 0 0 0rem #ffca37;
+    }
+
+    10% {
+        box-shadow: inset 0 0 1rem #ffca37;
+    }
+
+    30% {
+        box-shadow: inset 0 0 0rem #ffca37;
+    }
+
+    40% {
+        box-shadow: inset 0 0 1rem #ffca37;
+    }
+
+    60% {
+        box-shadow: inset 0 0 0rem #ffca37;
+    }
+}
+
+@keyframes blackAlert {
+    0% {
+        background: #00000044;
+        box-shadow: inset 0 0 10rem #00000044;
+    }
+
+    50% {
+        background: #00000056;
+    }
+
+    100% {
+        background: #00000044;
+        box-shadow: inset 0 0 10rem #00000044;
+    }
 }
