@@ -156,8 +156,8 @@ window.hook('page-loaded', async function () {
 });
 
 async function onPageLoaded() {
-    // Let's add some base content that will be included on every page.
     main.addBaseContent(`
+    
     `);
 
     if (settings.chunkyAnimations) {

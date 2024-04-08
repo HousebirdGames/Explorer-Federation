@@ -698,6 +698,40 @@ circle.starmapStar {
     pointer-events: none;
 }
 
+#content::before {
+    content: 'No alert';
+    position: fixed;
+    bottom: 5rem;
+    right: 0;
+    padding: 0.5rem 0rem 0.5rem 0.5rem;
+    pointer-events: none;
+    border-radius: 1rem 0 0 1rem;
+    color: var(--panelBackground);
+    background: var(--highlight);
+    writing-mode: vertical-rl;
+    font-weight: bold;
+    opacity: 0;
+    transition: var(--transitionNormal);
+}
+
+#content.Yellow::before {
+    content: 'Yellow Alert';
+    background: #ffca37;
+    opacity: 1;
+}
+
+#content.Red::before {
+    content: 'Red Alert';
+    background: var(--warning);
+    opacity: 1;
+}
+
+#content.Black::before {
+    content: 'Black Alert';
+    background: #7a7a7a;
+    opacity: 1;
+}
+
 .alertButton.red {
     background: var(--warning);
     color: var(--panelBackground);
