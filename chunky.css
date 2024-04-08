@@ -1,0 +1,94 @@
+.fade-in-fast {
+    animation-name: chunk-in;
+    animation-duration: 0.4s;
+    animation-fill-mode: forwards;
+    animation-timing-function: ease-in;
+    animation-iteration-count: 1;
+}
+
+@keyframes chunk-in {
+    0% {
+        opacity: 0;
+        scale: 0.95;
+        max-width: 0%;
+        background: var(--highlight);
+    }
+
+    5% {
+        opacity: 1;
+        scale: 0.95;
+    }
+
+    40% {
+        max-width: 100%;
+    }
+
+    0%,
+    10%,
+    20%,
+    30%,
+    40%,
+    50%,
+    60%,
+    70%,
+    80%,
+    90% {
+        transform: translateX(-0.2em)
+    }
+
+    5%,
+    15%,
+    25%,
+    35%,
+    45%,
+    55%,
+    65%,
+    75%,
+    85% {
+        transform: translateX(0.2em)
+    }
+
+    50% {
+        scale: 1;
+    }
+
+    100% {
+        transform: translateX(0);
+    }
+}
+
+.fade-out-fast {
+    animation-name: chunk-out;
+    animation-duration: 0.2s;
+    animation-fill-mode: forwards;
+    animation-timing-function: ease-in;
+    animation-iteration-count: 1;
+    overflow-x: hidden;
+    pointer-events: none;
+}
+
+@keyframes chunk-out {
+    0% {
+        scale: 1;
+    }
+
+    10% {
+        opacity: 1;
+        max-width: 100%;
+    }
+
+    25% {
+        scale: 0.7;
+    }
+
+    100% {
+        scale: 0.7;
+        max-width: 0%;
+        opacity: 0;
+    }
+}
+
+button:active,
+.menuButton:active {
+    box-shadow: 0 0 4rem var(--highlightActive);
+}

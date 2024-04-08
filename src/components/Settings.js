@@ -24,6 +24,16 @@ export default async function Settings() {
 
     action({
         type: 'click',
+        handler: (e) => {
+            settings.chunkyAnimations = !settings.chunkyAnimations;
+            e.target.innerHTML = settings.chunkyAnimations ? 'Enabled' : 'Disabled';
+            saveGameState();
+        },
+        selector: '#chunkyAnimations'
+    });
+
+    action({
+        type: 'click',
         handler: () => location.reload(),
         selector: '#reloadPageButton'
     });
@@ -44,20 +54,30 @@ export default async function Settings() {
     return `
         <h1>Settings</h1>
         <div class="panel">
-        <div class="panelRow">
-            <div class="panel">
-                <h3>General</h3>
-                <p>Here you can reset your game, deleting all progress.</p>
-                <button id="resetGameButton">Reset Game</button>
-                <button id="resetSettingsButton">Reset Settings</button>
-            </div>
-            <div class="panel">
-                <h3>Graphics</h3>
-                <p>Manage the graphics settings of the game to fit your current device and preferences.</p>
-                <p>Framerate: ${settings.framerate} FPS<span id="newFramerate"></span></p>
-                <label><input type="range" id="framerateSlider" min="1" max="265" value="${settings.framerate}" step="1"></label>
+            <div class="panelRow">
+                <div class="panel">
+                    <h3>General</h3>
+                    <p>Here you can reset your game, deleting all progress.</p>
+                    <button id="resetGameButton">Reset Game</button>
+                    <button id="resetSettingsButton">Reset Settings</button>
+                </div>
+                <div class="panel">
+                    <h3>Graphics</h3>
+                    <p>Manage the graphics settings of the game to fit your current device and preferences.</p>
+
+                    <br>
+                    <p>Framerate: ${settings.framerate} FPS<span id="newFramerate"></span></p>
+                    <label><input type="range" id="framerateSlider" min="1" max="265" value="${settings.framerate}" step="1"></label>
+
+                    <br>
+                    <p>Chunky animations</p>
+                    <label><button id="chunkyAnimations" class="colored">${settings.chunkyAnimations ? 'Enabled' : 'Disabled'}</button>
+                    <div class="error-message">Reload the page to apply the changes.</div>
+                    </label>
+                    
+                    <br>
                     <div class="panelRow">
-                        <button id="reloadPageButton">Reload Page</button>
+                            <button id="reloadPageButton">Reload Page</button>
                     </div>
                 </div>
             </div>

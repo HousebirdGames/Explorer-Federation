@@ -58,6 +58,7 @@ body {
     color: var(--fontColor);
     background: var(--panelBackground);
     min-height: 100lvh;
+    overflow-x: hidden;
 }
 
 header {
@@ -291,6 +292,7 @@ button,
     width: fit-content;
     cursor: pointer;
     transition: var(--transitionFast);
+    border-right: solid 0.2rem var(--none);
 }
 
 button:hover,
@@ -299,11 +301,12 @@ button:hover,
     color: var(--panelBackground);
     padding-right: 1.2rem;
     margin-right: -0.2rem;
-    box-shadow: 0.2rem 0rem 0 var(--accent);
+    border-right: solid 0.2rem var(--highlightActive);
 }
 
 button:active,
 .menuButton:active {
+    border-right: solid 0.2rem var(--accent);
     background: var(--highlightActive);
     color: var(--accentSecondary);
 }

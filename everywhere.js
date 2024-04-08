@@ -15,6 +15,7 @@ export let playerState = {};
 
 export const defaultSettings = {
     framerate: 60,
+    chunkyAnimations: true
 };
 
 export let settings = defaultSettings;
@@ -158,6 +159,13 @@ async function onPageLoaded() {
     // Let's add some base content that will be included on every page.
     main.addBaseContent(`
     `);
+
+    if (settings.chunkyAnimations) {
+        main.loadCSS('chunky.css');
+    }
+    else {
+        main.removeCSS('chunky.css');
+    }
 
     console.log('Page loaded');
 
@@ -384,6 +392,11 @@ window.hook('validate-field', async function (input, value, errorElement, server
     // If there are no errors, the error of the field will be cleared automatically if nothing or true is returned.
 
     if (input.id === 'framerateSlider' && input.value != currentFramerate) {
+        displayError(input, errorElement, `Reload the page to apply the changes.`);
+        return false;
+    }
+
+    if (input.id === 'chunkyAnimations') {
         displayError(input, errorElement, `Reload the page to apply the changes.`);
         return false;
     }
