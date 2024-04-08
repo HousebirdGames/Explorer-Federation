@@ -161,10 +161,10 @@ async function onPageLoaded() {
     `);
 
     if (settings.chunkyAnimations) {
-        main.loadCSS('chunky.css');
+        main.loadCSS('themes/chunky.css');
     }
     else {
-        main.removeCSS('chunky.css');
+        main.removeCSS('themes/chunky.css');
     }
 
     console.log('Page loaded');

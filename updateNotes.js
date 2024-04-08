@@ -8,6 +8,7 @@ export const updateNotes = [
             "Added alert system visuals (red alert, yellow alert, black alert)",
             "Added alert system functionality and crew suggestions",
             "Added shield generator module to the players ship",
+            "Added chunky animation (can be disabled in settings)"
         ]
     },
     {
