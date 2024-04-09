@@ -80,6 +80,7 @@ window.hook('before-actions-setup', async function () {
             updateHeadingsColor();
         }
     });
+
     main.action({
         type: 'click',
         handler: (event) => {
@@ -87,7 +88,23 @@ window.hook('before-actions-setup', async function () {
         },
         selector: 'button.colored'
     });
+
+    main.action({
+        type: 'click',
+        handler: (event) => {
+            playClickAnimation(event.target);
+        },
+        selector: 'button,a',
+        container: 'body'
+    });
 });
+
+function playClickAnimation(element) {
+    element.classList.remove('clicked');
+    setTimeout(() => {
+        element.classList.add('clicked');
+    }, 0);
+}
 
 function updateHeadingsColor() {
     const headings = document.querySelectorAll('.panel h3, .panel h4, .panel h5, .panel h6');
@@ -170,14 +187,6 @@ async function onPageLoaded() {
     console.log('Page loaded');
 
     startGameLoop();
-}
-
-function setupEventListeners() {
-    document.addEventListener('energyStateChanged', (event) => {
-        if (shipState.energy <= 0) {
-            main.alertPopup('Alert', 'Energy depleted');
-        }
-    });
 }
 
 window.hook('user-logged-in', async function () {
