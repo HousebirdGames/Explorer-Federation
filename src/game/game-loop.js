@@ -200,7 +200,7 @@ function ShipMovement() {
 }
 
 function updateShipPositionAndEnergy() {
-    const defaultDeceleration = 0.1 * deltaTime;
+    const defaultDeceleration = 0.1 * deltaTime * settings.shipSpeedModifier;
     let canMove = shipState.engage;
 
     if (shipState.engage && shipState.acceleration <= 0) {
@@ -212,7 +212,7 @@ function updateShipPositionAndEnergy() {
     }
 
     if (canMove && shipState.currentSpeed <= shipState.targetSpeed && shipState.acceleration > 0) {
-        shipState.currentSpeed += shipState.acceleration;
+        shipState.currentSpeed += shipState.acceleration * settings.shipSpeedModifier;
 
         if (shipState.currentSpeed > shipState.targetSpeed) {
             shipState.currentSpeed = shipState.targetSpeed;
@@ -236,7 +236,7 @@ function updateShipPositionAndEnergy() {
     const dirY = deltaY / distanceToDestination;
     const dirZ = deltaZ / distanceToDestination;
 
-    const speedModifier = shipState.currentSpeed * deltaTime;
+    const speedModifier = shipState.currentSpeed * deltaTime * settings.shipSpeedModifier;
 
     if (distanceToDestination > speedModifier) {
         shipState.position.x += dirX * speedModifier;
@@ -257,6 +257,13 @@ function updateShipPositionAndEnergy() {
         shipsAtCurrentSystem.forEach(npcShip => {
             resetShip(npcShip);
         });
+
+        if (destination.planet.faction != null && destination.planet.faction == shipState.faction) {
+            shipState.fuel = shipState.fuelCapacity;
+            shipState.energy = shipState.energyCapacity;
+            addLog('Engineering', `Orbiting friendly planet. Fuel and energy reserves replenished.`);
+        }
+
         saveGameState();
     }
 
@@ -272,8 +279,8 @@ function calculateETA() {
 
     const distanceToDestination = Math.sqrt(deltaX ** 2 + deltaY ** 2 + deltaZ ** 2);
 
-    etaCurrentSpeed = shipState.currentSpeed > 0 ? distanceToDestination / shipState.currentSpeed : Infinity;
-    etaTargetSpeed = shipState.targetSpeed > 0 ? distanceToDestination / shipState.targetSpeed : Infinity;
+    etaCurrentSpeed = shipState.currentSpeed > 0 ? distanceToDestination / (shipState.currentSpeed * settings.shipSpeedModifier) : Infinity;
+    etaTargetSpeed = shipState.targetSpeed > 0 ? distanceToDestination / (shipState.targetSpeed * settings.shipSpeedModifier) : Infinity;
 
     etaCurrentSpeed = isFinite(etaCurrentSpeed) ? Math.max(etaCurrentSpeed, 0) : 0;
     etaTargetSpeed = isFinite(etaTargetSpeed) ? Math.max(etaTargetSpeed, 0) : 0;

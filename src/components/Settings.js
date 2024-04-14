@@ -23,6 +23,12 @@ export default async function Settings() {
     });
 
     action({
+        type: 'input',
+        handler: setShipSpeedModifier,
+        selector: '#shipSpeedModifierSlider'
+    });
+
+    action({
         type: 'click',
         handler: (e) => {
             settings.chunkyAnimations = !settings.chunkyAnimations;
@@ -80,6 +86,14 @@ export default async function Settings() {
                             <button id="reloadPageButton">Reload Page</button>
                     </div>
                 </div>
+                <div class="panel">
+                    <h3>Gameplay</h3>
+                    <p>Manage the gameplay settings of the game to fit your preferences.</p>
+
+                    <br>
+                    <p>Ship Movement Speed: x${settings.shipSpeedModifier} <span id="newShipSpeedModifier"></span></p>
+                    <label><input type="range" id="shipSpeedModifierSlider" min="1" max="10" value="${settings.shipSpeedModifier}" step="0.5"></label>
+                </div>
             </div>
         </div>
     `;
@@ -92,5 +106,11 @@ function openResetPopup() {
 function setFramerate(e) {
     settings.framerate = parseInt(e.target.value);
     document.getElementById('newFramerate').innerHTML = ` > ${settings.framerate} FPS`;
+    saveGameState();
+}
+
+function setShipSpeedModifier(e) {
+    settings.shipSpeedModifier = parseFloat(e.target.value);
+    document.getElementById('newShipSpeedModifier').innerHTML = ` > x${settings.shipSpeedModifier}`;
     saveGameState();
 }

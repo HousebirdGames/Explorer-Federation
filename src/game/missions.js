@@ -1,19 +1,19 @@
 import { alertPopup } from "../../Birdhouse/src/main.js";
-import { playerState, shipState, starSystems } from "../../everywhere.js";
+import { playerState, shipState, starSystems, factions, npcShips } from "../../everywhere.js";
 import { addLog, getDestinationByCoords } from "./utils.js";
 
 class Mission {
-    constructor(type, reputation = 10, location = null, description = null, target = null) {
+    constructor(type, reputation = 10, location = null, description = null, targetShip = null) {
         this.type = type;
         this.reputation = reputation
         this.location = location;
-        this.target = target;
-        this.description = description ? description : `${type}${this.location ? ` at ${this.location}` : ''}${target ? ` > ${target}` : ''}`;
+        this.targetShip = targetShip;
+        this.description = description ? description : `${type}${this.location ? ` at ${this.location}` : ''}${targetShip ? ` > ${npcShips[targetShip].name}` : ''}`;
         this.state = 'Active';
     }
 }
 
-const missionTypes = ['Discover System', 'Patrol System', 'Patrol Planet'];
+const missionTypes = ['Discover System', 'Patrol System', 'Patrol Planet', 'Destroy Ship'];
 
 export function checkCompletion(mission) {
     let state = 'Active';
@@ -34,8 +34,13 @@ export function checkCompletion(mission) {
                 state = 'Completed';
             }
             break;
+        case 'Destroy Ship':
+            if (npcShips[mission.targetShip].destroyed) {
+                state = 'Completed';
+            }
+            break;
         default:
-            throw new Error(`Unsupported mission type: ${mission.type}`);
+            throw new Error(`Unsupported mission type (completion): ${mission.type}`);
     }
     mission.state = state;
     if (state != 'Active') {
@@ -45,11 +50,29 @@ export function checkCompletion(mission) {
         shipState.missionHistory.unshift(mission);
         shipState.mission = null;
         const location = getDestinationByCoords(mission.location);
-        addLog('Comms', `Mission ${state}. ${mission.type}: ${location.planet ? `Planet <strong>${location.planet.name}</strong> in the ` : ''}<strong>${location.system.name}</strong> System${mission.target ? ` > ${mission.target}` : ''}. ${state === 'Completed' ? `Gained ${mission.reputation} reputation.` : ''}`);
+        addLog('Comms', `Mission ${state}. ${mission.type}: ${mission.targetShip ? `<strong>${npcShips[mission.targetShip].name}</strong> at ` : ''} ${location.planet ? `Planet <strong>${location.planet.name}</strong> in the ` : ''}<strong>${location.system.name}</strong> System. ${state === 'Completed' ? `Gained ${mission.reputation} reputation.` : ''}`);
     }
 }
 
 export function generateMission() {
+    let mission = null;
+    let i = 0;
+
+    while (mission == null && i < 10) {
+        mission = getMission();
+        i++
+    }
+
+    if (mission == null) {
+        addLog('Comms', 'No missions available.');
+    }
+    else {
+        shipState.mission = mission;
+        addLog('Comms', `New mission assigned. <strong>${mission.type}</strong>: ${mission.description}`);
+    }
+}
+
+function getMission() {
     let missionType = missionTypes[Math.floor(Math.random() * missionTypes.length)];
     let mission = null;
 
@@ -68,12 +91,14 @@ export function generateMission() {
         case 'Patrol Planet':
             mission = generatePatrolPlanetMission();
             break;
+        case 'Destroy Ship':
+            mission = generateDestroyShipMission();
+            break;
         default:
-            throw new Error(`Unsupported mission type: ${missionType}`);
+            throw new Error(`Unsupported mission type (generation): ${missionType}`);
     }
 
-    shipState.mission = mission;
-    addLog('Comms', `New mission assigned. <strong>${mission.type}</strong>: ${mission.description}`);
+    return mission;
 }
 
 function generateDiscoverSystemMission() {
@@ -118,4 +143,20 @@ function generatePatrolPlanetMission() {
     const planetIndex = Math.floor(Math.random() * system.planets.length);
 
     return new Mission('Patrol Planet', 15, { x: system.coordinates.x, y: system.coordinates.y, z: planetIndex + 1 }, `Travel to the planet <strong>${system.planets[planetIndex].name}</strong> in the <strong>${system.name}</strong> system.`);
+}
+
+function generateDestroyShipMission() {
+    const filteredNpcShips = npcShips.filter(ship => ship.faction != null && factions[ship.faction].warWith.includes(shipState.faction));
+
+    if (filteredNpcShips.length === 0) {
+        console.error('No NPC ships available for destroy mission.');
+        return null;
+    }
+
+    const shipIndex = Math.floor(Math.random() * filteredNpcShips.length);
+    const ship = filteredNpcShips[shipIndex];
+
+    const enemyLocation = getDestinationByCoords(ship.position);
+
+    return new Mission('Destroy Ship', 50, ship.position, `Destroy the ${ship.name} of the ${factions[ship.faction].name}. The ship is located at the ${enemyLocation.system.name} system.`, npcShips.indexOf(ship));
 }

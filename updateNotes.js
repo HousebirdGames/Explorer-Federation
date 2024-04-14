@@ -8,7 +8,9 @@ export const updateNotes = [
             "Added alert system visuals (red alert, yellow alert, black alert)",
             "Added alert system functionality and crew suggestions",
             "Added shield generator module to the players ship",
-            "Added chunky animations (can be disabled in settings)"
+            "Added chunky animations (can be disabled in settings)",
+            "Added destroy ship mission type",
+            "Added ship speed modifier option to the settings page",
         ]
     },
     {

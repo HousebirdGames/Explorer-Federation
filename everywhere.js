@@ -15,7 +15,8 @@ export let playerState = {};
 
 export const defaultSettings = {
     framerate: 60,
-    chunkyAnimations: true
+    chunkyAnimations: true,
+    shipSpeedModifier: 1,
 };
 
 export let settings = defaultSettings;

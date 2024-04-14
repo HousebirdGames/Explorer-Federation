@@ -271,6 +271,7 @@ function analyzeTactical() {
     const shipsAtCurrentPosition = getShipsAtCurrentPosition(shipState.position);
 
     if (shipsAtCurrentPosition.length > 0) {
+        suggestions.push(`There ${shipsAtCurrentPosition.length > 1 ? `are ${shipsAtCurrentPosition.length} ships` : 'is 1 ship'} in the vicinity. ${shipsAtCurrentPosition.filter(ship => factions[ship.faction].warWith.includes(shipState.faction)).length} of them are enemies.`);
         shipsAtCurrentPosition.forEach(ship => {
 
             if (factions[shipState.faction].warWith.includes(ship.faction)) {
@@ -300,17 +301,20 @@ function analyzeTactical() {
 
             if (shipState.shipTarget != npcShips.indexOf(ship)) {
                 suggestions.push({
-                    text: `target the ${ship.name}`,
+                    text: `target the ${factions[shipState.faction].warWith.includes(ship.faction) ? 'enemy ' : ''}${ship.name}`,
                     action: () => { shipState.shipTarget = npcShips.indexOf(ship); }
                 });
             }
         });
     }
+    else {
+        suggestions.push('There are no ships in the vicinity.');
+    }
 
     if (shipState.shields <= 0) {
         suggestions.push('Our shields are down.');
     }
-    else if (shipState.shields < shipState.shieldCapacity * 0.8) {
+    else {
         suggestions.push(`Shields at ${Math.round(shipState.shields / shipState.shieldCapacity * 100)}%.`);
     }
 

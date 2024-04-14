@@ -157,6 +157,13 @@ function initializeNewGame() {
         generateFactions(3);
     }
 
+    let warFactions = factions.filter(faction => faction.name !== 'Federation');
+    warFactions = warFactions.sort(() => Math.random() - 0.5).slice(0, 2);
+    warFactions.forEach(faction => {
+        faction.warWith.push(0)
+        factions[0].warWith.push(factions.indexOf(faction));
+    });
+
     if (starSystems.length <= 1) {
         generateStarSystems(100);
     }

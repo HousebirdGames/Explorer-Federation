@@ -1,5 +1,5 @@
 import { updateTitleAndMeta, action } from "../../Birdhouse/src/main.js";
-import { playerState, shipState, starSystems } from "../../everywhere.js";
+import { playerState, shipState, starSystems, npcShips } from "../../everywhere.js";
 import { getDestinationByCoords } from "../game/utils.js";
 
 export default async function MissionControl() {
@@ -34,7 +34,7 @@ function updateMissions() {
     <p>Your current mission: ${shipState.mission.description}</p>
     <ul>
     <li>Mission: <strong>${shipState.mission.type}</strong></li>
-    ${shipState.mission.target ? `<li>Target: <strong>${shipState.mission.target}</strong></li>` : ''}
+    ${shipState.mission.targetShip ? `<li>Target Ship: <strong>${npcShips[shipState.mission.targetShip].name}</strong></li>` : ''}
     ${missionLocation ? `<li>Location: ${missionLocation.planet ? `Planet <strong>${missionLocation.planet.name}</strong> in the ` : ''}<strong>${missionLocation.system.name}</strong> System</li>` : ''}
     <li>Reward: <strong>${shipState.mission.reputation}</strong> Reputation</li>
     </ul>
@@ -44,7 +44,7 @@ function updateMissions() {
         : '<ul>' + shipState.missionHistory.map(mission => {
             const location = getDestinationByCoords(mission.location);
             return `
-            <li>${mission.type}: ${location.planet ? `Planet <strong>${location.planet.name}</strong> in the ` : ''}<strong>${location.system.name}</strong> System${mission.target ? ` > ${mission.target}` : ''} (${mission.state} | Reward: ${mission.reputation} Reputation)</li>
+            <li>${mission.type}: ${mission.targetShip ? `<strong>${npcShips[mission.targetShip].name}</strong> at ` : ''}${location.planet ? `Planet <strong>${location.planet.name}</strong> in the ` : ''}<strong>${location.system.name}</strong> System (${mission.state} | Reward: ${mission.reputation} Reputation)</li>
             `;
         }).join('') + '</ul>';
 }
