@@ -244,9 +244,13 @@ function analyzeTactical() {
 
     const phasersBanks = getModulesOfType('phaserBank');
     let phasersEnabled = false;
+    let phasersCanFire = false;
     phasersBanks.forEach(phaser => {
         if (phaser.enabled) {
             phasersEnabled = true;
+            if (phaser.properties.energyLevel >= phaser.properties.energyCapacity) {
+                phasersCanFire = true;
+            }
         }
     });
 
@@ -257,9 +261,25 @@ function analyzeTactical() {
     const targetedShip = shipState.shipTarget != null ? npcShips[shipState.shipTarget] : null;
     if (targetedShip && !shipState.attacking && phasersEnabled) {
         suggestions.push({
-            text: `attack the ${targetedShip.destroyed ? 'destroyed ' : ''}${targetedShip.name}`,
+            text: `fire at will at the ${targetedShip.destroyed ? 'destroyed ' : ''}${targetedShip.name}`,
             action: () => { shipState.attacking = true; }
         });
+
+        if (phasersCanFire) {
+            suggestions.push({
+                text: `fire phasers at the ${targetedShip.destroyed ? 'destroyed ' : ''}${targetedShip.name}`,
+                action: () => {
+                    phasersBanks.forEach(phaser => {
+                        if (phaser.enabled) {
+                            phaser.functions.shoot.action();
+                        }
+                    });
+                }
+            });
+        }
+        else {
+            suggestions.push('Phasers are not charged.');
+        }
     }
     else if (shipState.attacking) {
         suggestions.push({
