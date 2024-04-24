@@ -43,9 +43,6 @@ function updateGameLogic() {
     setDeltaTime((now - lastLogicUpdate) / 1000);
     lastLogicUpdate = now;
 
-    playerState.stardate += deltaTime;
-    playerState.stardate = parseFloat(playerState.stardate.toFixed(2));
-
     validateShipState();
 
     updateShipAlert();

@@ -11,6 +11,7 @@ export function formatCamelCase(text) {
 }
 
 export function addLog(type, message) {
+    playerState.stardate = parseFloat((playerState.stardate + 0.01).toFixed(2));
     shipState.crewLog.unshift({
         type,
         message,

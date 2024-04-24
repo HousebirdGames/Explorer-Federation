@@ -4,6 +4,7 @@ import StarMap from "./starmap.js";
 import { crewTypes, getSuggestionsForCrewType, resetHashes } from "../game/crew-behaviour.js";
 import Log from "./log.js";
 import Alerts from "./alerts.js";
+import Overview from "./overview.js";
 
 export default async function Bridge() {
     updateTitleAndMeta('Bridge', `The bridge of the ${shipState.name}`);
@@ -90,6 +91,7 @@ export default async function Bridge() {
         <div class="screen">
         </div>
     </div>
+    ${await Overview()}
     ${await Log(null, 3)}
     <div class="crewSection">
         <div class="crewStation">

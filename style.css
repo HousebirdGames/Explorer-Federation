@@ -489,6 +489,10 @@ button.informationButton:hover {
     box-sizing: border-box;
 }
 
+#modules-container .panel {
+    max-width: 20rem;
+}
+
 .panel .buttonPanel {
     padding: 0;
     border: none;

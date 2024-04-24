@@ -6,8 +6,8 @@ const pages = {};
 export default async function Log(type = null, logsPerPage = 5) {
     const currentType = type;
     if (!pages[currentType]) {
-        pages[currentType] = { currentPage: 0, logsPerPage };
     }
+    pages[currentType] = { currentPage: 0, logsPerPage };
     action(() => { updateLog(currentType); });
     action({
         type: 'updateUI',

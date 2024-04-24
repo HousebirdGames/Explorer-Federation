@@ -11,6 +11,7 @@ export const updateNotes = [
             "Added chunky animations (can be disabled in settings)",
             "Added destroy ship mission type",
             "Added ship speed modifier option to the settings page",
+            "Added overview component and integrated it into the bridge",
         ]
     },
     {

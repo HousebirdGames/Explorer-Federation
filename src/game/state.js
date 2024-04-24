@@ -42,7 +42,7 @@ export const defaultShipState = {
 
 export const defaultPlayerState = {
     name: 'Player',
-    stardate: 0,
+    stardate: 2400,
     reputation: 0
 };
 
